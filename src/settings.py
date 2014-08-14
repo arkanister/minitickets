@@ -44,6 +44,7 @@ INSTALLED_APPS = (
     'django_tables2',
 
     # Project Apps
+    'src.minitickets',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -120,3 +121,6 @@ ICON_BASE_ATTRS = {'class': 'fa'}
 
 # Session
 SESSION_COOKIE_NAME = 'minitickets'
+
+# User Model
+AUTH_USER_MODEL = 'minitickets.Funcionario'
