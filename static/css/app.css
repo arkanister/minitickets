@@ -49,11 +49,21 @@
   background: rgba(0, 0, 0, 0.03) !important;
 }
 
+#main {
+    min-height: 100% !important;
+}
+
 .page-header {
 
     margin: 10px 0 25px;
     border-bottom: 1px dotted #e7e7e7;
 
+}
+
+.page-header h1 small {
+    font-size: 16px;
+    font-weight: lighter;
+    margin: 0 6px;
 }
 
 /* Checkbox select multiple */

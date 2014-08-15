@@ -96,10 +96,10 @@
                     <!-- PAGE HEADER -->
                     {{ TITLE|safe }}
                     {% if SUBTITLE %}
-                    <span>
-                        &nbsp;{% icon 'angle-double-right' 'class'='smaller-80' %}&nbsp;
-                        {{ SUBTITLE }}
-                    </span>
+                    <small>
+                        {% icon 'angle-double-right' %}&nbsp;&nbsp;
+                        {{ SUBTITLE|safe }}
+                    </small>
                     {% endif %}
                 </h1>
 

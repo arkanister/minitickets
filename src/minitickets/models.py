@@ -53,6 +53,9 @@ class Funcionario(AbstractBaseUser, PessoaFisica):
 
     objects = FuncionarioManager()
 
+    class Meta:
+        verbose_name = u'Funcionário'
+
     def _get_password(self):
         return self.senha
 

@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http.response import HttpResponse
 from django.utils import simplejson as json
+from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
@@ -116,7 +117,7 @@ class SmartStr(str):
     For convenience, the class has an alias `.S` to allow for more concise code.
     """
 
-    def compile(self, instance=None, prettify=False, quiet=True):
+    def compile(self, context=None, prettify=False, quiet=True):
         """
         Copile any tags in string.
         :type    quiet: bool
@@ -124,29 +125,33 @@ class SmartStr(str):
         :raises: anything
         """
         icon_regex = re.compile(r'\[icon:([a-z\-]+)\]', re.IGNORECASE)  # [icon:some-icon]
-        attribute_regex = re.compile(r'\[([a-zA-Z0-9_]+)\]')  # [name] [product__name] ...
+        attribute_regex = re.compile(r'\[([a-zA-Z0-9_]+)\]', re.IGNORECASE)  # [name] [product__name] ...
 
         string = self.decode('utf-8')
 
-        if instance is not None:
-            for attribute_name in attribute_regex.findall(string):
-                opts = getattr(instance, '_meta', None)
-                if attribute_name == 'verbose_name':
-                    attribute_value = getattr(opts, 'verbose_name', '')
-                elif attribute_name == 'verbose_name_plural':
-                    attribute_value = getattr(opts, 'verbose_name_plural', '')
-                elif attribute_name == 'unicode':
-                    attribute_value = unicode(instance)
+        if context is not None:
+            for name in set(attribute_regex.findall(string)):
+                from django.db.models import Model
+                regex = re.compile(r'\[%s\]' % name, re.IGNORECASE)
+                if isinstance(context, Model) and name == 'unicode':
+                    value = unicode(context)
+                elif isinstance(context, Model) and name in ['verbose_name', 'verbose_name_plural']:
+                    opts = getattr(context, '_meta')
+                    value = getattr(opts, name)
                 else:
-                    attribute_name = Accessor(attribute_name)
-                    attribute_value = attribute_name.resolve(instance, quiet=quiet)
-                string = attribute_regex.sub(attribute_value, string, 1)
+                    value = Accessor(name).resolve(context, quiet=quiet)
+                if value:
+                    string = regex.sub(value, string)
+
+        for icon in set(icon_regex.findall(string)):
+            regex = re.compile('\[icon:%s\]' % icon, re.IGNORECASE)
+            string = regex.sub(Icon(icon.lower()).as_html(), string)
 
         if prettify:
-            string = string.title()
+            words = strip_tags(string.strip()).split(' ')
+            for word in words:
+                string.replace(word, word.capitalize())
 
-        for icon in icon_regex.findall(string):
-            string = icon_regex.sub(Icon(icon.lower()).as_html(), string, 1)
         return string
 
 S = SmartStr

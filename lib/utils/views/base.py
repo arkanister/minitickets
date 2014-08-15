@@ -93,23 +93,28 @@ class SmartView(DjangoView):
 
     def get_title(self):
         """ Retorna o titulo da página. """
-        model = getattr(self, "model", None)
+        instance = getattr(self, 'object', None)
+        model = getattr(self, 'model', None)
+
+        if model is None and instance is not None:
+            model = instance.__class__
+
         title = self.title
 
         if title is None and model is not None:
-            opts = getattr(model, "_meta", None)
-            if opts is not None:
-                if not self.pluralize_title:
-                    verbose_name = getattr(opts, "verbose_name")
-                else:
-                    verbose_name = getattr(opts, "verbose_name_plural")
-                title = verbose_name
+            title = "[verbose_name]" if not self.pluralize_title else "[verbose_name_plural]"
 
         title = force_str(title)
 
         if title is not None:
-            instance = getattr(self, 'object', None)
-            title = S(title).compile(instance=instance, prettify=True)
+            if instance is None and model is not None:
+                instance = {
+                    'verbose_name': model._meta.verbose_name,
+                    'verbose_name_plural': model._meta.verbose_name_plural
+                }
+                title = S(title).compile(context=instance, prettify=True)
+            elif hasattr(self, 'object'):
+                title = S(title).compile(context=instance, prettify=True)
 
         return title
 
