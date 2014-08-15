@@ -43,6 +43,8 @@ INSTALLED_APPS = (
     'south',
     'django_tables2',
 
+    'lib.utils.html',
+
     # Project Apps
     'src.minitickets',
 )
@@ -93,6 +95,8 @@ TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
     "django.contrib.messages.context_processors.messages",
 
     # application context processors
+    "lib.utils.views.context_processors.page_settings_context_processor",
+    "lib.utils.context_processors.date_context_processor",
 )
 
 # Static files (CSS, JavaScript, Images)
@@ -110,6 +114,11 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+TEMPLATE_DIRS = (
+    (os.path.join('templates')),
+)
 
 # Redirect and login definition
 LOGIN_REDIRECT_URL = '/'

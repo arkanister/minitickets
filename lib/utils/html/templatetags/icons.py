@@ -3,8 +3,8 @@
 from django import template
 from django.template import TemplateSyntaxError, Node
 
-from ..base import Icon
-from ...templatetags import token_kwargs, resolve_kwargs
+from ..icons.base import Icon
+from ..tags import token_kwargs, resolve_kwargs
 
 
 register = template.Library()

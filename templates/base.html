@@ -1,0 +1,139 @@
+{% extends 'page.html' %}
+
+{% load static from staticfiles %}
+{% load icon from icons %}
+{% load i18n %}
+
+{% block page %}
+
+<header id="header">
+
+    <!-- collapse menu button -->
+    <div id="hide-menu" class="btn-header pull-left visible-sm visible-xs" style="width: auto; margin-left: 10px;">
+        <span> <a href="javascript:void(0);" data-action="toggleMenu" title="Collapse Menu">{% icon 'reorder' %}</a> </span>
+    </div>
+    <!-- end collapse menu -->
+
+    <div id="logo-group">
+
+        <!-- PLACE YOUR LOGO HERE -->
+        <span id="logo" class="bolder">
+            <img src="{% static 'img/ticket.png' %}" alt="MiniTickets" style="width: 30px;" />
+            MiniTickets
+        </span>
+        <!-- END LOGO PLACEHOLDER -->
+
+    </div>
+
+    <!-- #PROJECTS: projects dropdown -->
+    <div class="project-context pull-right">
+
+        <span class="label">{% trans 'Welcome,' %}</span>
+        <span class="project-selector dropdown-toggle" data-toggle="dropdown">{{ user.get_full_name }} {% icon 'caret-down' %}</span>
+
+        <!-- Suggestion: populate this list with fetch and push technique -->
+        <ul class="dropdown-menu">
+            <li>
+                <a href="{# url 'logout' #}">{% icon 'power-off' %} {% trans 'Logout' %}</a>
+            </li>
+        </ul>
+        <!-- end dropdown-menu-->
+
+    </div>
+    <!-- end projects dropdown -->
+
+</header> <!-- /.header -->
+
+<aside id="left-panel">
+
+    <!-- NAVIGATION : This navigation is also responsive
+
+    To make this navigation dynamic please make sure to link the node
+    (the reference to the nav > ul) after page load. Or the navigation
+    will not initialize.
+    -->
+    <nav>
+        <!-- NOTE: Notice the gaps after each icon usage <i></i>..
+        Please note that these links work a bit different than
+        traditional href="" links. See documentation for details.
+        -->
+
+        <ul>
+            <li>
+                <a href= {% url 'home' %} title="Home">{% icon 'home' 'class'='fa-lg fa-fw' %} <span class="menu-item-parent">Home</span></a>
+            </li>
+        </ul>
+
+    </nav>
+
+</aside> <!-- /.menu -->
+
+<div id="main" role="main">
+
+    {% if BREADCRUMBS %}
+    <div id="ribbon">
+
+        <!-- breadcrumb -->
+        <ol class="breadcrumb">
+            {% for BREADCRUMB in BREADCRUMBS %}<li>{{ BREADCRUMB }}</li>{% endfor %}
+        </ol>
+
+    </div> <!-- /.breadcrumbs -->
+    {% endif %}
+
+    <div id="content">
+
+        <!-- row -->
+        <div class="row">
+
+            <div class="col-sm-12 col-xs-12">
+            {% block content.header %}
+            {% if TITLE %}
+            <div class="page-header">
+
+                <h1 class="txt-color-blueDark">
+
+                    <!-- PAGE HEADER -->
+                    {{ TITLE|safe }}
+                    {% if SUBTITLE %}
+                    <span>
+                        &nbsp;{% icon 'angle-double-right' 'class'='smaller-80' %}&nbsp;
+                        {{ SUBTITLE }}
+                    </span>
+                    {% endif %}
+                </h1>
+
+            </div>
+            {% endif %}
+            {% endblock content.header %}
+            </div>
+
+        </div>
+        <!-- end row -->
+
+        <div class="row">
+
+            <div class="col-sm-12 col-xs-12">
+
+                {% block page.content.messages %}
+                <div id="messages">
+                    {% for message in messages %}
+                        <div class="alert alert-block {{ message.tag }} {{ message.extra_tags }} fade in">
+                            <button class="close" data-dismiss="alert" type="button">×</button>
+                            {{ message|safe }}
+                        </div>
+                    {% endfor %}
+                </div>
+                {% endblock page.content.messages %}
+
+            </div>
+
+        </div>
+
+        {% block content %}{% endblock content %}
+
+    </div> <!-- /.content -->
+
+</div>
+
+{% endblock page %}

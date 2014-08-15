@@ -8,7 +8,7 @@ from django.forms.util import flatatt
 from django.template import TemplateSyntaxError, Node
 from django.utils.html import format_html
 
-from ...templatetags import token_kwargs, resolve_kwargs
+from ..tags import token_kwargs, resolve_kwargs
 
 
 register = template.Library()

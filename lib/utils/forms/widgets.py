@@ -27,10 +27,9 @@ class InputIconWidget(forms.widgets.Input):
 
     INPUT_ADDON = "addon"
     INPUT_GROUP = "group"
+    INPUT_ICON = "icon"
 
-    SYMBOLS = ['%', 'R$']
-
-    def __init__(self, icon, side="right", render_type="addon", input_type="text",
+    def __init__(self, icon, side="right", render_type="icon", input_type="text",
                  block=False, *args, **kwargs):
         self.input_type = input_type
         super(InputIconWidget, self).__init__(*args, **kwargs)
@@ -41,9 +40,7 @@ class InputIconWidget(forms.widgets.Input):
         self.render_type = render_type
 
         # grant is a .Icon object
-        if isinstance(icon, basestring) and icon in InputIconWidget.SYMBOLS:
-            icon = Icon(None, content=icon, html_tag='b')
-        elif isinstance(icon, basestring):
+        if isinstance(icon, (str, unicode)):
             icon = Icon(icon)
 
         self.icon = icon
@@ -53,19 +50,29 @@ class InputIconWidget(forms.widgets.Input):
         if block:
             self.attrs.add_class("form-control")
 
+    def get_icon(self):
+        if self.render_type == InputIconWidget.INPUT_ICON:
+            side = 'icon-prepend' if self.side == InputIconWidget.ICON_ON_LEFT \
+                else 'icon-append'
+            self.icon.attrs.add_class(side)
+        return self.icon
+
     def get_template(self):
         side = self.side
         render_type = self.render_type
 
         template = ''
 
-        if render_type == InputIconWidget.INPUT_GROUP and side == InputIconWidget.ICON_ON_RIGHT:
+        if render_type == InputIconWidget.INPUT_GROUP and \
+                        side == InputIconWidget.ICON_ON_RIGHT:
             template = '<div class="input-group">{{ input }}<span class="input-group-addon">{{ icon }}</span></div>'
-        elif render_type == InputIconWidget.INPUT_GROUP and side == InputIconWidget.ICON_ON_LEFT:
+        elif render_type == InputIconWidget.INPUT_GROUP and \
+                        side == InputIconWidget.ICON_ON_LEFT:
             template = '<div class="input-group"><span class="input-group-addon">{{ icon }}</span>{{ input }}</div>'
         elif render_type == InputIconWidget.INPUT_ADDON:
-            template = '<span class="{% if block %}block {% endif %}input-icon input-icon-' + side + \
-                       '">{{ input }}{{ icon }}</span>'
+            template = '<span class="input-icon-' + side + '">{{ icon }}{{ input }}</span>'
+        elif render_type == InputIconWidget.INPUT_ICON:
+            template = '<label class="input">{{ icon }}{{ input }}</label>'
         return template
 
     def render(self, name, value, attrs=None):
@@ -73,7 +80,7 @@ class InputIconWidget(forms.widgets.Input):
         template = loader.get_template_from_string(self.get_template())
         context = loader.Context({
             "input": _input,
-            "icon": mark_safe(self.icon.as_html()),
+            "icon": mark_safe(self.get_icon().as_html()),
             "block": self.block
         })
         return template.render(context)

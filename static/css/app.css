@@ -1,0 +1,89 @@
+.smart-style-3 .dropdown-menu > .active > a,
+.smart-style-3 .dropdown-menu > .active > a:hover,
+.smart-style-3 .dropdown-menu > li > a:hover,
+.smart-style-3 .dropdown-menu > li > a:focus,
+.smart-style-3 .tt-suggestion.tt-is-under-cursor {
+  background-color: #E7E7E7;
+  color: #000;
+}
+.smart-style-3 .dropdown-menu > li > a {
+  color: #4E361B;
+}
+.smart-style-3 .dropdown-menu > li > a > i {
+  margin-right: 5px;
+  font-size: 105%;
+}
+.smart-style-3 .dropdown-menu {
+  background: #FFF;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background-clip: padding-box;
+}
+.smart-style-3 .dropdown-menu .divider {
+  background-color: #e5e5e5;
+}
+.smart-style-3 .dropdown-menu-large .dropdown-header {
+  color: #5C391E;
+}
+.smart-style-3 .dropdown-menu-large > li ul > li > a:focus,
+.smart-style-3 .dropdown-menu-large > li ul > li > a:hover {
+  border-radius: 3px;
+  background-color: #F1B686;
+}
+.smart-style-3 #header {
+    background-color: #f78c40;
+    background-image: none;
+}
+#header > div {
+    font-weight: 700;
+}
+.smart-style-3 nav > ul > li {
+    background-color: #f2f2f2;
+    background-image: none;
+    border-bottom: 1px solid #dfdfdf;
+}
+.smart-style-3 aside {
+    background: none repeat scroll 0 0 #f2f2f2;
+    border-right: 1px solid #ccc;
+}
+.smart-style-3 nav ul li a:hover {
+  background: rgba(0, 0, 0, 0.03) !important;
+}
+
+.page-header {
+
+    margin: 10px 0 25px;
+    border-bottom: 1px dotted #e7e7e7;
+
+}
+
+/* Checkbox select multiple */
+
+#id_authors {
+    padding-left: 0;
+    border-style: solid;
+    border-color: #a3a3a3 #ccc #ccc #a3a3a3;
+    border-width: 1px;
+    max-width: 50%;
+    max-height: 200px;
+    overflow: auto;
+}
+#id_authors li {
+    list-style: none;
+    font-size: 13px;
+    line-height: 24px;
+    vertical-align: middle;
+    padding: 4px;
+}
+#id_authors li:last-child {border: none;}
+#id_authors li:hover {background: #f9f9f9;}
+#id_authors li input {
+    top: 3px;
+    margin-right: 5px;
+    margin-left: 10px;
+    position: relative;
+}
+
+.inline-table input, .inline-table select{
+    width: 100%;
+}
+

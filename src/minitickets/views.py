@@ -1,3 +1,9 @@
-from django.shortcuts import render
+# coding: utf-8
 
-# Create your views here.
+from lib.utils.views.base import TemplateSmartView as TemplateView
+
+
+class HomeView(TemplateView):
+    template_name = 'home.html'
+    title = 'Bem Vindo!'
+    subtitle = 'MiniTickets'
