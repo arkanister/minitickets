@@ -136,3 +136,18 @@
 </div>
 
 {% endblock page %}
+
+{% block scripts.inline %}
+<script type="text/javascript">
+$(function() {
+
+    $.loaders.tooltip();
+    $.loaders.popover();
+
+    // MODAL
+    $.loaders.modal.default();
+    $.loaders.modal.load();
+
+});
+</script>
+{% endblock scripts.inline %}

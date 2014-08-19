@@ -26,6 +26,7 @@ $.shortcut_dropdown = $('#shortcut');
 $.bread_crumb = $('#ribbon ol.breadcrumb');
 
 $.loaders = {};
+$.defaults = {};
 
 $(document).ready(function() {
 
@@ -83,7 +84,51 @@ $(document).ready(function() {
         $('[rel=popover]').popover();
     };
 
-    $.loaders.tooltip();
-    $.loaders.popover();
+    // Modal
+    $.loaders['modal'] = {
+        load: function () {
+            $('[rel=modal]').on('click', function(e) {
+                var modal = $(this).data('modal'),
+                    action = $(this).data('action');
+
+                if (modal == undefined || modal == null)
+                    modal = $.defaults.modal;
+                else
+                    modal = $(modal);
+
+                if (action == undefined || modal == null)
+                    action = $(this).attr('href');
+
+                $.ajax({
+                    url: action,
+                    data: null,
+                    headers: {'AJAX_REQUEST_TYPE': 'modal'},
+                    method: 'get',
+                    beforeSend: function() {
+                        modal.html('<center>Loading ...</center>').modal('show');
+                    },
+                    success: function(data) {
+                        modal.html(data);
+                    },
+                    error: function (data) {
+                        modal.html('').modal('hide');
+                        console.log(data);
+                    }
+                });
+
+                e.preventDefault();
+            });
+        },
+        default: function() {
+            var $modal = $('<div>').addClass('modal fade');
+            $.root_.append($modal);
+            $.defaults['modal'] = $modal;
+        },
+        // todo: see you later
+        addModal: function(modal) {
+            var $modal = $('<div>').addClass('modal fade').attr('id', modal);
+            $.root_.append($modal);
+        }
+    };
 
 });
