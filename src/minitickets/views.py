@@ -7,4 +7,4 @@ from src.minitickets.models import Funcionario
 class HomeView(TemplateView):
     template_name = 'home.html'
     breadcrumbs = False
-    model = Funcionario
+    title = 'Home Page!'
