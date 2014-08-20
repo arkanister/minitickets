@@ -44,6 +44,7 @@ INSTALLED_APPS = (
     'django_tables2',
 
     'lib.utils.html',
+    'lib.utils.forms',
 
     # Project Apps
     'src.minitickets',

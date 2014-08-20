@@ -1,8 +1,17 @@
 # coding: utf-8
 
+import os
+
+from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser
 from django.db import models
+from django.utils import simplejson as json
 from src.minitickets.managers import FuncionarioManager
+
+PERMISSIONS = json.loads(open(
+    os.path.join(
+        settings.BASE_DIR, 'permissions.json')
+).read())
 
 
 class Pessoa(models.Model):
@@ -46,7 +55,7 @@ class Funcionario(AbstractBaseUser, PessoaFisica):
     )
 
     nome_usuario = models.CharField(max_length=50, unique=True)
-    senha = models.CharField(max_length=128)
+    senha = models.CharField(max_length=128, help_text='Digite sua senha neste campo.')
 
     USERNAME_FIELD = 'nome_usuario'
     REQUIRED_FIELDS = ['nome', 'email', 'cargo']
@@ -61,6 +70,7 @@ class Funcionario(AbstractBaseUser, PessoaFisica):
 
     def _set_password(self, value):
         self.senha = value
+
     password = property(_get_password, _set_password)
 
     def get_full_name(self):
@@ -70,4 +80,8 @@ class Funcionario(AbstractBaseUser, PessoaFisica):
         return self.nome.split(' ')[0]
 
     def has_perm(self, perm, obj=None):
-        return self.cargo == perm
+        user_permissions = PERMISSIONS[str(self.cargo)]
+        return perm in user_permissions
+
+    def has_perms(self, perms, obj=None):
+        return all(self.has_perm(perm) for perm in perms)

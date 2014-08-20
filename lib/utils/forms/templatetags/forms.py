@@ -4,7 +4,7 @@ from django import template
 from django.template import TemplateSyntaxError, Node, loader
 
 from ...html import AttributeDict
-from ...html.templatetags import token_kwargs, resolve_kwargs
+from ...html.tags import token_kwargs, resolve_kwargs
 
 
 register = template.Library()

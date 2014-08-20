@@ -1,7 +1,9 @@
 # coding: utf-8
 
+from django import forms
 from django.contrib.auth.forms import AuthenticationForm as BaseAuthenticationForm
 from lib.utils.forms.widgets import InputIconWidget
+from src.minitickets.models import Funcionario
 
 
 class AuthenticationForm(BaseAuthenticationForm):
@@ -16,3 +18,24 @@ class AuthenticationForm(BaseAuthenticationForm):
             render_type=InputIconWidget.INPUT_ICON,
             attrs={'placeholder': 'Senha'},
             input_type="password")
+
+
+# <editor-fold desc="Funcionário">
+class FuncionarioCreateForm(forms.ModelForm):
+
+    password1 = forms.CharField(max_length=128, widget=forms.PasswordInput())
+    password2 = forms.CharField(max_length=128, widget=forms.PasswordInput())
+
+    def __init__(self, *args, **kwargs):
+        super(FuncionarioCreateForm, self).__init__(*args, **kwargs)
+        opts = getattr(self._meta.model, '_meta')
+        self.fields['cargo'].choices = opts.get_field('cargo').choices
+
+    class Meta:
+        model = Funcionario
+        widgets = {
+            'cargo': forms.RadioSelect(),
+            'cpf': forms.TextInput(attrs={'data-mask': 'cpf'})
+        }
+        fields = ['nome', 'email', 'cpf', 'rg', 'cargo', 'nome_usuario', 'password1', 'password2']
+# </editor-fold>

@@ -1,0 +1,10 @@
+{
+    "1": [
+        "minitickets.add_funcionario",
+        "minitickets.change_funcionario",
+        "minitickets.delete_funcionario",
+        "minitickets.view_funcionario"
+    ],
+    "2": [],
+    "3": []
+}

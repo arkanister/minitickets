@@ -1,0 +1,63 @@
+/* fix width and styles */
+.smart-style-3 input:not([type]),
+.smart-style-3 input[type="color"],
+.smart-style-3 input[type="email"],
+.smart-style-3 input[type="number"],
+.smart-style-3 input[type="password"],
+.smart-style-3 input[type="tel"],
+.smart-style-3 input[type="text"],
+.smart-style-3 input[type="url"],
+.smart-style-3 textarea {
+    box-shadow: none;
+}
+
+input:not([type]),
+input[type="color"],
+input[type="email"],
+input[type="number"],
+input[type="password"],
+input[type="tel"],
+input[type="text"],
+input[type="url"],
+textarea,
+select {
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 0;
+    color: #555;
+    display: inline;
+    font-size: 13px;
+    height: 30px;
+    line-height: 1.42857;
+    padding: 6px 12px;
+    transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
+    -moz-transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
+    -webkit-transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
+    -o-transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
+    -ms-transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
+    width: auto;
+}
+
+input:not([type]):focus,
+input[type="color"]:focus,
+input[type="email"]:focus,
+input[type="number"]:focus,
+input[type="password"]:focus,
+input[type="tel"]:focus,
+input[type="text"]:focus,
+input[type="url"]:focus,
+textarea:focus,
+select:focus {
+    border-color: #66afe9;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px rgba(102, 175, 233, 0.6);
+    outline: 0;
+}
+
+.form-horizontal .checkbox,
+.form-horizontal .checkbox-inline,
+.form-horizontal .control-label,
+.form-horizontal .radio,
+.form-horizontal .radio-inline {
+    padding-top: 5px;
+}

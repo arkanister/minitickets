@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% load icon from icons %}
+{% load input from forms %}
+{% load static from staticfiles %}
+
+{% block styles.base %}
+<link rel="stylesheet" type="text/css" media="screen" href="{% static 'css/forms.css' %}">
+{% block styles.form.base %}{% endblock styles.form.base %}
+{% endblock styles.base %}
+
+{% block scripts.base %}
+<script src="{% static 'js/plugin/masked-input/jquery.maskedinput.min.js' %}"></script>
+
+<script src="{% static 'js/app.forms.js' %}"></script>
+{% block scripts.form.base %}{% endblock scripts.form.base %}
+{% endblock scripts.base %}
+
+{% block scripts.inline.base %}
+<script type="text/javascript">
+$(function() {
+
+});
+</script>
+{% block scripts.inline.form.base %}{% endblock scripts.inline.form.base %}
+{% endblock scripts.inline.base %}
+
+{% block content %}
+
+    {% block content.form %}
+    <form class="form-horizontal" method="post"{% if form.is_multipart %} enctype="multipart/form-data"{% endif %}>
+        {% csrf_token %}
+
+        {% block content.form.fields.hidden %}
+            {% for hidden_field in form.hidden_fields %}
+                {{ hidden_field }}
+            {% endfor %}
+        {% endblock content.form.fields.hidden %}
+
+        {% block content.form.fields %}
+            {% for field in form.visible_fields %}
+                {% input field 'label_size'='3' 'input_size'='9' %}
+            {% endfor %}
+        {% endblock %}
+
+        {% block content.form.buttons %}
+        <div class="form-actions margin-0">
+
+            <div class="col-sm-9 col-sm-offset-3 no-padding-left align-left">
+
+                <button type="submit" class="btn btn-info btn-sm">
+                    {% icon 'check' %}
+                    {% trans 'Submit' %}
+                </button>&nbsp;&nbsp;&nbsp;
+
+                <button type="button" class="btn btn-default btn-sm" onclick="window.history.back()">
+                    {% icon 'times' %}
+                    {% trans 'Cancel' %}
+                </button>
+
+            </div>
+
+            <div class="clearfix"></div>
+
+        </div>
+        {% endblock content.form.buttons %}
+
+    </form>
+    {% endblock content.form %}
+
+{% endblock content %}

@@ -1,0 +1,36 @@
+{% load i18n %}
+{% load icon from icons %}
+
+<div class="form-group">
+
+    <label class="control-label no-padding-right col-sm-{{ label_size }}">
+        {% if field.field.required %}<span class="txt-color-red">*</span>{% endif %}
+        {{ field.label }}
+    </label>
+
+    <div class="col-sm-{{ input_size }}">
+
+        {{ field }}
+
+        {% if field.help_text %}
+        &nbsp;
+        <span class="help-block inline">
+            <span class="cursor-pointer txt-color-blue hover top" rel="popover"
+                  data-content="{{ field.help_text }}"
+                  data-original-title="{% trans 'Help' %}">
+                {% icon 'question-circle' 'class'='bigger-140' %}
+            </span>
+        </span>
+        {% endif %}
+
+        {% for error in field.errors %}
+        <div class="help-block block txt-color-red">
+            {{ error }}
+        </div>
+        {% endfor %}
+
+    </div>
+
+</div>
+
+<div class="space-4"></div>

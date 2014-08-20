@@ -25,6 +25,7 @@
 
     <link rel="stylesheet" type="text/css" media="screen" href="{% static 'css/app.css' %}">
 
+    {% block styles.base %}{% endblock styles.base %}
     {% block styles %}{% endblock styles %}
 
     <!-- #GOOGLE FONT -->
@@ -45,14 +46,17 @@
 
     <!-- Config -->
     <script src="{% static 'js/app.config.js' %}"></script>
+    <script src="{% static 'js/app.js' %}"></script>
 
     <!-- Bootstrap -->
     <script src="{% static 'js/bootstrap/bootstrap.min.js' %}"></script>
 
     <!-- Page scripts content -->
+    {% block scripts.base %}{% endblock scripts.base %}
     {% block scripts %}{% endblock scripts %}
 
     <!-- Inline page scripts content -->
+    {% block scripts.inline.base %}{% endblock scripts.inline.base %}
     {% block scripts.inline %}{% endblock scripts.inline %}
 
 </body>

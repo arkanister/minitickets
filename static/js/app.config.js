@@ -76,6 +76,8 @@ $(document).ready(function() {
         $('[rel=popover].left.hover').popover({trigger: 'hover', placement: 'left'});
         $('[rel=popover].right.hover').popover({trigger: 'hover', placement: 'right'});
 
+        $('[rel=popover].hover').popover({trigger: 'hover', placement: 'top'});
+
         $('[rel=popover].top').popover({placement: 'top'});
         $('[rel=popover].bottom').popover({placement: 'bottom'});
         $('[rel=popover].left').popover({placement: 'left'});
@@ -86,7 +88,11 @@ $(document).ready(function() {
 
     // Modal
     $.loaders['modal'] = {
-        load: function () {
+        load: function() {
+            var $modal = $('<div>').addClass('modal fade');
+            $.root_.append($modal);
+            $.defaults['modal'] = $modal;
+
             $('[rel=modal]').on('click', function(e) {
                 var modal = $(this).data('modal'),
                     action = $(this).data('action');
@@ -104,31 +110,56 @@ $(document).ready(function() {
                     data: null,
                     headers: {'AJAX_REQUEST_TYPE': 'modal'},
                     method: 'get',
-                    beforeSend: function() {
+                    beforeSend: function () {
                         modal.html('<center>Loading ...</center>').modal('show');
                     },
-                    success: function(data) {
+                    success: function (data) {
                         modal.html(data);
                     },
                     error: function (data) {
-                        modal.html('').modal('hide');
-                        console.log(data);
+                        modal.html(
+                                '<div class="modal-dialog">' +
+                                '<div class="modal-content">' +
+                                '<div class="modal-body">' +
+                                data.responseText +
+                                '</div>' +
+                                '</div>' +
+                                '</div'
+                        );
                     }
                 });
 
                 e.preventDefault();
             });
+
         },
-        default: function() {
-            var $modal = $('<div>').addClass('modal fade');
-            $.root_.append($modal);
-            $.defaults['modal'] = $modal;
-        },
+
         // todo: see you later
         addModal: function(modal) {
             var $modal = $('<div>').addClass('modal fade').attr('id', modal);
             $.root_.append($modal);
         }
     };
+
+    // Masks
+    $.loaders['mask'] = {
+        cpf: function() {
+            $('[data-mask=cpf]').mask('999.999.999-99')
+                .attr('placeholder', '999.999.999-99');
+        },
+        cnpj: function() {
+            $('[data-mask=cnpj]').mask('999.999.999/9999-99')
+                .attr('placeholder', '999.999.999/9999-99');
+        },
+        cep: function() {
+            $('[data-mask=cnpj]').mask('99999-999')
+                .attr('placeholder', '99999-99');
+        },
+        all: function() {
+            this.cpf();
+            this.cnpj();
+            this.cep();
+        }
+    }
 
 });

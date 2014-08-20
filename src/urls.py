@@ -17,5 +17,7 @@ urlpatterns = patterns('',
     url(r'login/$', login, name='login', kwargs={'authentication_form': AuthenticationForm}),
     url(r'logout/$', logout, name='logout'),
 
+    url(r'^', include('src.minitickets.urls', namespace='minitickets')),
+
     url(r'teste/$', teste, name='teste'),
 )

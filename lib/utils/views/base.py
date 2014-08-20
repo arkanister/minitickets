@@ -112,9 +112,7 @@ class SmartView(DjangoView):
                     'verbose_name': model._meta.verbose_name,
                     'verbose_name_plural': model._meta.verbose_name_plural
                 }
-                title = S(title).compile(context=instance, prettify=True)
-            elif hasattr(self, 'object'):
-                title = S(title).compile(context=instance, prettify=True)
+            title = S(title).compile(context=instance, prettify=True)
 
         return title
 
@@ -124,6 +122,8 @@ class SmartView(DjangoView):
         :param status:
         :return:
         """
+        instance = getattr(self, 'object', None)
+        model = getattr(self, 'model', None)
         message = getattr(self, '%s_message' % status, None)
 
         if not message:
@@ -131,8 +131,16 @@ class SmartView(DjangoView):
             message = default_messages.get(status, '')
 
         message = force_str(message)
-        instance = getattr(self, 'object', None)
-        return S(message).compile(instance=instance)
+
+        if instance is None and self.model is not None:
+            instance = {
+                'verbose_name': model._meta.verbose_name,
+                'verbose_name_plural': model._meta.verbose_name_plural
+            }
+
+        message = S(message).compile(context=instance)
+
+        return message
 
     def get_subtitle(self):
         """ retorna o subtitulo da página """
