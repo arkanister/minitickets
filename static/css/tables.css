@@ -1,0 +1,25 @@
+/* fix datatables */
+
+.dataTables_filter {width:  auto;}
+
+.toolbar { float: left; }
+.toolbar a {margin-right: 10px;}
+.toolbar a.btn {line-height: 1.6;}
+
+.action-buttons a {
+    display: inline-block;
+    margin: 0 3px;
+    opacity: 0.85;
+    transition: all 0.1s ease 0s;
+}
+.action-buttons a:hover {
+    opacity: 1;
+    text-decoration: none;
+    transform: scale(1.2);
+}
+
+.dt-toolbar-footer {
+    border-top: none;
+    top: -6px;
+    position: relative;
+}

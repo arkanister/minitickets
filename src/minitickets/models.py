@@ -15,7 +15,7 @@ PERMISSIONS = json.loads(open(
 
 
 class Pessoa(models.Model):
-    email = models.EmailField()
+    email = models.EmailField(unique=True)
     situacao = models.PositiveSmallIntegerField(
         choices=(
             (1, 'Ativo'),

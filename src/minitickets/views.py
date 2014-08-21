@@ -8,6 +8,7 @@ from lib.utils.views.tables import SingleTableView as ListView
 from src.minitickets.forms import FuncionarioCreateForm
 
 from src.minitickets.models import Funcionario
+from src.minitickets.tables import FuncionarioTable
 
 
 class HomeView(TemplateView):
@@ -28,4 +29,5 @@ class CreateFuncionarioView(CreateView):
 
 class ListFuncionarioView(ListView):
     model = Funcionario
+    table_class = FuncionarioTable
 # </editor-fold>

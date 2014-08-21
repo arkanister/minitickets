@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+{% load icon from icons %}
+{% load render_table from django_tables2 %}
+{% load static from staticfiles %}
+
+{% block styles.base %}
+<link rel="stylesheet" type="text/css" media="screen" href="{% static 'css/tables.css' %}">
+{% block styles.list.base %}{% endblock styles.list.base %}
+{% endblock styles.base %}
+
+{% block scripts.base %}
+<script src="{% static 'js/plugin/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'js/plugin/datatables/dataTables.colVis.min.js' %}"></script>
+<script src="{% static 'js/plugin/datatables/dataTables.tableTools.min.js' %}"></script>
+<script src="{% static 'js/plugin/datatables/dataTables.bootstrap.min.js' %}"></script>
+{% block scripts.list.base %}{% endblock scripts.list.base %}
+{% endblock scripts.base %}
+
+{% block scripts.inline.base %}
+<script type="text/javascript">
+$(function () {
+   $('.table').dataTable({
+        "sDom":"<'dt-toolbar'<'col-sm-6 col-xs-6'<'toolbar'>f><'col-xs-6 col-sm-6'l>r>"+
+            "t"+"<'dt-toolbar-footer'<'col-sm-6 col-xs-12 hidden-xs'i><'col-xs-12 col-sm-6'p>>",
+        "oLanguage": {
+            "oPaginate": {
+                "sFirst": '{% icon 'angle-double-left' %}', // This is the link to the first page
+                "sPrevious": '{% icon 'angle-left' %}', // This is the link to the previous page
+                "sNext": '{% icon 'angle-right' %}', // This is the link to the next page
+                "sLast": '{% icon 'angle-double-right' %}' // This is the link to the last page
+            }
+        },
+       "pagingType": "full_numbers"
+    });
+
+    $('#DataTables_Table_0_wrapper').find('.toolbar').html($('#table-toolbar').html());
+});
+</script>
+{% block scripts.inline.list.base %}{% endblock scripts.inline.list.base %}
+{% endblock scripts.inline.base %}
+
+{% block content %}
+
+<div id="table-toolbar" class="hide">
+
+<a href="{{ create_url }}" class="btn btn-sm btn-default">
+    {% icon 'plus-circle' %} {% trans 'Add' %}
+</a>
+
+</div>
+
+{% render_table table "tables/table.html" %}
+
+{% endblock content %}
