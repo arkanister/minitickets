@@ -10,5 +10,4 @@ urlpatterns = patterns('src.minitickets.views',
     url(r'^funcionario/change/(?P<pk>\d+)/$', ListFuncionarioView.as_view(), name='change-funcionario'),
     url(r'^funcionario/delete/(?P<pk>\d+)/$', ListFuncionarioView.as_view(), name='delete-funcionario'),
     # </editor-fold>
-
 )

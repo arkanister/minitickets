@@ -74,7 +74,15 @@
 
         <!-- breadcrumb -->
         <ol class="breadcrumb">
-            {% for BREADCRUMB in BREADCRUMBS %}<li>{{ BREADCRUMB }}</li>{% endfor %}
+            {% for breadcrumb in BREADCRUMBS %}
+                <li>
+                    {% if BREADCRUMBS.last == breadcrumb or not breadcrumb.url %}
+                        {{ breadcrumb }}
+                    {% else %}
+                        <a href="{{ breadcrumb.url }}">{{ breadcrumb }}</a>
+                    {% endif %}
+                </li>
+            {% endfor %}
         </ol>
 
     </div> <!-- /.breadcrumbs -->

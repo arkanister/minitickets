@@ -39,7 +39,7 @@ class Pessoa(models.Model):
 class PessoaFisica(Pessoa):
     nome = models.CharField(max_length=80)
     cpf = models.CharField(max_length=14, unique=True, null=True)
-    rg = models.CharField(max_length=11, unique=True, null=True)
+    rg = models.CharField(max_length=15, unique=True, null=True)
 
     class Meta:
         abstract = True

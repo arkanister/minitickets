@@ -51,7 +51,7 @@ class SmartView(DjangoView):
             setattr(self, 'add_permission', perm_str % opts.get_add_permission())
             setattr(self, 'change_permission', perm_str % opts.get_change_permission())
             setattr(self, 'delete_permission', perm_str % opts.get_delete_permission())
-            setattr(self, 'view_permission', perm_str % (opts.object_name.lower() + '_' + 'view'))
+            setattr(self, 'view_permission', perm_str % ('view' + '_' + opts.object_name.lower()))
 
         response = super(SmartView, self).dispatch(request, *args, **kwargs)
 

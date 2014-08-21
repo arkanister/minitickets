@@ -45,6 +45,7 @@ INSTALLED_APPS = (
 
     'lib.utils.html',
     'lib.utils.forms',
+    'lib.utils.tables',
 
     # Project Apps
     'src.minitickets',

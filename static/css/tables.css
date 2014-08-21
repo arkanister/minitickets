@@ -11,6 +11,7 @@
     margin: 0 3px;
     opacity: 0.85;
     transition: all 0.1s ease 0s;
+    font-size: 120%;
 }
 .action-buttons a:hover {
     opacity: 1;

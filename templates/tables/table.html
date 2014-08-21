@@ -1,6 +1,8 @@
 {% spaceless %}
-{% load django_tables2 %}
+
 {% load i18n %}
+{% load django_tables2 %}
+{% load action from tables %}
 
 <div class="table-responsive">
 	{% block table %}
@@ -42,13 +44,11 @@
 	                	{% endif %}</td>
 	            {% endfor %}
 
-                {% if actions %}
+                {% if not actions.is_empty %}
                 <td class="center">
                     <div class="hidden-sm hidden-xs action-buttons">
-                    {% for action in actions %}
-                        <a href="{% url action.viewname pk=row.record.pk %}"{{ action.attrs.as_html }} title="{{ action.verbose_name }}">
-                            {{ action.icon.as_html }}
-                        </a>
+                    {% for act in actions %}
+                        {% action act row.record %}
                     {% endfor %}
                     </div>
                 </td>
