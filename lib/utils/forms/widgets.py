@@ -5,121 +5,175 @@ from itertools import chain
 from django import forms
 from django.template import loader
 from django.utils.encoding import force_str
-from django.core.urlresolvers import reverse
+from django.utils.safestring import mark_safe
 from django.forms.util import flatatt
 from django.utils.html import format_html
-from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
+from django.core.urlresolvers import reverse
 
 from ..html import Icon, AttributeDict
 
 
-class InputIconWidget(forms.widgets.Input):
+class IconInputMixin(object):
     """
     A widget to render an input with icon.
 
     Can render in two ways, the simplest with the icon inside the input,
     the other with the icon coupled to the input.
     """
+    _errors = {
+        'invalid_icon': _("'%s' object is not a Icon or str object."),
+        'invalid_format': _("'%s' format is not valid."),
+        'invalid_side': _("'%s' side is not valid."),
+    }
 
-    ICON_ON_RIGHT = "right"
-    ICON_ON_LEFT = "left"
+    ON_LEFT = "left"
+    ON_RIGHT = "right"
 
-    INPUT_ADDON = "addon"
-    INPUT_GROUP = "group"
-    INPUT_ICON = "icon"
+    _ON = {ON_LEFT: 'prepend', ON_RIGHT: 'append'}
 
-    def __init__(self, icon, side="right", render_type="icon", input_type="text",
-                 block=False, *args, **kwargs):
-        self.input_type = input_type
-        super(InputIconWidget, self).__init__(*args, **kwargs)
+    FORMAT_ADD_ON = "addon"
+    FORMAT_GROUP = "group"
+    FORMAT_ICON = "icon"
 
-        assert isinstance(icon, (str, unicode, Icon)), "'%s' object is not a Icon or str object" % type(icon).__name__
+    def __init__(self, icon, format="icon", on="right", attrs=None, *args, **kwargs):
+        attrs = AttributeDict(attrs or {})
+        super(IconInputMixin, self).__init__(attrs=attrs, *args, **kwargs)
 
-        self.side = side
-        self.render_type = render_type
+        assert isinstance(icon, (basestring, Icon)), \
+            self._errors['invalid_icon'] % (type(icon).__name__,)
 
-        # grant is a .Icon object
-        if isinstance(icon, (str, unicode)):
-            icon = Icon(icon)
+        assert format in [
+            self.FORMAT_ADD_ON,
+            self.FORMAT_GROUP,
+            self.FORMAT_ICON
+        ], self._errors['invalid_format'] % (format,)
 
-        self.icon = icon
-        self.block = block
-        self.attrs = AttributeDict(self.attrs)
+        assert on in [self.ON_LEFT, self.ON_RIGHT], \
+            self._errors['invalid_side'] % (on,)
 
-        if block:
-            self.attrs.add_class("form-control")
+        icon = Icon(icon) if isinstance(icon, basestring) else icon  # grant is a .Icon object
 
-    def get_icon(self):
-        if self.render_type == InputIconWidget.INPUT_ICON:
-            side = 'icon-prepend' if self.side == InputIconWidget.ICON_ON_LEFT \
-                else 'icon-append'
-            self.icon.attrs.add_class(side)
-        return self.icon
+        self._format = format
+        self._on = on
+        self._icon = icon
 
-    def get_template(self):
-        side = self.side
-        render_type = self.render_type
+    def _get_icon(self):
+        if self._format == IconInputMixin.FORMAT_ICON:
+            self._icon.attrs.add_class('icon-' + self._ON[self._on])
+        return self._icon
 
-        template = ''
-
-        if render_type == InputIconWidget.INPUT_GROUP and \
-                        side == InputIconWidget.ICON_ON_RIGHT:
-            template = '<div class="input-group">{{ input }}<span class="input-group-addon">{{ icon }}</span></div>'
-        elif render_type == InputIconWidget.INPUT_GROUP and \
-                        side == InputIconWidget.ICON_ON_LEFT:
-            template = '<div class="input-group"><span class="input-group-addon">{{ icon }}</span>{{ input }}</div>'
-        elif render_type == InputIconWidget.INPUT_ADDON:
-            template = '<span class="input-icon-' + side + '">{{ icon }}{{ input }}</span>'
-        elif render_type == InputIconWidget.INPUT_ICON:
-            template = '<label class="input">{{ icon }}{{ input }}</label>'
-        return template
-
-    def render(self, name, value, attrs=None):
-        _input = super(InputIconWidget, self).render(name, value, attrs=attrs)
-        template = loader.get_template_from_string(self.get_template())
-        context = loader.Context({
-            "input": _input,
-            "icon": mark_safe(self.get_icon().as_html()),
-            "block": self.block
-        })
-        return template.render(context)
-
-
-class DateInput(forms.DateInput):
+    icon = property(_get_icon)
 
     def _get_template(self):
-        return '<div class="input-group">{{ input }}<span class="input-group-addon">{{ icon }}</span></div>'
-    template = property(_get_template)
+        render_format = self._format
+        render_on = self._on
 
-    def get_attrs(self, attrs=None):
-        attrs = AttributeDict(attrs or {})
-        attrs.add_class('datepicker')
-        attrs.attr("data-date-format", "dd/mm/yyyy")
-        attrs.attr("size", 13)
-        return attrs
+        fa = IconInputMixin.FORMAT_ADD_ON
+        fg = IconInputMixin.FORMAT_GROUP
+        fi = IconInputMixin.FORMAT_ICON
+        ol = IconInputMixin.ON_LEFT
+        ot = IconInputMixin.ON_RIGHT
+
+        if render_format == fg and render_on == ol:
+            return '<div class="input-group"><span class="input-group-addon">' \
+                   '{{ icon }}</span>{{ input }}</div>'
+        if render_format == fg and render_on == ot:
+            return '<div class="input-group">{{ input }}<span class="' \
+                   'input-group-addon">{{ icon }}</span></div>'
+        elif render_format == fa:
+            return '<span class="input-icon-' + render_on + \
+                   '">{{ icon }}{{ input }}</span>'
+        elif render_format == fi:
+            return '<label class="input">{{ icon }}{{ input }}</label>'
+
+        return ''
+
+    html_output_format = property(_get_template)
+
+    def html_output(self, rendered_input):
+        t = loader.get_template_from_string(self.html_output_format)
+        c = loader.Context({
+            'input': rendered_input,
+            'icon': self.icon.as_html()
+        })
+        return mark_safe(t.render(c))
 
     def render(self, name, value, attrs=None):
-        t = loader.get_template_from_string(self.template)
-        c = loader.Context({
-            "input": super(DateInput, self).render(name, value, self.get_attrs(attrs)),
-            "icon": Icon('calendar', attrs={'class': 'ace-icon'}).as_html()
-        })
-        return t.render(c)
+        rendered_input = super(IconInputMixin, self).render(name, value, attrs)
+        return self.html_output(rendered_input)
+
+
+# <editor-fold desc="IconInputs">
+class TextIconInput(IconInputMixin, forms.TextInput):
+    """Text input with a icon"""
+
+
+class PasswordIconInput(IconInputMixin, forms.PasswordInput):
+    """Password input with a icon"""
+
+
+class EmailIconInput(IconInputMixin, forms.EmailInput):
+    """Email input with a icon"""
+
+    DEFAULT_ATTRS = {
+        'size': 25,
+    }
+
+    def __init__(self, attrs=None, *args, **kwargs):
+        icon = kwargs.get('icon') or Icon('envelope')
+        render_format = kwargs.get('format') or "group"
+
+        _attrs, attrs = (attrs or {}).copy(), self.DEFAULT_ATTRS
+
+        super(EmailIconInput, self).__init__(
+            icon=icon, format=render_format, attrs=attrs, *args, **kwargs
+        )
+
+        # update defaults
+        for key, value in _attrs.items():
+            self.attrs.attr(key, value)
+# </editor-fold>
+
+
+class DateInput(IconInputMixin, forms.DateInput):
+    DEFAULT_ATTRS = {
+        'class': 'datepicker',
+        'data-date-format': 'dd/mm/yyyy',
+        'size': 13,
+        'data-mask': 'date'
+    }
+
+    input_type = 'date'
+
+    def __init__(self, attrs=None, *args, **kwargs):
+        icon = Icon('calendar')
+        render_format = "group"
+        render_on = "right"
+        _attrs, attrs = (attrs or {}).copy(), self.DEFAULT_ATTRS
+
+        super(DateInput, self).__init__(
+            icon=icon, format=render_format,
+            on=render_on, attrs=attrs, *args, **kwargs
+        )
+
+        # update defaults
+        for key, value in _attrs.items():
+            self.attrs.attr(key, value)
 
 
 class CheckboxInput(forms.CheckboxInput):
-
-    def render(self, name, value, attrs={}):
-        attrs.update({"class": "ace"})
+    def render(self, name, value, attrs=None):
+        attrs = AttributeDict(attrs or {})
+        attrs.add_class("checkbox style-2")
         checkbox = super(CheckboxInput, self).render(name, value, attrs=attrs)
-        return mark_safe(u'<label>%s<span class="lbl"></span></label>' % checkbox)
+        return mark_safe('<label class="checkbox-inline">%s<span class="lbl"></span></label>' % checkbox)
 
 
 class RadioInput(forms.CheckboxInput):
-
     def render(self, name, value, attrs=None):
         attrs = AttributeDict(self.build_attrs(attrs, type='radio', name=name))
+        attrs.add_class('radiobox style-2')
         if self.check_test(value):
             attrs.attr('checked', 'checked')
         if not (value is True or value is False or value is None or value == ''):
@@ -128,9 +182,9 @@ class RadioInput(forms.CheckboxInput):
         return mark_safe('<input %s />' % attrs.as_html())
 
 
+# <editor-fold desc="Select">
 class InlineRadioSelect(forms.RadioSelect):
-
-    output_html = '<label class="inline">{{ field }}<span class="lbl">{{ label }}</span></label>'
+    output_html = '<label class="radio radio-inline">{{ field }}<span class="lbl">{{ label }}</span></label>'
 
     def __init__(self, attrs=None, *args, **kwargs):
         attrs = AttributeDict(attrs or {})
@@ -150,15 +204,13 @@ class InlineRadioSelect(forms.RadioSelect):
             radio = RadioInput(attrs, check_test=check)
             output.append(t.render(loader.Context({
                 "field": radio.render(name, id),
-                "label": mark_safe("&nbsp;&nbsp;%s" % label)
+                "label": mark_safe("%s" % label)
             })))
 
         return mark_safe("&nbsp;&nbsp;&nbsp;&nbsp;".join(output))
 
 
-# <editor-fold desc="Select">
 class SelectChosen(forms.Select):
-
     def __init__(self, *args, **kwargs):
         super(SelectChosen, self).__init__(*args, **kwargs)
         self.attrs = AttributeDict(self.attrs)
@@ -166,8 +218,8 @@ class SelectChosen(forms.Select):
 
 
 class ActionSelect(forms.Select):
-
-    def __init__(self, create_viewname=None, create_original_title=None, list_viewname=None, group_data_label=None, *args, **kwargs):
+    def __init__(self, create_viewname=None, create_original_title=None, list_viewname=None, group_data_label=None,
+                 *args, **kwargs):
         self.group_data_label = group_data_label or _('Values')
         self.create_viewname = create_viewname
         self.list_viewname = list_viewname
@@ -232,10 +284,10 @@ class ActionSelect(forms.Select):
 
 
 class EmptySelect(forms.Select):
-
     def render(self, name, value, attrs=None, choices=()):
         self.choices = tuple()
         return super(EmptySelect, self).render(name, value, attrs=attrs, choices=())
+
 # </editor-fold>
 
 

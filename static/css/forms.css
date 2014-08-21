@@ -61,3 +61,19 @@ select:focus {
 .form-horizontal .radio-inline {
     padding-top: 5px;
 }
+
+/* input group fix */
+.input-group-addon, .input-group-btn {width: auto;}
+
+input:not([type]):focus + .input-group-addon,
+input[type="color"]:focus + .input-group-addon,
+input[type="email"]:focus + .input-group-addon,
+input[type="number"]:focus + .input-group-addon,
+input[type="password"]:focus + .input-group-addon,
+input[type="tel"]:focus + .input-group-addon,
+input[type="text"]:focus + .input-group-addon,
+input[type="url"]:focus + .input-group-addon,
+textarea:focus + .input-group-addon,
+select:focus + .input-group-addon {
+    border-color: #66afe9;
+}

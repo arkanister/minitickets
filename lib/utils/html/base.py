@@ -25,7 +25,8 @@ class AttributeDict(dict):
     def __init__(self, *args, **kwargs):
         super(AttributeDict, self).__init__(*args, **kwargs)
         # get all css classes defined
-        self._cached_class = self.get('class', '').split(' ')
+        classes = self.get('class')
+        self._cached_class = classes.split(' ') if classes is not None else []
 
     def _update_class(self):
         self['class'] = ' '.join(self._cached_class)
