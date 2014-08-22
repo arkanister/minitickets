@@ -95,4 +95,20 @@ class FuncionarioCreateForm(forms.ModelForm):
             **data
         )
         return instance
+
+
+class FuncionarioUpdateForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FuncionarioUpdateForm, self).__init__(*args, **kwargs)
+        self.fields['cpf'].required = False
+        self.fields['rg'].required = False
+
+    class Meta:
+        model = Funcionario
+        widgets = {
+            'nome': forms.TextInput(attrs={"size": 40}),
+            'cpf': forms.TextInput(attrs={'data-mask': 'cpf'}),
+            'email': forms_utils.EmailIconInput()
+        }
+        fields = ['nome', 'email', 'cpf', 'rg', 'situacao']
 # </editor-fold>

@@ -19,7 +19,7 @@
 	            <th {{ column.attrs.th.as_html }}>{{ column.header }}</th>
 	            {% endif %}
 	        {% endfor %}
-            {% if actions %}
+            {% if not actions.is_empty %}
             <td {% if action_column_width %}width="{{ action_column_width }}px"{% else %}style="min-width: 50px;"{% endif %}></td>
             {% endif %}
 	        </tr>
