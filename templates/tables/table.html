@@ -1,0 +1,69 @@
+{% spaceless %}
+
+{% load i18n %}
+{% load django_tables2 %}
+{% load action from tables %}
+
+<div class="table-responsive">
+	{% block table %}
+	<table{% if table.attrs %} {{ table.attrs.as_html }}{% endif %} class="dTable table table-striped table-bordered table-hover">
+	{% nospaceless %}
+
+		{% block table.thead %}
+		<thead>
+		    <tr>
+	        {% for column in table.columns %}
+	            {% if column.orderable %}
+	            <th {{ column.attrs.th.as_html }}><a href="{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}">{{ column.header }}</a></th>
+	            {% else %}
+	            <th {{ column.attrs.th.as_html }}>{{ column.header }}</th>
+	            {% endif %}
+	        {% endfor %}
+            {% if not actions.is_empty %}
+            <td {% if action_column_width %}width="{{ action_column_width }}px"{% else %}style="min-width: 50px;"{% endif %}></td>
+            {% endif %}
+	        </tr>
+		</thead>
+		{% endblock table.thead %}
+
+		{% block table.tbody %}
+		<tbody>
+			{% for row in table.page.object_list|default:table.rows %} {# support pagination #}
+	        {% block table.tbody.row %}
+	        <tr class="{{ forloop.counter|divisibleby:2|yesno:"even,odd" }}"> {# avoid cycle for Django 1.2-1.6 compatibility #}
+	            {% for column, cell in row.items %}
+	                <td {{ column.attrs.td.as_html }}>
+	                	{% if column.localize == None %}
+	                		{{ cell }}
+	                	{% else %}
+	                		{% if column.localize %}
+	                			{{ cell|localize }}
+	                		{% else %}
+	                			{{ cell|unlocalize }}
+	                		{% endif %}
+	                	{% endif %}</td>
+	            {% endfor %}
+
+                {% if not actions.is_empty %}
+                <td class="center">
+                    <div class="hidden-sm hidden-xs action-buttons">
+                    {% for act in actions %}
+                        {% action act row.record %}
+                    {% endfor %}
+                    </div>
+                </td>
+                {% endif %}
+
+	        </tr>
+	        {% endblock table.tbody.row %}
+	        {% endfor %}
+		</tbody>
+		{% endblock table.tbody %}
+
+	{% endnospaceless %}
+	</table>
+	{% endblock table %}
+
+</div>
+
+{% endspaceless %}

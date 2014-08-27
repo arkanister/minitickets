@@ -15,7 +15,7 @@ PERMISSIONS = json.loads(open(
 
 
 class Pessoa(models.Model):
-    email = models.EmailField()
+    email = models.EmailField(unique=True)
     situacao = models.PositiveSmallIntegerField(
         choices=(
             (1, 'Ativo'),
@@ -24,25 +24,22 @@ class Pessoa(models.Model):
         default=1
     )
 
-    def _is_active(self):
-        return self.situacao == 1
-
-    def _set_is_active(self, value):
-        self.situacao = 1 if value else 2
-
-    is_active = property(_is_active, _set_is_active)
-
     class Meta:
         abstract = True
 
 
 class PessoaFisica(Pessoa):
     nome = models.CharField(max_length=80)
-    cpf = models.CharField(max_length=14, unique=True, null=True)
-    rg = models.CharField(max_length=11, unique=True, null=True)
+    cpf = models.CharField(max_length=14, unique=True, blank=True, null=True)
+    rg = models.CharField(max_length=15, unique=True, blank=True, null=True)
 
     class Meta:
         abstract = True
+
+    def save(self, *args, **kwargs):
+        self.cpf = self.cpf if not self.cpf in ('', None) else None
+        self.rg = self.rg if not self.rg in ('', None) else None
+        super(PessoaFisica, self).save(*args, **kwargs)
 
 
 class Funcionario(AbstractBaseUser, PessoaFisica):
@@ -65,6 +62,14 @@ class Funcionario(AbstractBaseUser, PessoaFisica):
     class Meta:
         verbose_name = u'Funcionário'
 
+    def _is_active(self):
+        return self.situacao == 1
+
+    def _set_is_active(self, value):
+        self.situacao = 1 if value else 2
+
+    is_active = property(_is_active, _set_is_active)
+
     def _get_password(self):
         return self.senha
 
@@ -85,3 +90,9 @@ class Funcionario(AbstractBaseUser, PessoaFisica):
 
     def has_perms(self, perms, obj=None):
         return all(self.has_perm(perm) for perm in perms)
+
+    def merda(self):
+        return 'merda'
+
+    def __unicode__(self):
+        return self.nome

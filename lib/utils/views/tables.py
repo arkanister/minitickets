@@ -7,12 +7,10 @@ from django_tables2.views import SingleTableMixin as BaseSingleTableMixin
 from .list import ListView
 from .utils import TableActions
 
-from ..html.icons.base import Icon
 from ..tables.utils import table_factory
 
 
 class SingleTableMixin(BaseSingleTableMixin):
-
     def get_table_class(self):
         """
         Return the class to use for the table, by view or by factory.
@@ -31,10 +29,13 @@ class SingleTableView(SingleTableMixin, ListView):
     """
     Generic view that renders a template and passes in a `.Table` object.
     """
-
     table_pagination = False  # {"per_page": 10}
     actions = None
     action_column_width = 80
+
+    show_detail_action = True
+    show_change_action = True
+    show_delete_action = True
 
     def __init__(self, *args, **kwargs):
         super(SingleTableView, self).__init__(*args, **kwargs)
@@ -43,30 +44,42 @@ class SingleTableView(SingleTableMixin, ListView):
     def get_actions(self):
         if self.actions is False:
             return None
+
         opts = getattr(self.model, '_meta')
         app_name = opts.app_label.lower()
         object_name = opts.object_name.lower()
         view_name = '%s:%s-%s'
 
-        if self.request.user.has_perm(self.change_permission):
+        if self.show_detail_action:
+            self.actions.add(
+                viewname=view_name % (app_name, 'detail', object_name),
+                verbose_name=_('Detail'),
+                icon='search-plus',
+                args=['pk'],
+                attrs={"class": "txt-color-pinkDark", "rel": "tooltip"},
+                perms=[self.view_permission]
+            )
+
+        if self.show_change_action:
             self.actions.add(
                 viewname=view_name % (app_name, 'change', object_name),
                 verbose_name=_('Change'),
-                icon=Icon('pencil', attrs={"class": 'ace-icon bigger-130'}),
+                icon='pencil',
                 args=['pk'],
-                attrs={"class": "blue tip"},
+                attrs={"class": "blue", "rel": "tooltip"},
                 perms=[self.change_permission]
             )
 
-        if self.request.user.has_perm(self.delete_permission):
+        if self.show_change_action:
             self.actions.add(
                 viewname=view_name % (app_name, 'delete', object_name),
                 verbose_name=_('Delete'),
-                icon=Icon('trash-o', attrs={"class": 'ace-icon bigger-130'}),
+                icon='trash-o',
                 args=['pk'],
-                attrs={"class": "red tip"},
+                attrs={"class": "red", "rel": "tooltip"},
                 perms=[self.delete_permission]
             )
+
         return self.actions
 
     def get_context_data(self, **kwargs):

@@ -343,9 +343,9 @@ class Messages(object):
         return '<MessageRequestAdapter>'
 
 
-class TableAction(object):
-
-    def __init__(self, viewname, verbose_name=None, icon=None, args=None, kwargs=None, perms=None, attrs=None):
+class Action(object):
+    def __init__(self, viewname, verbose_name=None, icon=None, args=None,
+                 kwargs=None, perms=None, attrs=None):
         self.viewname = viewname
         self._icon = icon
         self.verbose_name = verbose_name
@@ -364,11 +364,26 @@ class TableAction(object):
     icon = property(_get_icon)
 
     def has_icon(self):
-        return not self.icon == None
+        return self.icon is not None
+
+    def get_url_action(self, instance):
+        kwargs = dict([(m, Accessor(n).resolve(instance)) for m, n in self.kwargs.items()])
+        args = [Accessor(m).resolve(instance) for m in self.args]
+        return reverse(self.viewname, args=args, kwargs=kwargs)
+
+    def render(self, instance):
+        final_attrs = AttributeDict(self.attrs)
+        final_attrs.attr('href', self.get_url_action(instance))
+        final_attrs.attr('title', self.verbose_name)
+
+        return format_html(
+            '<a {0}>{1}</a>',
+            final_attrs.as_html(),
+            self.icon.as_html()
+        )
 
 
 class TableActions(object):
-
     _errors = {
         "type_error": _("'%s' object doest not is a %s.")
     }
@@ -376,8 +391,13 @@ class TableActions(object):
     def __init__(self):
         self.actions = []
 
-    def add(self, viewname, verbose_name=None, icon=None, args=None, kwargs=None, perms=None, attrs=None, index=None):
-        action = TableAction(
+    def _is_empty(self):
+        return len(self.actions) == 0
+    is_empty = property(_is_empty)
+
+    def add(self, viewname, verbose_name=None, icon=None, args=None, kwargs=None,
+        perms=None, attrs=None, index=None, action_class=Action):
+        action = action_class(
             viewname, verbose_name=verbose_name,
             icon=icon, args=args, kwargs=kwargs,
             perms=perms, attrs=attrs
@@ -386,6 +406,12 @@ class TableActions(object):
             self.actions.append(action)
         else:
             assert isinstance(index, int), self._errors['type_error'] % (type(index).__name__, 'integer')
+            self.actions.insert(index, action)
+
+    def add_action(self, action, index=None):
+        if index is None:
+            self.actions.append(action)
+        else:
             self.actions.insert(index, action)
 
     def remove(self, index):
