@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import re
+import json
 
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http.response import HttpResponse
-from django.utils import simplejson as json
-from django.utils.html import strip_tags
+from django.utils.html import strip_tags, format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
@@ -180,11 +180,13 @@ class UrlHelper(object):
             return reverse(url_conf, args=args, kwargs=kwargs)
 
 
+# <editor-fold desc="Breadcrumbs">
 class Breadcrumb(object):
     """
     Breadcrumb can have methods to customize breadcrumb object, Breadcrumbs
     class send to us name and url.
     """
+
     def __init__(self, name, url=None, icon=None):
         self.name = name
         self.url = url or ''
@@ -200,6 +202,7 @@ class Breadcrumb(object):
         elif not isinstance(icon, Icon):
             return None
         return icon
+
     icon = property(_get_icon)
 
     def __str__(self):
@@ -210,8 +213,32 @@ class Breadcrumb(object):
         return u"<Breadcrumb: %s>" % self.name
 
 
-class Breadcrumbs(object):
+class BoundBreadcrumbs(object):
+    def __init__(self, breadcrumbs, breadcrumb):
+        self.breadcrumbs = breadcrumbs
+        self.breadcrumb = breadcrumb
 
+    def as_html(self):
+        return format_html(
+            '<li{1}>{1}{2}</li>',
+            '' if not self.breadcrumb == self.breadcrumbs.last else ' ' + AttributeDict(
+                {'class': 'active'}).as_html(),
+            self.icon.as_html() + ' ',
+            self.name
+        )
+
+    def as_a(self):
+        return format_html(
+            '<li{0}><a{1}>{2}{3}</a></li>',
+            '' if not self.breadcrumb == self.breadcrumbs.last else ' ' + AttributeDict(
+                {'class': 'active'}).as_html(),
+            ' ' + AttributeDict({'href': self.url or '#'}).as_html(),
+            self.icon.as_html() if self.icon else '',
+            self.name
+        )
+
+
+class Breadcrumbs(object):
     _errors = {
         "type_error": _("'%s' object doest not is a %s.")
     }
@@ -234,15 +261,21 @@ class Breadcrumbs(object):
 
     def _get_first(self):
         return self.breadcrumbs[0]
+
     first = property(_get_first)
 
     def _get_last(self):
         return self.breadcrumbs[-1]
+
     last = property(_get_last)
 
+    def is_empty(self):
+        return len(self.breadcrumbs) == 0
+
     def __iter__(self):
-        for obj in self.breadcrumbs:
-            yield obj
+        for breadcrumb in self.breadcrumbs:
+            yield BoundBreadcrumbs(self, breadcrumb)
+# </editor-fold>
 
 
 class Messages(object):

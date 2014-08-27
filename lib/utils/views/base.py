@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
+
 from django.conf import settings
-from django.utils.encoding import smart_unicode, force_str
+from django.utils.encoding import force_str
 
 from django.utils.html import strip_tags
 from django.views.generic.base import View as DjangoView, TemplateResponseMixin, \
@@ -36,6 +37,9 @@ class SmartView(DjangoView):
     @permission_required
     def dispatch(self, request, *args, **kwargs):
 
+        # define page settings container
+        request._page_settings = {}
+
         # define breadcrumbs adapter
         if self.breadcrumbs is not False:
             self.breadcrumbs = Breadcrumbs()
@@ -53,22 +57,19 @@ class SmartView(DjangoView):
             setattr(self, 'delete_permission', perm_str % opts.get_delete_permission())
             setattr(self, 'view_permission', perm_str % (opts.object_name.lower() + '_' + 'view'))
 
-        response = super(SmartView, self).dispatch(request, *args, **kwargs)
-
-        # register a smart page settings
-        request._page_settings = {
-            'title': self.get_title(),
-            'subtitle': self.get_subtitle()
-        }
-
-        if self.has_breadcrumbs():
-            request._page_settings['breadcrumbs'] = self.get_breadcrumbs()
-
-        if hasattr(self, 'model'):
             request._page_settings['add_permission'] = getattr(self, 'add_permission')
             request._page_settings['change_permission'] = getattr(self, 'change_permission')
             request._page_settings['delete_permission'] = getattr(self, 'delete_permission')
             request._page_settings['view_permission'] = getattr(self, 'view_permission')
+
+        response = super(SmartView, self).dispatch(request, *args, **kwargs)
+
+        # register a smart page settings
+        request._page_settings['title'] = self.get_title()
+        request._page_settings['subtitle'] = self.get_subtitle()
+
+        if self.has_breadcrumbs():
+            request._page_settings['breadcrumbs'] = self.get_breadcrumbs()
 
         return response
 
@@ -89,7 +90,7 @@ class SmartView(DjangoView):
         """
         Verifica se os breadcrumbs estão habilitados para a página.
         """
-        return self.breadcrumbs is not False
+        return self.breadcrumbs is not False and not self.breadcrumbs.is_empty()
 
     def get_title(self):
         """ Retorna o titulo da página. """
@@ -108,9 +109,10 @@ class SmartView(DjangoView):
 
         if title is not None:
             if instance is None and model is not None:
+                opts = getattr(model, '_meta')
                 instance = {
-                    'verbose_name': model._meta.verbose_name,
-                    'verbose_name_plural': model._meta.verbose_name_plural
+                    'verbose_name': opts.verbose_name,
+                    'verbose_name_plural': opts.verbose_name_plural
                 }
             title = S(title).compile(context=instance, prettify=True)
 
@@ -133,9 +135,10 @@ class SmartView(DjangoView):
         message = force_str(message)
 
         if instance is None and self.model is not None:
+            opts = getattr(model, '_meta')
             instance = {
-                'verbose_name': model._meta.verbose_name,
-                'verbose_name_plural': model._meta.verbose_name_plural
+                'verbose_name': opts.verbose_name,
+                'verbose_name_plural': opts.verbose_name_plural
             }
 
         message = S(message).compile(context=instance)
