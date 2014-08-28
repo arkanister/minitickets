@@ -96,3 +96,15 @@ class Funcionario(AbstractBaseUser, PessoaFisica):
 
     def __unicode__(self):
         return self.nome
+
+
+class Produto(models.Model):
+    nome = models.CharField(max_length=100)
+    descricao = models.TextField()
+    situacao = models.PositiveIntegerField(
+        choices=(
+            (1, u'Ativo'),
+            (2, u'Inativo')
+        ),
+        default = 1
+    )

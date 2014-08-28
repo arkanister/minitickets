@@ -4,7 +4,8 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm as BaseAuthenticationForm, UserCreationForm
 from django.utils.translation import ugettext as _
 from lib.utils import forms as forms_utils
-from src.minitickets.models import Funcionario
+from src.minitickets.models import Funcionario, Produto
+
 
 class AuthenticationForm(BaseAuthenticationForm):
 
@@ -111,4 +112,18 @@ class FuncionarioUpdateForm(forms.ModelForm):
             'email': forms_utils.EmailIconInput()
         }
         fields = ['nome', 'email', 'cpf', 'rg', 'situacao']
+# </editor-fold>
+
+
+# <editor-fold desc="Produto">
+class ProdutoCreateForm(forms.ModelForm):
+
+    class Meta:
+        model = Produto
+        widgets = {
+            'nome': forms.TextInput(attrs={"size": 50}),
+            'descricao': forms.Textarea()
+        }
+        fields = ['nome', 'descricao']
+
 # </editor-fold>
