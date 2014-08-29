@@ -5,7 +5,7 @@ from django.shortcuts import render
 from lib.utils.views.base import TemplateSmartView as TemplateView
 from lib.utils.views.edit import CreateView, UpdateView, DeleteView
 from lib.utils.views.tables import SingleTableView as ListView
-from src.minitickets.forms import FuncionarioCreateForm, FuncionarioUpdateForm
+from src.minitickets.forms import FuncionarioCreateForm, FuncionarioUpdateForm, ProdutoForm
 
 from src.minitickets.models import Funcionario, Produto
 from src.minitickets.tables import FuncionarioTable, ProdutoTable
@@ -46,6 +46,7 @@ class FuncionarioDeleteView(DeleteView):
 class ProdutoCreateView(CreateView):
     model = Produto
     fields = ['nome', 'descricao']
+    form_class = ProdutoForm
 
 
 class ProdutoUpdateView(UpdateView):
