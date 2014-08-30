@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser
 from django.db import models
 from django.utils import simplejson as json
+from lib.utils.models.validators import CpfValidator
 from src.minitickets.managers import FuncionarioManager
 
 PERMISSIONS = json.loads(open(
@@ -30,16 +31,16 @@ class Pessoa(models.Model):
 
 class PessoaFisica(Pessoa):
     nome = models.CharField(max_length=80)
-    cpf = models.CharField(max_length=14, unique=True, blank=True, null=True)
+    cpf = models.CharField(max_length=14, unique=True, blank=True, null=True, validators=[CpfValidator()])
     rg = models.CharField(max_length=15, unique=True, blank=True, null=True)
 
     class Meta:
         abstract = True
 
     def save(self, *args, **kwargs):
-        self.cpf = self.cpf if not self.cpf in ('', None) else None
-        self.rg = self.rg if not self.rg in ('', None) else None
-        super(PessoaFisica, self).save(*args, **kwargs)
+        self.cpf = self.cpf if not self.cpf == '' else None
+        self.rg = self.rg if not self.rg == '' else None
+        return super(PessoaFisica, self).save(*args, **kwargs)
 
 
 class Funcionario(AbstractBaseUser, PessoaFisica):
@@ -90,9 +91,6 @@ class Funcionario(AbstractBaseUser, PessoaFisica):
 
     def has_perms(self, perms, obj=None):
         return all(self.has_perm(perm) for perm in perms)
-
-    def merda(self):
-        return 'merda'
 
     def __unicode__(self):
         return self.nome

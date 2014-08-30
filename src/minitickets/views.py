@@ -31,7 +31,6 @@ class FuncionarioUpdateView(UpdateView):
     model = Funcionario
     form_class = FuncionarioUpdateForm
 
-
 class FuncionarioListView(ListView):
     model = Funcionario
     table_class = FuncionarioTable

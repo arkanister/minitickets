@@ -1,4 +1,8 @@
 // Calculate nav height
+$.fn.hasAttr = function(name) {
+   return this.attr(name) !== undefined;
+};
+
 $.calc_navbar_height = function() {
     var height = null;
 
@@ -142,23 +146,38 @@ $(document).ready(function() {
     };
 
     // Masks
-    $.loaders['mask'] = {
-        cpf: function() {
-            $('[data-mask=cpf]').mask('999.999.999-99')
-                .attr('placeholder', '999.999.999-99');
+    $.loaders['inputMask'] = {
+        _getDataOptions: function(input) {
+            opts = {};
+            if (input.hasAttr('data-reverse') == 1)
+                opts['reverse'] = input.data('reverse') == 1;
+            if (input.hasAttr('data-clearifnotmatch'))
+                opts['clearIfNotMatch'] = input.data('clearifnotmatch') == 1;
+            return opts
         },
-        cnpj: function() {
-            $('[data-mask=cnpj]').mask('999.999.999/9999-99')
-                .attr('placeholder', '999.999.999/9999-99');
+        _getElement: function(name) {
+            return $('[data-input-mask='+ name +'], .input-mask-' + name);
         },
         cep: function() {
-            $('[data-mask=cnpj]').mask('99999-999')
-                .attr('placeholder', '99999-99');
+            var input = this._getElement('cep');
+            input.attr('placeholder', '99999-99')
+                .mask('99999-999', this._getDataOptions(input));
+            return input;
+        },
+        cnpj: function() {
+            var input = this._getElement('cnpj');
+            input.attr('placeholder', '999.999.999/9999-99')
+                .mask('999.999.999/9999-99', this._getDataOptions(input));
+            return input;
+        },
+        cpf: function() {
+            var input = this._getElement('cpf');
+            input.attr('placeholder', '999.999.999-99')
+                .mask('999.999.999-99', this._getDataOptions(input));
+            return input;
         },
         all: function() {
-            this.cpf();
-            this.cnpj();
-            this.cep();
+            this.cep(); this.cnpj(); this.cpf();
         }
     }
 

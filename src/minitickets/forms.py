@@ -1,8 +1,7 @@
 # coding: utf-8
 
 from django import forms
-from django.contrib.admin import widgets
-from django.contrib.auth.forms import AuthenticationForm as BaseAuthenticationForm, UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm as BaseAuthenticationForm
 from django.utils.translation import ugettext as _
 from lib.utils import forms as forms_utils
 from src.minitickets.models import Funcionario, Produto
@@ -47,15 +46,13 @@ class FuncionarioCreateForm(forms.ModelForm):
         super(FuncionarioCreateForm, self).__init__(*args, **kwargs)
         opts = getattr(self._meta.model, '_meta')
         self.fields['cargo'].choices = opts.get_field('cargo').choices
-        self.fields['cpf'].required = False
-        self.fields['rg'].required = False
 
     class Meta:
         model = Funcionario
         widgets = {
             'nome': forms.TextInput(attrs={"size": 40}),
             'cargo': forms_utils.InlineRadioSelect,
-            'cpf': forms.TextInput(attrs={'data-mask': 'cpf'}),
+            'cpf': forms.TextInput(),
             'email': forms_utils.EmailIconInput()
         }
         fields = ['nome', 'email', 'cpf', 'rg', 'cargo',
@@ -100,16 +97,11 @@ class FuncionarioCreateForm(forms.ModelForm):
 
 
 class FuncionarioUpdateForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(FuncionarioUpdateForm, self).__init__(*args, **kwargs)
-        self.fields['cpf'].required = False
-        self.fields['rg'].required = False
-
     class Meta:
         model = Funcionario
         widgets = {
             'nome': forms.TextInput(attrs={"size": 40}),
-            'cpf': forms.TextInput(attrs={'data-mask': 'cpf'}),
+            'cpf': forms.TextInput(attrs={'data-input-mask': 'cpf'}),
             'email': forms_utils.EmailIconInput()
         }
         fields = ['nome', 'email', 'cpf', 'rg', 'situacao']
