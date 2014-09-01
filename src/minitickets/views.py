@@ -7,7 +7,7 @@ from lib.utils.views.edit import CreateView, UpdateView, DeleteView
 from lib.utils.views.tables import SingleTableView as ListView
 from src.minitickets.forms import FuncionarioCreateForm, FuncionarioUpdateForm, ProdutoForm
 
-from src.minitickets.models import Funcionario, Produto
+from src.minitickets.models import Funcionario, Produto, Cliente
 from src.minitickets.tables import FuncionarioTable, ProdutoTable
 
 
@@ -40,6 +40,32 @@ class FuncionarioDeleteView(DeleteView):
     model = Funcionario
 # </editor-fold>
 
+
+# <editor-fold desc="Cliente">
+class ClienteCreateView(CreateView):
+    model = Cliente
+    fields = ['nome_fantasia',
+              'cnpj',
+              'telefone',
+              'produto'
+              ]
+    form_class = ProdutoForm
+
+class ClienteUpdateView(UpdateView):
+    model = Cliente
+
+
+class ClienteListView(ListView):
+    model = Cliente
+    fields = ['nome_fantasia',
+              'cnpj',
+              'telefone',
+              'produto'
+              ]
+
+class ClienteDeleteView(DeleteView):
+    model = Cliente
+# </editor-fold>
 
 # <editor-fold desc="Produto">
 class ProdutoCreateView(CreateView):

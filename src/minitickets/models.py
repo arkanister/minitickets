@@ -106,3 +106,27 @@ class Produto(models.Model):
         ),
         default = 1
     )
+
+    def __unicode__(self):
+        return self.nome
+
+
+# <editor-fold desc="Cliente">
+class Cliente(models.Model):
+    nome_fantasia = models.CharField(max_length=80)
+    razao_social = models.CharField(max_length=80, unique=True)
+    cnpj = models.CharField(max_length=19, unique=True)
+    inscricao_estadual = models.CharField(max_length=20, unique=True, blank=True, null=True)
+    inscricao_municipal = models.CharField(max_length=20, unique=True, blank=True, null=True)
+    nome_diretor = models.CharField(max_length=80, blank=True, null=True)
+    email = models.EmailField()
+    telefone = models.CharField(max_length=15)
+    produto = models.ManyToManyField('Produto')
+    situacao = models.PositiveSmallIntegerField(
+        choices=(
+            (1, 'Ativo'),
+            (2, 'Inativo')
+        ),
+        default=1
+    )
+# </editor-fold>
