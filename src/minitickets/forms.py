@@ -54,7 +54,7 @@ class FuncionarioCreateForm(forms.ModelForm):
             'nome': forms.TextInput(attrs={"size": 40}),
             'cargo': forms_utils.InlineRadioSelect,
             'cpf': forms.TextInput(attrs={"data-input-mask": 'cpf'}),
-            'email': forms_utils.EmailIconInput()
+            'email': forms_utils.EmailIconInput(),
         }
         fields = ['nome', 'email', 'cpf', 'rg', 'cargo',
                   'username', 'password1', 'password2']
@@ -128,6 +128,7 @@ class ClienteForm(forms.ModelForm):
             'razao_social': forms.TextInput(attrs={"size": '60'}),
             'nome_diretor': forms.TextInput(attrs={"size": '40'}),
             'email': forms_utils.EmailIconInput(),
+            'telefone': forms.TextInput(attrs={"data-input-mask": 'telefone'}),
             'produto': forms.CheckboxSelectMultiple(attrs={"class": 'select2'})
         }
         fields = ['nome_fantasia', 'razao_social', 'cnpj', 'inscricao_estadual', 'inscricao_municipal', 'nome_diretor', 'telefone', 'email',  'produto']

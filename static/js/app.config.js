@@ -164,6 +164,12 @@ $(document).ready(function() {
                 .mask('99999-999', this._getDataOptions(input));
             return input;
         },
+        telefone: function(){
+            var input = this._getElement('telefone');
+                input.attr('placeholder', '(99)9999-9999')
+                    .mask('(99)9999-9999', this._getDataOptions(input));
+            return input;
+        },
         cnpj: function() {
             var input = this._getElement('cnpj');
             input.attr('placeholder', '99.999.999/9999-99')
@@ -176,8 +182,9 @@ $(document).ready(function() {
                 .mask('999.999.999-99', this._getDataOptions(input));
             return input;
         },
+
         all: function() {
-            this.cep(); this.cnpj(); this.cpf();
+            this.cep(); this.telefone();this.cnpj(); this.cpf();
         }
     }
 
