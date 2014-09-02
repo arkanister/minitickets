@@ -3,7 +3,7 @@
 import django_tables2 as tables
 
 from lib.utils import tables as tables_utils
-from src.minitickets.models import Funcionario, Produto
+from src.minitickets.models import Funcionario, Produto, Cliente
 
 
 # <editor-fold desc="Funcionário">
@@ -35,3 +35,23 @@ class ProdutoTable(tables.Table):
         fields = sequence = ('id', 'nome', 'descricao', 'situacao')
         orderable = False
 #</editor-fold>
+
+
+# <editor-fold desc="Cliente">
+class ClienteTable(tables.Table):
+    id = tables_utils.IdColumn()
+    situacao = tables_utils.BooleanColumn(verbose_name="Ativo")
+    nome_fantasia = tables_utils.TruncateCharsColumn(attrs={
+        "th": {"class": "visible-md visible-lg"},
+        "td": {"class": "visible-md visible-lg"}
+    })
+    telefone = tables_utils.TruncateCharsColumn(attrs={
+        "th": {"class": "visible-md visible-lg"},
+        "td": {"class": "visible-md visible-lg"}
+    })
+
+    class Meta:
+        model = Cliente
+        fields = sequence = ('id', 'cnpj', 'nome_fantasia', 'telefone', 'situacao')
+        orderable = False
+# </editor-fold>

@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser
 from django.db import models
 from django.utils import simplejson as json
-from lib.utils.models.validators import CpfValidator
+from lib.utils.models.validators import CpfValidator, CnpjValidator
 from src.minitickets.managers import FuncionarioManager
 
 PERMISSIONS = json.loads(open(
@@ -31,7 +31,7 @@ class Pessoa(models.Model):
 
 class PessoaFisica(Pessoa):
     nome = models.CharField(max_length=80)
-    cpf = models.CharField(max_length=14, unique=True, blank=True, null=True, validators=[CpfValidator()])
+    cpf = models.CharField(max_length=14, unique=True, blank=True, null=True, validators=[CpfValidator()], help_text="VSF")
     rg = models.CharField(max_length=15, unique=True, blank=True, null=True)
 
     class Meta:
@@ -115,7 +115,7 @@ class Produto(models.Model):
 class Cliente(models.Model):
     nome_fantasia = models.CharField(max_length=80)
     razao_social = models.CharField(max_length=80, unique=True)
-    cnpj = models.CharField(max_length=19, unique=True)
+    cnpj = models.CharField(max_length=18, unique=True, validators=[CnpjValidator()])
     inscricao_estadual = models.CharField(max_length=20, unique=True, blank=True, null=True)
     inscricao_municipal = models.CharField(max_length=20, unique=True, blank=True, null=True)
     nome_diretor = models.CharField(max_length=80, blank=True, null=True)
@@ -129,4 +129,6 @@ class Cliente(models.Model):
         ),
         default=1
     )
+
+
 # </editor-fold>

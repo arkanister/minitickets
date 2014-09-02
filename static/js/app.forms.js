@@ -15,4 +15,7 @@ $(function () {
     // load masks
     $.loaders.inputMask.all();
 
+    // load select2
+    $('select.select2').select2();
+
 });

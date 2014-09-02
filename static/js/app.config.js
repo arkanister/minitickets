@@ -166,8 +166,8 @@ $(document).ready(function() {
         },
         cnpj: function() {
             var input = this._getElement('cnpj');
-            input.attr('placeholder', '999.999.999/9999-99')
-                .mask('999.999.999/9999-99', this._getDataOptions(input));
+            input.attr('placeholder', '99.999.999/9999-99')
+                .mask('99.999.999/9999-99', this._getDataOptions(input));
             return input;
         },
         cpf: function() {

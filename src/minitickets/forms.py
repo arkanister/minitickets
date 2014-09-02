@@ -1,10 +1,11 @@
 # coding: utf-8
 
 from django import forms
+from django.contrib.admin import widgets
 from django.contrib.auth.forms import AuthenticationForm as BaseAuthenticationForm
 from django.utils.translation import ugettext as _
 from lib.utils import forms as forms_utils
-from src.minitickets.models import Funcionario, Produto
+from src.minitickets.models import Funcionario, Produto, Cliente
 
 
 class AuthenticationForm(BaseAuthenticationForm):
@@ -52,7 +53,7 @@ class FuncionarioCreateForm(forms.ModelForm):
         widgets = {
             'nome': forms.TextInput(attrs={"size": 40}),
             'cargo': forms_utils.InlineRadioSelect,
-            'cpf': forms.TextInput(),
+            'cpf': forms.TextInput(attrs={"data-input-mask": 'cpf'}),
             'email': forms_utils.EmailIconInput()
         }
         fields = ['nome', 'email', 'cpf', 'rg', 'cargo',
@@ -101,7 +102,7 @@ class FuncionarioUpdateForm(forms.ModelForm):
         model = Funcionario
         widgets = {
             'nome': forms.TextInput(attrs={"size": 40}),
-            'cpf': forms.TextInput(attrs={'data-input-mask': 'cpf'}),
+            'cpf': forms.TextInput(attrs={"data-input-mask": 'cpf'}),
             'email': forms_utils.EmailIconInput()
         }
         fields = ['nome', 'email', 'cpf', 'rg', 'situacao']
@@ -113,4 +114,21 @@ class ProdutoForm(forms.ModelForm):
     class Meta:
         model = Produto
         widgets = {'descricao': forms.Textarea(attrs={"rows": 5})}
+# </editor-fold>
+
+
+# <editor-fold desc="Cliente">
+class ClienteForm(forms.ModelForm):
+
+    class Meta:
+        model = Cliente
+        widgets = {
+            'cnpj': forms.TextInput(attrs={"data-input-mask": 'cnpj'}),
+            'nome_fantasia': forms.TextInput(attrs={"size": '60'}),
+            'razao_social': forms.TextInput(attrs={"size": '60'}),
+            'nome_diretor': forms.TextInput(attrs={"size": '40'}),
+            'email': forms_utils.EmailIconInput(),
+            'produto': forms.CheckboxSelectMultiple(attrs={"class": 'select2'})
+        }
+        fields = ['nome_fantasia', 'razao_social', 'cnpj', 'inscricao_estadual', 'inscricao_municipal', 'nome_diretor', 'telefone', 'email',  'produto']
 # </editor-fold>
