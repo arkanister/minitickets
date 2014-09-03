@@ -6,9 +6,9 @@ from lib.utils.views.base import TemplateSmartView as TemplateView
 from lib.utils.views.edit import CreateView, UpdateView, DeleteView
 from lib.utils.views.tables import SingleTableView as ListView
 from src.minitickets.forms import FuncionarioCreateForm, FuncionarioUpdateForm, ProdutoForm, \
-    ClienteUpdateForm, ClienteCreateForm
+    ClienteUpdateForm, ClienteCreateForm, TicketCreateForm
 
-from src.minitickets.models import Funcionario, Produto, Cliente
+from src.minitickets.models import Funcionario, Produto, Cliente, Ticket
 from src.minitickets.tables import FuncionarioTable, ProdutoTable, ClienteTable
 
 
@@ -62,6 +62,7 @@ class ClienteDeleteView(DeleteView):
     model = Cliente
 # </editor-fold>
 
+
 # <editor-fold desc="Produto">
 class ProdutoCreateView(CreateView):
     model = Produto
@@ -80,4 +81,25 @@ class ProdutoListView(ListView):
 
 class ProdutoDeleteView(DeleteView):
     model = Produto
+# </editor-fold>
+
+
+# <editor-fold desc="Ticket">
+class TicketCreateView(CreateView):
+    model = Ticket
+    form_class = TicketCreateForm
+
+
+
+class TicketUpdateView(UpdateView):
+    model = Ticket
+
+
+class TicketListView(ListView):
+    model = Ticket
+    #table_class = TicketTable
+
+
+class TicketDeleteView(DeleteView):
+    model = Ticket
 # </editor-fold>

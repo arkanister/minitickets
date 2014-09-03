@@ -160,3 +160,37 @@ label.focus input.radiobox[type="radio"] + span:before, label.focus input.radiob
     border-color: #2e7bcc;
     color: #2e7bcc;
 }
+
+/* checkbox select */
+
+.checkbox-select {
+    padding: 4px;
+    border: 1px solid #E7E7e7;
+    border-color: #a3a3a3 #ccc #ccc #a3a3a3;
+    width: 350px;
+    max-height: 165px;
+    overflow-y: auto;
+}
+
+.checkbox-select li {
+    padding: 8px 4px 7px;
+    border-bottom: 1px solid #e1e1e1;
+    list-style: none;
+    margin-bottom: 1px;
+}
+.checkbox-select li label {
+    width: 100%;
+    cursor: pointer;
+}
+.checkbox-select li:last-child {
+    border: none;
+}
+.checkbox-select li:hover {
+    background-color: #F7F7F7;
+}
+
+.select2, .select2-searh, .select2-choice{
+    width: 300px;
+    margin-right: 260px;
+
+}

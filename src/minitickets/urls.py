@@ -4,7 +4,8 @@ from django.conf.urls import patterns, url
 
 from src.minitickets.views import FuncionarioCreateView, FuncionarioUpdateView,\
     FuncionarioListView, FuncionarioDeleteView, ProdutoCreateView, ProdutoUpdateView, ProdutoDeleteView, ProdutoListView, \
-    ClienteListView, ClienteUpdateView, ClienteDeleteView, ClienteCreateView
+    ClienteListView, ClienteUpdateView, ClienteDeleteView, ClienteCreateView, TicketCreateView, TicketUpdateView, \
+    TicketListView, TicketDeleteView
 
 urlpatterns = patterns('src.minitickets.views',
     # <editor-fold desc="Funcionário">
@@ -27,5 +28,12 @@ urlpatterns = patterns('src.minitickets.views',
     url(r'cliente/change/(?P<pk>\d+)/$',ClienteUpdateView.as_view(), name='change-cliente'),
     url(r'clientes/$',ClienteListView.as_view(), name='list-cliente'),
     url(r'cliente/delete/(?P<pk>\d+)/$',ClienteDeleteView.as_view(), name='delete-cliente'),
+    # </editor-fold>
+
+     # <editor-fold desc="Ticket">
+    url(r'ticket/add/$',TicketCreateView.as_view(), name='add-ticket'),
+    url(r'ticket/change/(?P<pk>\d+)/$',TicketUpdateView.as_view(), name='change-ticket'),
+    url(r'tickets/$',TicketListView.as_view(), name='list-ticket'),
+    url(r'ticket/delete/(?P<pk>\d+)/$',TicketDeleteView.as_view(), name='delete-ticket'),
     # </editor-fold>
 )

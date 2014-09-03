@@ -11,7 +11,12 @@
         "minitickets.add_cliente",
         "minitickets.change_cliente",
         "minitickets.delete_cliente",
-        "minitickets.view_cliente"
+        "minitickets.view_cliente",
+        "minitickets.add_ticket",
+        "minitickets.change_ticket",
+        "minitickets.delete_ticket",
+        "minitickets.view_ticket"
+
     ],
     "2": [
 

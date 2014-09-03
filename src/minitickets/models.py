@@ -98,7 +98,7 @@ class Funcionario(AbstractBaseUser, PessoaFisica):
 
 class Produto(models.Model):
     nome = models.CharField(max_length=100)
-    descricao = models.TextField()
+    descricao = models.TextField(null=True, blank=True)
     situacao = models.PositiveIntegerField(
         choices=(
             (1, u'Ativo'),
@@ -113,15 +113,15 @@ class Produto(models.Model):
 
 # <editor-fold desc="Cliente">
 class Cliente(models.Model):
-    nome_fantasia = models.CharField(max_length=80)
+    nome_fantasia = models.CharField(max_length=80, blank=True, null=True)
     razao_social = models.CharField(max_length=80, unique=True)
-    cnpj = models.CharField(max_length=18, unique=True, validators=[CnpjValidator()])
+    cnpj = models.CharField(max_length=18, unique=True)
     inscricao_estadual = models.CharField(max_length=20, unique=True, blank=True, null=True)
     inscricao_municipal = models.CharField(max_length=20, unique=True, blank=True, null=True)
     nome_diretor = models.CharField(max_length=80, blank=True, null=True)
     email = models.EmailField()
-    telefone = models.CharField(max_length=15)
-    produto = models.ManyToManyField('Produto')
+    telefone = models.CharField(max_length=15, blank=True, null=True)
+    produtos = models.ManyToManyField('Produto', blank=True, null=True)
     situacao = models.PositiveSmallIntegerField(
         choices=(
             (1, 'Ativo'),
@@ -130,7 +130,32 @@ class Cliente(models.Model):
         default=1
     )
 
+    def __unicode__(self):
+        return self.razao_social
 
 # </editor-fold>
 
+
+# <editor-fold desc="Ticket">
+class Ticket(models.Model):
+    cliente = models.ForeignKey('Cliente')
+    produto = models.ForeignKey('Produto')
+    analista = models.ForeignKey('Funcionario', null=True, blank=True)
+    titulo = models.CharField(max_length=50)
+    descricao = models.TextField()
+    tipo = models.PositiveSmallIntegerField(
+        choices=(
+            (1, u'Dúvida'),
+            (2, u'Erro'),
+            (3, u'Sugestão')
+        ), default=1
+    )
+    data_abertura = models.DateTimeField(auto_now_add=True)
+    situacao = models.PositiveIntegerField(
+        choices=(
+            (1, 'Aberto'),
+            (2, 'Fechado')
+        ), default=1
+    )
+# </editor-fold>
 

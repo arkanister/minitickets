@@ -1,4 +1,4 @@
 # coding: utf-8
 
 from .widgets import TextIconInput, PasswordIconInput, EmailIconInput,\
-    DateInput, InlineRadioSelect
+    DateInput, InlineRadioSelect, CheckboxSelectMultiple, RadioInput
