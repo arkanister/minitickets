@@ -5,7 +5,7 @@ import os
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser
 from django.db import models
-from django.utils import simplejson as json
+from django.utils import simplejson as json, dateformat
 from lib.utils.models.validators import CpfValidator, CnpjValidator
 from src.minitickets.managers import FuncionarioManager
 
@@ -132,3 +132,5 @@ class Cliente(models.Model):
 
 
 # </editor-fold>
+
+

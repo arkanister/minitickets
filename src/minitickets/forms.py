@@ -118,7 +118,7 @@ class ProdutoForm(forms.ModelForm):
 
 
 # <editor-fold desc="Cliente">
-class ClienteForm(forms.ModelForm):
+class ClienteCreateForm(forms.ModelForm):
 
     class Meta:
         model = Cliente
@@ -132,4 +132,21 @@ class ClienteForm(forms.ModelForm):
             'produto': forms.CheckboxSelectMultiple(attrs={"class": 'select2'})
         }
         fields = ['nome_fantasia', 'razao_social', 'cnpj', 'inscricao_estadual', 'inscricao_municipal', 'nome_diretor', 'telefone', 'email',  'produto']
+
+
+class ClienteUpdateForm(forms.ModelForm):
+
+     class Meta:
+        model = Cliente
+        widgets = {
+            'cnpj': forms.TextInput(attrs={"data-input-mask": 'cnpj'}),
+            'nome_fantasia': forms.TextInput(attrs={"size": '60'}),
+            'razao_social': forms.TextInput(attrs={"size": '60'}),
+            'nome_diretor': forms.TextInput(attrs={"size": '40'}),
+            'email': forms_utils.EmailIconInput(),
+            'telefone': forms.TextInput(attrs={"data-input-mask": 'telefone'}),
+            'produto': forms.CheckboxSelectMultiple(attrs={"class": 'select2'})
+        }
+        fields = ['nome_fantasia', 'razao_social', 'cnpj', 'inscricao_estadual', 'inscricao_municipal', 'nome_diretor', 'telefone', 'email',  'produto', 'situacao']
+
 # </editor-fold>
