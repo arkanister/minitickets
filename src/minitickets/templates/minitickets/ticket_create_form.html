@@ -1,0 +1,54 @@
+{% load input from forms %}
+
+<script type="text/javascript">
+    $(function () {
+        $("#id_ticket_form").on("submit", function () {
+
+            var jqxhr = $.ajax({
+                url: $(this).attr("action"),
+                method: "post",
+                data: $(this).serialize()
+            });
+
+            jqxhr.fail(function (xhr) {
+                $(".modal").html(xhr.responseText);
+            });
+
+            return false;
+        });
+    });
+
+</script>
+
+<div class="modal-dialog">
+    <div class="modal-content">
+
+        <div class="modal-header">
+            <h4>{{ TITLE }}</h4>
+
+        </div>
+        <form  id="id_ticket_form" class="form-horizontal" method="post" action="{{ request.get_full_path }}">
+            {% csrf_token %}
+            <div class="modal-body">
+
+                {% for field in form.hidden_fields %}
+                    {{ field }}
+                {% endfor %}
+
+                {% for field in form.visible_fields %}
+                    {% input field "label_size"="3" "input_size"="9" %}
+                {% endfor %}
+
+                <div class="clearfix"></div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="submit">Enviar</button>
+            </div>
+
+        </form>
+    </div>
+
+</div>

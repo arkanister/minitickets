@@ -180,6 +180,6 @@ class TicketCreateForm(forms.ModelForm):
             'descricao': forms.Textarea(attrs={"rows": 5}),
             'tipo': forms_utils.InlineRadioSelect
         }
-        fields = ['cliente', 'produto', 'analista', 'titulo', 'descricao', 'tipo']
+        fields = ['cliente', 'produto', 'titulo', 'descricao', 'tipo']
 
 # </editor-fold>

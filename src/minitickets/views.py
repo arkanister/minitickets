@@ -32,6 +32,7 @@ class FuncionarioUpdateView(UpdateView):
     model = Funcionario
     form_class = FuncionarioUpdateForm
 
+
 class FuncionarioListView(ListView):
     model = Funcionario
     table_class = FuncionarioTable
@@ -89,10 +90,10 @@ class TicketCreateView(CreateView):
     model = Ticket
     form_class = TicketCreateForm
 
-
-
-class TicketUpdateView(UpdateView):
-    model = Ticket
+    def form_invalid(self, form):
+        response = super(TicketCreateView, self).form_invalid(form)
+        response.status_code = 400
+        return response
 
 
 class TicketListView(ListView):
