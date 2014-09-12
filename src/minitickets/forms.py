@@ -173,11 +173,11 @@ class TicketCreateForm(forms.ModelForm):
     class Meta:
         model = Ticket
         widgets = {
-            'cliente': forms.TextInput(),
-            'produto': forms.Select(attrs={"class": "select2"}),
-            'analista': forms.Select(attrs={"class": "select2"}),
-            'titulo': forms.TextInput(attrs={"size": 40}),
-            'descricao': forms.Textarea(attrs={"rows": 5}),
+            'cliente': forms.HiddenInput(),
+            'produto': forms.Select(),
+            'analista': forms.Select(),
+            'titulo': forms.TextInput(),
+            'descricao': forms.Textarea(),
             'tipo': forms_utils.InlineRadioSelect
         }
         fields = ['cliente', 'produto', 'titulo', 'descricao', 'tipo']

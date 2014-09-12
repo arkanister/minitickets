@@ -183,6 +183,33 @@ class RadioInput(forms.CheckboxInput):
         return mark_safe('<input %s />' % attrs.as_html())
 
 
+class Input(forms.HiddenInput):
+
+    def render(self, name, value, attrs=None):
+        attr = AttributeDict(attrs or {})
+        attr.add_class("input form-control")
+        input = super(Input, self).render(name, value, attr=attrs)
+        return mark_safe('<label class="input-inline">%s<input class="lbl" /></label>' % input)
+
+
+class TextInput(forms.TextInput):
+
+     def render(self, name, value, attrs=None):
+        attr = AttributeDict(attrs or {})
+        attr.add_class("textInput form-control")
+        textInput = super(TextInput, self).render(name, value, attr=attrs)
+        return mark_safe('<label class="textInput-inline">%s<input class="lbl" /></label>' % textInput)
+
+
+class TextArea(forms.TextInput):
+
+    def render(self, name, value, attrs=None):
+        attr = AttributeDict(attrs or {})
+        attr.add_class("textInput form-control")
+        textArea = super(TextArea, self).render(name, value, attr=attrs)
+        return mark_safe('<label class="textArea-inline">%s<input class="lbl" /></label>' % textArea)
+
+
 # <editor-fold desc="Select">
 class InlineRadioSelect(forms.RadioSelect):
     output_html = '<label class="radio radio-inline">{{ field }}<span class="lbl">{{ label }}</span></label>'
@@ -209,6 +236,14 @@ class InlineRadioSelect(forms.RadioSelect):
             })))
 
         return mark_safe("&nbsp;&nbsp;&nbsp;&nbsp;".join(output))
+
+
+class Select(forms.Select):
+    def render(self, name, value, attrs=None):
+        attr = AttributeDict(attrs or {})
+        attr.add_class("select form-control")
+        select = super(Select, self).render(name, value, attr=attrs)
+        return mark_safe('<label class="select-inline">%s<select class="lbl"></select></label>' % select)
 
 
 class SelectChosen(forms.Select):

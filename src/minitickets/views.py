@@ -90,7 +90,8 @@ class ClienteAutoCompleteView(DjangoView):
         return JsonResponse([{
             "label": cliente.nome_fantasia,
             "value": cliente.nome_fantasia,
-            "id": cliente.id
+            "id": cliente.id,
+            "products": [{"id": produto.id, "label": unicode(produto)} for produto in cliente.produtos.all()]
         } for cliente in queryset])
 # </editor-fold>
 
@@ -120,6 +121,8 @@ class ProdutoDeleteView(DeleteView):
 class TicketCreateView(CreateView):
     model = Ticket
     form_class = TicketCreateForm
+
+
 
     def form_invalid(self, form):
         response = super(TicketCreateView, self).form_invalid(form)

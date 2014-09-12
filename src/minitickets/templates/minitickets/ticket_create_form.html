@@ -21,7 +21,7 @@ $(function () {
     });
 
     // Metodo de auto complete.
-    $("#id_cliente").autocomplete({
+    $("#id_cliente_autocomplete").autocomplete({
         appendTo: '.modal-dialog',
         source: function (request, response) {
             $.ajax({
@@ -34,6 +34,29 @@ $(function () {
                     response(data);
                 }
             });
+        },
+
+        //Seleciona o id, pega valor do campo e copia para o item
+        select: function (event, ui) {
+            $("#id_cliente").val(ui.item.id);
+
+            console.log(ui.item);
+
+            var output = '<option selected="selected" value="">---------</option>';
+            for(var i in ui.item.products) {
+                var product = ui.item.products[i];
+                output += '<option value="' + product.id + '">' + product.label + '</option>';
+            }
+
+            $("#id_produto").html(output);
+        },
+        //Alterar o campo auto complite - cliente
+        change: function (event, ui) {
+            //se o valor do campo não existir o campo sera apagado
+            if (!ui.item) {
+                $("#id_cliente").val('');
+                $("#id_cliente_autocomplete").val('');
+            }
         }
     });
 
@@ -51,13 +74,27 @@ $(function () {
         <form  id="id_ticket_form" class="form-horizontal" method="post" action="{{ request.get_full_path }}">
             {% csrf_token %}
             <div class="modal-body">
-
                 {% for field in form.hidden_fields %}
                     {{ field }}
                 {% endfor %}
 
+                <div class="form-group">
+                    <label for="{{ form.cliente.id_for_label }}_autocomplete" class="control-label no-padding-right col-sm-3">
+                        <span class="txt-color-red">*</span>
+                        {{ form.cliente.label }}
+                    </label>
+                    <div class="col-sm-9">
+                        <input type="text" id="{{ form.cliente.id_for_label }}_autocomplete" />
+                        {% for error in form.cliente.errors %}
+                            <div class="help-block block txt-color-red">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
                 {% for field in form.visible_fields %}
-                    {% input field "label_size"="3" "input_size"="9" %}
+                    {% input field "label_size"="3" "input_size"="8" %}
                 {% endfor %}
 
                 <div class="clearfix"></div>
