@@ -1,10 +1,12 @@
 # coding: utf-8
 
 from django.shortcuts import render
+from django.views.generic.base import View as DjangoView
 
 from lib.utils.views.base import TemplateSmartView as TemplateView
 from lib.utils.views.edit import CreateView, UpdateView, DeleteView
 from lib.utils.views.tables import SingleTableView as ListView
+from lib.utils.views.utils import JsonResponse
 from src.minitickets.forms import FuncionarioCreateForm, FuncionarioUpdateForm, ProdutoForm, \
     ClienteUpdateForm, ClienteCreateForm, TicketCreateForm
 
@@ -61,6 +63,35 @@ class ClienteListView(ListView):
 
 class ClienteDeleteView(DeleteView):
     model = Cliente
+
+
+class ClienteAutoCompleteView(DjangoView):
+    model = Cliente
+
+    def get_queryset(self):
+        '''
+        Metodo para buscar os cliente no banco atraves do termo = term
+        :return: QueryDict
+        '''
+        queryset = self.model.objects.filter(
+            nome_fantasia__istartswith=self.request.POST.get("term"),
+            situacao=1, produtos__pk__isnull=False).distinct()
+        return queryset
+
+    def post(self, request, *args, **kwargs):
+        '''
+        Metodo que retorna uma lista de clientes
+        :param request:
+        :param args:
+        :param kwargs:
+        :return: JsonResponse
+        '''
+        queryset = self.get_queryset()
+        return JsonResponse([{
+            "label": cliente.nome_fantasia,
+            "value": cliente.nome_fantasia,
+            "id": cliente.id
+        } for cliente in queryset])
 # </editor-fold>
 
 
@@ -104,3 +135,4 @@ class TicketListView(ListView):
 class TicketDeleteView(DeleteView):
     model = Ticket
 # </editor-fold>
+

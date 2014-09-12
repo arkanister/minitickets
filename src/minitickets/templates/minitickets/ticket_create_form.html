@@ -1,30 +1,51 @@
 {% load input from forms %}
+{% load i18n %}
 
 <script type="text/javascript">
-    $(function () {
-        $("#id_ticket_form").on("submit", function () {
+$(function () {
 
-            var jqxhr = $.ajax({
-                url: $(this).attr("action"),
-                method: "post",
-                data: $(this).serialize()
-            });
 
-            jqxhr.fail(function (xhr) {
-                $(".modal").html(xhr.responseText);
-            });
+    $("#id_ticket_form").on("submit", function () {
 
-            return false;
+        var jqxhr = $.ajax({
+            url: $(this).attr("action"),
+            method: "post",
+            data: $(this).serialize()
         });
+
+        jqxhr.fail(function (xhr) {
+            $(".modal").html(xhr.responseText);
+        });
+
+        return false;
     });
 
+    // Metodo de auto complete.
+    $("#id_cliente").autocomplete({
+        appendTo: '.modal-dialog',
+        source: function (request, response) {
+            $.ajax({
+                url: "{% url "minitickets:autocomplete-cliente" %}",
+                headers: {'X-CsrfToken': '{{ csrf_token }}'},
+                method: "post",
+                data: {term: request.term},
+                dataType: "json",
+                success: function (data) {
+                    response(data);
+                }
+            });
+        }
+    });
+
+});
 </script>
 
 <div class="modal-dialog">
     <div class="modal-content">
 
         <div class="modal-header">
-            <h4>{{ TITLE }}</h4>
+            <button class="close" aria-hidden="true" data-dismiss="modal" type="button"> × </button>
+            <h4 class="modal-title">{{ TITLE }}</h4>
 
         </div>
         <form  id="id_ticket_form" class="form-horizontal" method="post" action="{{ request.get_full_path }}">
@@ -44,8 +65,8 @@
             </div>
 
             <div class="modal-footer">
-
-                <button type="submit">Enviar</button>
+                <button class="btn btn-default" type="button" data-dismiss="modal">{% trans "Cancel" %}</button>
+                <button class="btn btn-primary" type="submit">{% trans "Save" %}</button>
             </div>
 
         </form>

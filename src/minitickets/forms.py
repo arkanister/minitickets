@@ -146,7 +146,7 @@ class ClienteUpdateForm(forms.ModelForm):
         super(ClienteUpdateForm, self).__init__(*args, **kwargs)
         self.fields['produtos'].help_text = None
         queryset = self.fields['produtos'].queryset
-        self.fields['produtos'].queryset = queryset.filter(Q(situacao=1) | Q(cliente__pk=self.instance.pk))
+        self.fields['produtos'].queryset = queryset.filter(Q(situacao=1) | Q(cliente__pk=self.instance.pk)).distinct()
 
     class Meta:
         model = Cliente
@@ -173,7 +173,7 @@ class TicketCreateForm(forms.ModelForm):
     class Meta:
         model = Ticket
         widgets = {
-            'cliente': forms.Select(attrs={"class": "select2"}),
+            'cliente': forms.TextInput(),
             'produto': forms.Select(attrs={"class": "select2"}),
             'analista': forms.Select(attrs={"class": "select2"}),
             'titulo': forms.TextInput(attrs={"size": 40}),
