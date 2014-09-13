@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<a rel="modal" data-action="/teste/">A link with popover.</a>
+<a rel="modal" data-action="{% url "minitickets:add-ticket" %}">Ticket</a>
 {% endblock content %}

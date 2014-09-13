@@ -1,10 +1,12 @@
 # coding: utf-8
 
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm as BaseAuthenticationForm, UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm as BaseAuthenticationForm
 from django.utils.translation import ugettext as _
 from lib.utils import forms as forms_utils
-from src.minitickets.models import Funcionario
+from django.db.models import Q
+from src.minitickets.models import Funcionario, Produto, Cliente, Ticket
+
 
 class AuthenticationForm(BaseAuthenticationForm):
 
@@ -45,16 +47,14 @@ class FuncionarioCreateForm(forms.ModelForm):
         super(FuncionarioCreateForm, self).__init__(*args, **kwargs)
         opts = getattr(self._meta.model, '_meta')
         self.fields['cargo'].choices = opts.get_field('cargo').choices
-        self.fields['cpf'].required = False
-        self.fields['rg'].required = False
 
     class Meta:
         model = Funcionario
         widgets = {
             'nome': forms.TextInput(attrs={"size": 40}),
             'cargo': forms_utils.InlineRadioSelect,
-            'cpf': forms.TextInput(attrs={'data-mask': 'cpf'}),
-            'email': forms_utils.EmailIconInput()
+            'cpf': forms.TextInput(attrs={"data-input-mask": 'cpf'}),
+            'email': forms_utils.EmailIconInput(),
         }
         fields = ['nome', 'email', 'cpf', 'rg', 'cargo',
                   'username', 'password1', 'password2']
@@ -98,17 +98,88 @@ class FuncionarioCreateForm(forms.ModelForm):
 
 
 class FuncionarioUpdateForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(FuncionarioUpdateForm, self).__init__(*args, **kwargs)
-        self.fields['cpf'].required = False
-        self.fields['rg'].required = False
-
     class Meta:
         model = Funcionario
         widgets = {
             'nome': forms.TextInput(attrs={"size": 40}),
-            'cpf': forms.TextInput(attrs={'data-mask': 'cpf'}),
+            'cpf': forms.TextInput(attrs={"data-input-mask": 'cpf'}),
             'email': forms_utils.EmailIconInput()
         }
         fields = ['nome', 'email', 'cpf', 'rg', 'situacao']
+# </editor-fold>
+
+
+# <editor-fold desc="Produto">
+class ProdutoForm(forms.ModelForm):
+    class Meta:
+        model = Produto
+        widgets = {'descricao': forms.Textarea(attrs={"rows": 5})}
+# </editor-fold>
+
+
+# <editor-fold desc="Cliente">
+class ClienteCreateForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(ClienteCreateForm, self).__init__(*args, **kwargs)
+        self.fields['produtos'].help_text = None
+        queryset = self.fields['produtos'].queryset
+        self.fields['produtos'].queryset = queryset.filter(situacao=1)
+
+    class Meta:
+        model = Cliente
+        widgets = {
+            'cnpj': forms.TextInput(attrs={"data-input-mask": 'cnpj'}),
+            'nome_fantasia': forms.TextInput(attrs={"size": '60'}),
+            'razao_social': forms.TextInput(attrs={"size": '60'}),
+            'nome_diretor': forms.TextInput(attrs={"size": '40'}),
+            'email': forms_utils.EmailIconInput(),
+            'telefone': forms.TextInput(attrs={"data-input-mask": 'telefone'}),
+            'produtos': forms.CheckboxSelectMultiple()
+        }
+        fields = ['nome_fantasia', 'razao_social', 'cnpj', 'inscricao_estadual', 'inscricao_municipal', 'nome_diretor', 'telefone', 'email',  'produtos']
+
+
+class ClienteUpdateForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(ClienteUpdateForm, self).__init__(*args, **kwargs)
+        self.fields['produtos'].help_text = None
+        queryset = self.fields['produtos'].queryset
+        self.fields['produtos'].queryset = queryset.filter(Q(situacao=1) | Q(cliente__pk=self.instance.pk)).distinct()
+
+    class Meta:
+        model = Cliente
+        widgets = {
+            'cnpj': forms.TextInput(attrs={"data-input-mask": 'cnpj'}),
+            'nome_fantasia': forms.TextInput(attrs={"size": '60'}),
+            'razao_social': forms.TextInput(attrs={"size": '60'}),
+            'nome_diretor': forms.TextInput(attrs={"size": '40'}),
+            'email': forms_utils.EmailIconInput(),
+            'telefone': forms.TextInput(attrs={"data-input-mask": 'telefone'}),
+            'produtos': forms.CheckboxSelectMultiple()
+        }
+        fields = ['nome_fantasia', 'razao_social', 'cnpj', 'inscricao_estadual', 'inscricao_municipal', 'nome_diretor', 'telefone', 'email',  'produtos', 'situacao']
+
+# </editor-fold>
+
+
+# <editor-fold desc="Ticket">
+class TicketCreateForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(TicketCreateForm, self).__init__(*args, **kwargs)
+
+    class Meta:
+        model = Ticket
+        widgets = {
+            'cliente': forms.HiddenInput(),
+            'produto': forms.Select(),
+            'analista': forms.Select(),
+            'titulo': forms.TextInput(),
+            'descricao': forms.Textarea(),
+            'tipo': forms_utils.InlineRadioSelect
+        }
+        fields = ['cliente', 'produto', 'titulo', 'descricao', 'tipo']
+
 # </editor-fold>

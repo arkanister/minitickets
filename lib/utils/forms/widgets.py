@@ -3,8 +3,9 @@
 from itertools import chain
 
 from django import forms
+from django.forms.widgets import ChoiceFieldRenderer, RendererMixin, ChoiceInput
 from django.template import loader
-from django.utils.encoding import force_str
+from django.utils.encoding import force_str, force_text
 from django.utils.safestring import mark_safe
 from django.forms.util import flatatt
 from django.utils.html import format_html
@@ -182,6 +183,33 @@ class RadioInput(forms.CheckboxInput):
         return mark_safe('<input %s />' % attrs.as_html())
 
 
+class Input(forms.HiddenInput):
+
+    def render(self, name, value, attrs=None):
+        attr = AttributeDict(attrs or {})
+        attr.add_class("input form-control")
+        input = super(Input, self).render(name, value, attr=attrs)
+        return mark_safe('<label class="input-inline">%s<input class="lbl" /></label>' % input)
+
+
+class TextInput(forms.TextInput):
+
+     def render(self, name, value, attrs=None):
+        attr = AttributeDict(attrs or {})
+        attr.add_class("textInput form-control")
+        textInput = super(TextInput, self).render(name, value, attr=attrs)
+        return mark_safe('<label class="textInput-inline">%s<input class="lbl" /></label>' % textInput)
+
+
+class TextArea(forms.TextInput):
+
+    def render(self, name, value, attrs=None):
+        attr = AttributeDict(attrs or {})
+        attr.add_class("textInput form-control")
+        textArea = super(TextArea, self).render(name, value, attr=attrs)
+        return mark_safe('<label class="textArea-inline">%s<input class="lbl" /></label>' % textArea)
+
+
 # <editor-fold desc="Select">
 class InlineRadioSelect(forms.RadioSelect):
     output_html = '<label class="radio radio-inline">{{ field }}<span class="lbl">{{ label }}</span></label>'
@@ -208,6 +236,14 @@ class InlineRadioSelect(forms.RadioSelect):
             })))
 
         return mark_safe("&nbsp;&nbsp;&nbsp;&nbsp;".join(output))
+
+
+class Select(forms.Select):
+    def render(self, name, value, attrs=None):
+        attr = AttributeDict(attrs or {})
+        attr.add_class("select form-control")
+        select = super(Select, self).render(name, value, attr=attrs)
+        return mark_safe('<label class="select-inline">%s<select class="lbl"></select></label>' % select)
 
 
 class SelectChosen(forms.Select):
@@ -288,6 +324,60 @@ class EmptySelect(forms.Select):
         self.choices = tuple()
         return super(EmptySelect, self).render(name, value, attrs=attrs, choices=())
 
+# </editor-fold>
+
+
+# <editor-fold desc="SelectMultiple">
+class CheckBoxChoiceInput(ChoiceInput):
+    input_type = 'checkbox'
+
+    def __init__(self, *args, **kwargs):
+        super(CheckBoxChoiceInput, self).__init__(*args, **kwargs)
+        self.value = force_text(self.value)
+
+    def tag(self):
+        if 'id' in self.attrs:
+            self.attrs['id'] = '%s_%s' % (self.attrs['id'], self.index)
+
+        final_attrs = dict(self.attrs, type=self.input_type, name=self.name, value=self.choice_value)
+        final_attrs = AttributeDict(final_attrs)
+        final_attrs.add_class("checkbox style-2")
+
+        if self.is_checked():
+            final_attrs.attr('checked', 'checked')
+
+        return format_html('<label><input{0} /><span class="lbl">{1}</span></label>', flatatt(final_attrs), self.choice_label)
+
+    def render(self, name=None, value=None, attrs=None, choices=()):
+        return self.tag()
+
+
+class CheckboxFieldRenderer(ChoiceFieldRenderer):
+    choice_input_class = CheckBoxChoiceInput
+
+    def render(self):
+        """
+        Outputs a <ul> for this set of choice fields.
+        If an id was given to the field, it is applied to the <ul> (each
+        item in the list will get an id of `$id_$i`).
+        """
+        id_ = self.attrs.get('id', None)
+        ul_attrs = AttributeDict({"class": "checkbox-select"})
+
+        if id_ is not None:
+            ul_attrs.attr('id', id_)
+
+        start_tag = format_html('<ul {0}>', ul_attrs.as_html())
+        output = [start_tag]
+        for widget in self:
+            output.append(format_html('<li>{0}</li>', force_text(widget)))
+        output.append('</ul>')
+        return mark_safe('\n'.join(output))
+
+
+class CheckboxSelectMultiple(RendererMixin, forms.SelectMultiple):
+    renderer = CheckboxFieldRenderer
+    _empty_value = []
 # </editor-fold>
 
 

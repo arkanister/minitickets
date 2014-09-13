@@ -5,7 +5,8 @@ import os
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser
 from django.db import models
-from django.utils import simplejson as json
+from django.utils import simplejson as json, dateformat
+from lib.utils.models.validators import CpfValidator, CnpjValidator
 from src.minitickets.managers import FuncionarioManager
 
 PERMISSIONS = json.loads(open(
@@ -30,16 +31,16 @@ class Pessoa(models.Model):
 
 class PessoaFisica(Pessoa):
     nome = models.CharField(max_length=80)
-    cpf = models.CharField(max_length=14, unique=True, blank=True, null=True)
+    cpf = models.CharField(max_length=14, unique=True, blank=True, null=True, validators=[CpfValidator()], help_text="VSF")
     rg = models.CharField(max_length=15, unique=True, blank=True, null=True)
 
     class Meta:
         abstract = True
 
     def save(self, *args, **kwargs):
-        self.cpf = self.cpf if not self.cpf in ('', None) else None
-        self.rg = self.rg if not self.rg in ('', None) else None
-        super(PessoaFisica, self).save(*args, **kwargs)
+        self.cpf = self.cpf if not self.cpf == '' else None
+        self.rg = self.rg if not self.rg == '' else None
+        return super(PessoaFisica, self).save(*args, **kwargs)
 
 
 class Funcionario(AbstractBaseUser, PessoaFisica):
@@ -91,8 +92,70 @@ class Funcionario(AbstractBaseUser, PessoaFisica):
     def has_perms(self, perms, obj=None):
         return all(self.has_perm(perm) for perm in perms)
 
-    def merda(self):
-        return 'merda'
+    def __unicode__(self):
+        return self.nome
+
+
+class Produto(models.Model):
+    nome = models.CharField(max_length=100)
+    descricao = models.TextField(null=True, blank=True)
+    situacao = models.PositiveIntegerField(
+        choices=(
+            (1, u'Ativo'),
+            (2, u'Inativo')
+        ),
+        default = 1
+    )
 
     def __unicode__(self):
         return self.nome
+
+
+# <editor-fold desc="Cliente">
+class Cliente(models.Model):
+    nome_fantasia = models.CharField(max_length=80, blank=True, null=True)
+    razao_social = models.CharField(max_length=80, unique=True)
+    cnpj = models.CharField(max_length=18, unique=True)
+    inscricao_estadual = models.CharField(max_length=20, unique=True, blank=True, null=True)
+    inscricao_municipal = models.CharField(max_length=20, unique=True, blank=True, null=True)
+    nome_diretor = models.CharField(max_length=80, blank=True, null=True)
+    email = models.EmailField()
+    telefone = models.CharField(max_length=15, blank=True, null=True)
+    produtos = models.ManyToManyField('Produto', blank=True, null=True)
+    situacao = models.PositiveSmallIntegerField(
+        choices=(
+            (1, 'Ativo'),
+            (2, 'Inativo')
+        ),
+        default=1
+    )
+
+    def __unicode__(self):
+        return self.razao_social
+
+# </editor-fold>
+
+
+# <editor-fold desc="Ticket">
+class Ticket(models.Model):
+    cliente = models.ForeignKey('Cliente')
+    produto = models.ForeignKey('Produto')
+    analista = models.ForeignKey('Funcionario', null=True, blank=True)
+    titulo = models.CharField(max_length=50)
+    descricao = models.TextField()
+    tipo = models.PositiveSmallIntegerField(
+        choices=(
+            (1, u'Dúvida'),
+            (2, u'Erro'),
+            (3, u'Sugestão')
+        ), default=1
+    )
+    data_abertura = models.DateTimeField(auto_now_add=True)
+    situacao = models.PositiveIntegerField(
+        choices=(
+            (1, 'Aberto'),
+            (2, 'Fechado')
+        ), default=1
+    )
+# </editor-fold>
+
