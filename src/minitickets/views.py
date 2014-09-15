@@ -8,7 +8,7 @@ from lib.utils.views.edit import CreateView, UpdateView, DeleteView
 from lib.utils.views.tables import SingleTableView as ListView
 from lib.utils.views.utils import JsonResponse
 from src.minitickets.forms import FuncionarioCreateForm, FuncionarioUpdateForm, ProdutoForm, \
-    ClienteUpdateForm, ClienteCreateForm, TicketCreateForm
+    ClienteUpdateForm, ClienteCreateForm, TicketCreateForm, TicketUpdateForm
 
 from src.minitickets.models import Funcionario, Produto, Cliente, Ticket
 from src.minitickets.tables import FuncionarioTable, ProdutoTable, ClienteTable
@@ -121,13 +121,17 @@ class ProdutoDeleteView(DeleteView):
 class TicketCreateView(CreateView):
     model = Ticket
     form_class = TicketCreateForm
-
-
+    modal = "templates/minitickets/ticket_create_form.html"
 
     def form_invalid(self, form):
         response = super(TicketCreateView, self).form_invalid(form)
         response.status_code = 400
         return response
+
+
+class TicketUpdateView(UpdateView):
+    model = Ticket
+    form_class = TicketUpdateForm
 
 
 class TicketListView(ListView):

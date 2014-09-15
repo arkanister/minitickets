@@ -19,6 +19,8 @@
     <link rel="stylesheet" type="text/css" media="screen" href="{% static 'css/font-awesome.min.css' %}">
     <link rel="stylesheet" type="text/css" media="screen" href="{% static 'css/smart-classes.min.css' %}">
 
+
+
     <!-- SmartAdmin Styles : Please note (smartadmin-production.css) was created using LESS variables -->
     <link rel="stylesheet" type="text/css" media="screen" href="{% static 'css/smartadmin-production.min.css' %}">
     <link rel="stylesheet" type="text/css" media="screen" href="{% static 'css/smartadmin-skins.min.css' %}">
@@ -51,6 +53,12 @@
 
     <!-- Bootstrap -->
     <script src="{% static 'js/bootstrap/bootstrap.min.js' %}"></script>
+
+    <!-- MarkDown -->
+    <script src="{% static 'js/plugin/markdown/markdown.min.js'%}"></script>
+    <script src="{% static 'js/plugin/markdown/to-markdown.min.js' %}"></script>
+    <script src="{% static 'js/plugin/markdown/bootstrap-markdown.min.js'%}"></script>
+
     <!-- Page scripts content -->
     {% block scripts.base %}{% endblock scripts.base %}
     {% block scripts %}{% endblock scripts %}

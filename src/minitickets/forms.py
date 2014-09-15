@@ -177,7 +177,25 @@ class TicketCreateForm(forms.ModelForm):
             'produto': forms.Select(),
             'analista': forms.Select(),
             'titulo': forms.TextInput(),
-            'descricao': forms.Textarea(),
+            'descricao': forms.Textarea(attrs={"class": "custom-scroll md-input", "id": "mymarkdown", "rows": 5}),
+            'tipo': forms_utils.InlineRadioSelect
+        }
+        fields = ['cliente', 'produto', 'titulo', 'descricao', 'tipo']
+
+
+class TicketUpdateForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(TicketCreateForm, self).__init__(*args, **kwargs)
+
+    class Meta:
+        model = Ticket
+        widgets = {
+            'cliente': forms.HiddenInput(),
+            'produto': forms.Select(),
+            'analista': forms.Select(),
+            'titulo': forms.TextInput(),
+            'descricao': forms.Textarea(attrs={"class": "custom-scroll md-input", "id": "mymarkdown", "rows": 5}),
             'tipo': forms_utils.InlineRadioSelect
         }
         fields = ['cliente', 'produto', 'titulo', 'descricao', 'tipo']
