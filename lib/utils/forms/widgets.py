@@ -3,7 +3,7 @@
 from itertools import chain
 
 from django import forms
-from django.forms.widgets import ChoiceFieldRenderer, RendererMixin, ChoiceInput
+from django.forms.widgets import ChoiceFieldRenderer, RendererMixin, CheckboxChoiceInput as DjangoCheckboxChoiceInput
 from django.template import loader
 from django.utils.encoding import force_str, force_text
 from django.utils.safestring import mark_safe
@@ -328,12 +328,8 @@ class EmptySelect(forms.Select):
 
 
 # <editor-fold desc="SelectMultiple">
-class CheckBoxChoiceInput(ChoiceInput):
+class CheckBoxChoiceInput(DjangoCheckboxChoiceInput):
     input_type = 'checkbox'
-
-    def __init__(self, *args, **kwargs):
-        super(CheckBoxChoiceInput, self).__init__(*args, **kwargs)
-        self.value = force_text(self.value)
 
     def tag(self):
         if 'id' in self.attrs:

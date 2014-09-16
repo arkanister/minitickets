@@ -5,6 +5,7 @@ from django.contrib.auth.forms import AuthenticationForm as BaseAuthenticationFo
 from django.utils.translation import ugettext as _
 from lib.utils import forms as forms_utils
 from django.db.models import Q
+from lib.utils.forms.widgets import CheckboxSelectMultiple
 from src.minitickets.models import Funcionario, Produto, Cliente, Ticket
 
 
@@ -136,7 +137,7 @@ class ClienteCreateForm(forms.ModelForm):
             'nome_diretor': forms.TextInput(attrs={"size": '40'}),
             'email': forms_utils.EmailIconInput(),
             'telefone': forms.TextInput(attrs={"data-input-mask": 'telefone'}),
-            'produtos': forms.CheckboxSelectMultiple()
+            'produtos': CheckboxSelectMultiple()
         }
         fields = ['nome_fantasia', 'razao_social', 'cnpj', 'inscricao_estadual', 'inscricao_municipal', 'nome_diretor', 'telefone', 'email',  'produtos']
 
@@ -158,7 +159,7 @@ class ClienteUpdateForm(forms.ModelForm):
             'nome_diretor': forms.TextInput(attrs={"size": '40'}),
             'email': forms_utils.EmailIconInput(),
             'telefone': forms.TextInput(attrs={"data-input-mask": 'telefone'}),
-            'produtos': forms.CheckboxSelectMultiple()
+            'produtos': CheckboxSelectMultiple()
         }
         fields = ['nome_fantasia', 'razao_social', 'cnpj', 'inscricao_estadual', 'inscricao_municipal', 'nome_diretor', 'telefone', 'email',  'produtos', 'situacao']
 
@@ -181,6 +182,7 @@ class TicketCreateForm(forms.ModelForm):
             'descricao': forms.Textarea(attrs={"class": "custom-scroll md-input", "id": "mymarkdown", "rows": 5}),
             'tipo': forms_utils.InlineRadioSelect
         }
+        forms.CheckboxSelectMultiple
         fields = ['cliente', 'produto', 'titulo', 'descricao', 'tipo']
 
 
