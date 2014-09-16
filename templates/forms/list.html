@@ -4,6 +4,7 @@
 {% load icon from icons %}
 {% load render_table from django_tables2 %}
 {% load static from staticfiles %}
+{% load utils %}
 
 {% block styles.base %}
 <link rel="stylesheet" type="text/css" media="screen" href="{% static 'css/tables.css' %}">
@@ -40,6 +41,41 @@ $(function () {
 </script>
 {% block scripts.inline.list.base %}{% endblock scripts.inline.list.base %}
 {% endblock scripts.inline.base %}
+
+{% block content.header %}
+{% if TITLE %}
+<div class="page-header">
+
+    <div class="col-xs-12 col-sm-7 col-md-7 col-lg-4 no-padding-left">
+        <h1 class="txt-color-blueDark">
+
+            <!-- PAGE HEADER -->
+            {{ TITLE|safe }}
+            {% if SUBTITLE %}
+            <small>
+                {% icon 'angle-double-right' %}&nbsp;&nbsp;
+                {{ SUBTITLE|safe }}
+            </small>
+            {% endif %}
+        </h1>
+    </div>
+
+    <div class="col-xs-12 col-sm-5 col-md-5 col-lg-8 no-padding-right">
+        <ul id="sparks" class="">
+            <li class="sparks-info align-right">
+                <h5 style="width: 100%">
+                Total
+                <span class="txt-color-blue">{{ table.page.object_list|length|lpad:3 }}</span>
+                </h5>
+            </li>
+        </ul>
+    </div>
+
+<div class="clearfix"></div>
+
+</div>
+{% endif %}
+{% endblock content.header %}
 
 {% block content %}
 
