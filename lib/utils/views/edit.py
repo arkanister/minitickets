@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+
 from django.conf import settings
+from django.core.urlresolvers import NoReverseMatch
 
 from django.db import models
 from django.views.generic.detail import SingleObjectTemplateResponseMixin
@@ -47,7 +49,7 @@ class LogMixin(object):
         action_flag = self.get_action_flag()
 
         # if action_flag is False does nothing
-        if action_flag is not False:
+        if action_flag is not False and self.request.user.is_authenticated():
             log = self.get_log_class()
             if not log is None:
                 log.objects.log_action(self.request.user, self.object, action_flag)
@@ -70,17 +72,13 @@ class ModelFormMixin(LogMixin, DjangoModelFormMixin):
         return kwargs
 
     def get_url_redirect(self, view_type, *args, **kwargs):
-        """
-        Return a redirect url.
-        """
+        """ Return a redirect url. """
         args = self.get_url_args(view_type, *args)
         kwargs = self.get_url_kwargs(view_type, **kwargs)
         return UrlHelper.make_by_model(self.model, view_type, args=args, kwargs=kwargs)
 
     def get_success_url(self):
-        """
-        Returns a success redirect.
-        """
+        """ Returns a success redirect. """
         next_url = self.request.POST.get(self.next_field_name, None) or \
                    self.request.GET.get(self.next_field_name, None)
 
@@ -95,6 +93,8 @@ class ModelFormMixin(LogMixin, DjangoModelFormMixin):
 
         if not self.success_url:
             return self.get_url_redirect(LIST)
+        else:
+            return self.success_url
 
         return super(ModelFormMixin, self).get_success_url()
 
@@ -106,16 +106,19 @@ class ModelFormMixin(LogMixin, DjangoModelFormMixin):
 
     def form_invalid(self, form):
         response = super(ModelFormMixin, self).form_invalid(form)
+        response.status = 400
         self.messages.error(self.get_message('error'))
         return response
 
     def get_breadcrumbs(self):
         breadcrumbs = super(ModelFormMixin, self).get_breadcrumbs()
         if breadcrumbs is not None:
-            opts = getattr(self.model, '_meta')
-            breadcrumbs.add(opts.verbose_name_plural.title(), url=self.get_url_redirect(LIST), index=1)
-            return breadcrumbs
-        return None
+            try:
+                opts = getattr(self.model, '_meta')
+                breadcrumbs.add(opts.verbose_name_plural.title(), url=self.get_url_redirect(LIST), index=1)
+            except NoReverseMatch:
+                pass
+        return breadcrumbs
 
 
 class ProcessFormView(View):

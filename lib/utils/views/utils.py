@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import re
+import json
 
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http.response import HttpResponse
-from django.utils import simplejson as json
-from django.utils.html import strip_tags, format_html
+from django.utils.encoding import force_str
+from django.utils.html import format_html, strip_tags
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
@@ -14,7 +15,7 @@ from ..html import Icon, AttributeDict
 
 
 class JsonResponse(HttpResponse):
-    def __init__(self, context, status=None):
+    def __init__(self, context=None, status=None):
         content_type = mimetype = 'application/json'
         self.context_data = context
         super(JsonResponse, self).__init__('', content_type, status, mimetype)
@@ -41,6 +42,7 @@ class Accessor(str):
         if self == '':
             return ()
         return self.split(Accessor.SEPARATOR)
+
     bits = property(_bits)
 
     def resolve(self, instance, quiet=False):
@@ -92,12 +94,12 @@ class Accessor(str):
                             current = current[int(bit)]
                         except (IndexError,  # list index out of range
                                 ValueError,  # invalid literal for int()
-                                KeyError,    # dict without `int(bit)` key
-                                TypeError,   # unsubscriptable object
-                                ):
+                                KeyError,  # dict without `int(bit)` key
+                                TypeError,  # unsubscriptable object
+                        ):
                             raise ValueError('Failed lookup for key [%s] in %r'
                                              ', when resolving the accessor %s'
-                                              % (bit, current, self))
+                                             % (bit, current, self))
                 if callable(current):
                     current = current()
                 # important that we break in None case, or a relationship
@@ -148,9 +150,9 @@ class SmartStr(str):
             string = regex.sub(Icon(icon.lower()).as_html(), string)
 
         if prettify:
-            words = strip_tags(string.strip()).split(' ')
-            for word in words:
-                string.replace(word, word.capitalize())
+            for word in strip_tags(string.strip()).split(' '):
+                word_re = re.compile(word)
+                string = word_re.sub(word.title(), string)
 
         return string
 
@@ -158,7 +160,6 @@ S = SmartStr
 
 
 class UrlHelper(object):
-
     @staticmethod
     def make_by_model(model, view_type, args=[], kwargs={}):
         """
@@ -180,73 +181,7 @@ class UrlHelper(object):
             return reverse(url_conf, args=args, kwargs=kwargs)
 
 
-class Breadcrumb(object):
-    """
-    Breadcrumb can have methods to customize breadcrumb object, Breadcrumbs
-    class send to us name and url.
-    """
-    def __init__(self, name, url=None, icon=None):
-        self.name = name
-        self.url = url or ''
-        self._icon = icon
-
-    def has_icon(self):
-        return not self.icon is None
-
-    def _get_icon(self):
-        icon = self._icon
-        if isinstance(icon, basestring):
-            icon = Icon('icon')
-        elif not isinstance(icon, Icon):
-            return None
-        return icon
-    icon = property(_get_icon)
-
-    def __str__(self):
-        # todo verificar conversão de unicode
-        return self.name.encode('utf-8')
-
-    def __repr__(self):
-        return u"<Breadcrumb: %s>" % self.name
-
-
-class Breadcrumbs(object):
-
-    _errors = {
-        "type_error": _("'%s' object doest not is a %s.")
-    }
-
-    def __init__(self):
-        self.breadcrumbs = []
-
-    def add(self, name, url=None, icon=None, index=None):
-        if isinstance(icon, str):
-            icon = Icon(name=icon)
-        breadcrumb = Breadcrumb(name, url, icon)
-        if index is None:
-            self.breadcrumbs.append(breadcrumb)
-        else:
-            assert isinstance(index, int), self._errors['type_error'] % (type(index).__name__, 'integer')
-            self.breadcrumbs.insert(index, breadcrumb)
-
-    def remove(self, index):
-        self.breadcrumbs.pop(index)
-
-    def _get_first(self):
-        return self.breadcrumbs[0]
-    first = property(_get_first)
-
-    def _get_last(self):
-        return self.breadcrumbs[-1]
-    last = property(_get_last)
-
-    def __iter__(self):
-        for obj in self.breadcrumbs:
-            yield obj
-
-
 class Messages(object):
-
     DEBUG = messages.DEBUG
     INFO = messages.INFO
     SUCCESS = messages.SUCCESS
@@ -310,6 +245,110 @@ class Messages(object):
         return '<MessageRequestAdapter>'
 
 
+# <editor-fold desc="Breadcrumbs">
+class Breadcrumb(object):
+    """
+    Breadcrumb can have methods to customize breadcrumb object, Breadcrumbs
+    class send to us name and url.
+    """
+
+    def __init__(self, name, url=None, icon=None):
+        self.name = name
+        self.url = url or ''
+        self._icon = icon
+
+    def has_icon(self):
+        return not self.icon is None
+
+    def _get_icon(self):
+        icon = self._icon
+        if isinstance(icon, basestring):
+            icon = Icon('icon')
+        elif not isinstance(icon, Icon):
+            return None
+        return icon
+
+    icon = property(_get_icon)
+
+    def __str__(self):
+        # todo verificar conversão de unicode
+        return self.name.encode('utf-8')
+
+    def __repr__(self):
+        return u"<Breadcrumb: %s>" % self.name
+
+
+class BoundBreadcrumbs(object):
+    def __init__(self, breadcrumbs, breadcrumb):
+        self.breadcrumbs = breadcrumbs
+        self.breadcrumb = breadcrumb
+
+    def as_html(self):
+        return format_html(
+            '<li{1}>{1}{2}</li>',
+            '' if not self.breadcrumb == self.breadcrumbs.last else ' ' + AttributeDict(
+                {'class': 'active'}).as_html(),
+            self.icon.as_html() + ' ',
+            self.name
+        )
+
+    def as_a(self):
+        return format_html(
+            '<li{0}><a{1}>{2}{3}</a></li>',
+            '' if not self.breadcrumb == self.breadcrumbs.last else ' ' + AttributeDict(
+                {'class': 'active'}).as_html(),
+            ' ' + AttributeDict({'href': self.url or '#'}).as_html(),
+            self.icon.as_html() if self.icon else '',
+            self.name
+        )
+
+
+class Breadcrumbs(object):
+    _errors = {
+        "type_error": _("'%s' object doest not is a %s.")
+    }
+
+    def __init__(self):
+        self.breadcrumbs = []
+
+    def add(self, name, url=None, icon=None, index=None):
+        if isinstance(icon, str):
+            icon = Icon(name=icon)
+        breadcrumb = Breadcrumb(name, url, icon)
+        if index is None:
+            self.breadcrumbs.append(breadcrumb)
+        else:
+            assert isinstance(index, int), self._errors['type_error'] % (type(index).__name__, 'integer')
+            self.breadcrumbs.insert(index, breadcrumb)
+
+    def remove(self, index):
+        self.breadcrumbs.pop(index)
+
+    def _get_first(self):
+        return self.breadcrumbs[0]
+
+    first = property(_get_first)
+
+    def _get_last(self):
+        return self.breadcrumbs[-1]
+
+    last = property(_get_last)
+
+    def is_empty(self):
+        return len(self.breadcrumbs) == 0
+
+    def __repr__(self):
+        return "<Breadcrumb: [%s]>" % ', '.join([
+            force_str(breadcrumb.name) for breadcrumb in self.breadcrumbs
+        ])
+
+    def __iter__(self):
+        for breadcrumb in self.breadcrumbs:
+            yield BoundBreadcrumbs(self, breadcrumb)
+# </editor-fold>
+
+
+# <editor-fold desc="Table Actions">
 class Action(object):
     def __init__(self, viewname, verbose_name=None, icon=None, args=None,
                  kwargs=None, perms=None, attrs=None):
@@ -387,3 +426,4 @@ class TableActions(object):
     def __iter__(self):
         for action in self.actions:
             yield action
+# </editor-fold>

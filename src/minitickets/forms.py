@@ -114,6 +114,7 @@ class ProdutoForm(forms.ModelForm):
     class Meta:
         model = Produto
         widgets = {'descricao': forms.Textarea(attrs={"rows": 5})}
+        exclude = ['situacao']
 # </editor-fold>
 
 

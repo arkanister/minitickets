@@ -8,20 +8,27 @@ from .tables import SingleTableMixin
 from .list import ListView
 
 
-class SimpleSearchAjaxView(SingleTableMixin, ListView):
-    template_name = "defaults/modal/search.html"
+class ModalTableSearchView(SingleTableMixin, ListView):
     table_pagination = {"per_page": 10}
     perms = None  # this ignore permissions
     search_field_name = 'search'
+    ajax_required = True
+
+    def get_template_names(self):
+        opts = getattr(self.model, '_meta')
+        templates = [
+            '%s/modal/%s_search.html' % (opts.app_label.lower(), opts.object_name.lower()),
+            'forms/modal/search.html']
+        return templates
 
     def get(self, request, *args, **kwargs):
         # todo : define decorator
         if not request.is_ajax():
             raise PermissionDenied("This view accept only ajax request.")
-        return super(SimpleSearchAjaxView, self).get(request, *args, **kwargs)
+        return super(ModalTableSearchView, self).get(request, *args, **kwargs)
 
     def get_queryset(self):
-        queryset = super(SimpleSearchAjaxView, self).get_queryset()
+        queryset = super(ModalTableSearchView, self).get_queryset()
 
         filters = None
         search_value = self.request.GET.get(self.search_field_name, None)
@@ -30,29 +37,23 @@ class SimpleSearchAjaxView(SingleTableMixin, ListView):
                 isinstance(self.fields, (list, tuple)) and \
                 len(self.fields):
             for field in self.fields:
+                f = {field + '__icontains': search_value}
                 if not filters:
-                    f = {field + '__icontains': search_value}
                     filters = Q(**f)
-                    continue
-                filters |= Q(**f)
+                else:
+                    filters |= Q(**f)
 
         if filters is not None:
-            try:
-                queryset = queryset.filter(filters)
-            except:
-                pass
+            queryset = queryset.filter(filters)
         return queryset.distinct()
 
-    def get_reverse_func(self):
-        def simple_reverse(obj):
-            viewname = getattr(self, 'reverse_view_name', None)
-            return reverse(viewname)
-        return simple_reverse
+    def get_row_reverse_action(self):
+        raise NotImplementedError
 
-    def get_table_class(self):
-        table = super(SimpleSearchAjaxView, self).get_table_class()
-        table.reverse_func = self.get_reverse_func()
-        return table
+    def get_context_data(self, **kwargs):
+        context = super(ModalTableSearchView, self).get_context_data(**kwargs)
+        context['search'] = self.request.GET.get(self.search_field_name, None)
+        return context
 
 
 '''from .tables import SingleTableView

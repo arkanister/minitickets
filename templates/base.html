@@ -3,6 +3,7 @@
 {% load static from staticfiles %}
 {% load icon from icons %}
 {% load i18n %}
+{% load menu from menu %}
 
 {% block page %}
 
@@ -58,9 +59,7 @@
         -->
 
         <ul>
-            <li>
-                <a href= {% url 'home' %} title="Home">{% icon 'home' 'class'='fa-lg fa-fw' %} <span class="menu-item-parent">Home</span></a>
-            </li>
+            {% menu %}
         </ul>
 
     </nav>
@@ -69,24 +68,28 @@
 
 <div id="main" role="main">
 
-    {% if BREADCRUMBS %}
-    <div id="ribbon">
+    {% block page.breadcrumbs %}
+    <div id="ribbon" class="breadcrumbs breadcrumbs-fixed">
 
-        <!-- breadcrumb -->
-        <ol class="breadcrumb">
+        <ul class="breadcrumb">
             {% for breadcrumb in BREADCRUMBS %}
-                <li>
-                    {% if BREADCRUMBS.last == breadcrumb or not breadcrumb.url %}
-                        {{ breadcrumb }}
+                {% block page.breadcrumbs.breadcrumb %}
+                <li {% if breadcrumb.breadcrumb == BREADCRUMBS.last %}class="active"{% endif %}>
+                    {{ breadcrumb.breadcrumb.icon.as_html }}
+                    {% if breadcrumb.breadcrumb.url %}
+                        <a href="{{ breadcrumb.breadcrumb.url }}">{{ breadcrumb.breadcrumb }}</a>
                     {% else %}
-                        <a href="{{ breadcrumb.url }}">{{ breadcrumb }}</a>
+                        {{ breadcrumb.breadcrumb }}
                     {% endif %}
                 </li>
+                {% endblock page.breadcrumbs.breadcrumb %}
             {% endfor %}
-        </ol>
+        </ul><!-- /.breadcrumb -->
 
-    </div> <!-- /.breadcrumbs -->
-    {% endif %}
+        {% block page.breadcrumbs.extra %}{% endblock page.breadcrumbs.extra %}
+
+    </div>
+    {% endblock page.breadcrumbs %}
 
     <div id="content">
 

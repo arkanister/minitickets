@@ -31,7 +31,7 @@ class Pessoa(models.Model):
 
 class PessoaFisica(Pessoa):
     nome = models.CharField(max_length=80)
-    cpf = models.CharField(max_length=14, unique=True, blank=True, null=True, validators=[CpfValidator()], help_text="VSF")
+    cpf = models.CharField(max_length=14, unique=True, blank=True, null=True, validators=[CpfValidator()])
     rg = models.CharField(max_length=15, unique=True, blank=True, null=True)
 
     class Meta:
@@ -98,7 +98,7 @@ class Funcionario(AbstractBaseUser, PessoaFisica):
 
 class Produto(models.Model):
     nome = models.CharField(max_length=100)
-    descricao = models.TextField(null=True, blank=True)
+    descricao = models.TextField('Descrição', null=True, blank=True)
     situacao = models.PositiveIntegerField(
         choices=(
             (1, u'Ativo'),
