@@ -121,12 +121,7 @@ class ProdutoDeleteView(DeleteView):
 class TicketCreateView(CreateView):
     model = Ticket
     form_class = TicketCreateForm
-    modal = "templates/minitickets/ticket_create_form.html"
-
-    def form_invalid(self, form):
-        response = super(TicketCreateView, self).form_invalid(form)
-        response.status_code = 400
-        return response
+    modal = "minitickets/ticket_create_form.html"
 
 
 class TicketUpdateView(UpdateView):

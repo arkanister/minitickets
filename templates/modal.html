@@ -1,0 +1,32 @@
+{% block scripts.template %}{% endblock scripts.template %}
+{% block scripts %}{% endblock scripts %}
+
+<div class="modal-dialog">
+
+	{% block modal %}
+	<div class="modal-content">
+
+		{% block modal.header %}
+		<div class="modal-header">
+
+			<button class="close" data-dismiss="modal" type="button">×</button>
+
+			{% block modal.header.title %}
+			<h4>{{ TITLE|safe }}</h4>
+			{% endblock modal.header.title %}
+
+		</div>
+		{% endblock modal.header %}
+
+		{% block modal.body %}
+		<div class="modal-body">
+			{% block modal.body.content %}{% endblock modal.body.content %}
+		</div>
+		{% endblock modal.body %}
+
+		{% block modal.footer %}{% endblock modal.footer %}
+
+	</div>
+	{% endblock modal %}
+
+</div>
