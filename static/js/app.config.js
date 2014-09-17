@@ -97,7 +97,7 @@ $(document).ready(function() {
             $.root_.append($modal);
             $.defaults['modal'] = $modal;
 
-            $('[rel=modal]').on('click', function(e) {
+            $('[data-toggle=modal]').on('click', function(e) {
                 var modal = $(this).data('modal'),
                     action = $(this).data('action');
 

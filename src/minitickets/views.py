@@ -121,25 +121,18 @@ class ProdutoDeleteView(DeleteView):
 class TicketCreateView(CreateView):
     model = Ticket
     form_class = TicketCreateForm
-    modal = "templates/minitickets/ticket_create_form.html"
 
-    def form_invalid(self, form):
-        response = super(TicketCreateView, self).form_invalid(form)
-        response.status_code = 400
-        return response
+    def form_valid(self, form):
+        if self.request.user.cargo == 1:
+            form.instance.analista = self.request.user
 
-
-class TicketUpdateView(UpdateView):
-    model = Ticket
-    form_class = TicketUpdateForm
+        self.object = form.save()
+        self.messages.success(self.get_message('success'))
+        return JsonResponse({'redirect_to': self.get_success_url()})
 
 
 class TicketListView(ListView):
     model = Ticket
-    #table_class = TicketTable
-
-
-class TicketDeleteView(DeleteView):
-    model = Ticket
+    actions = False
 # </editor-fold>
 

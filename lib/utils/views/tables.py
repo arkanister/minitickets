@@ -32,7 +32,7 @@ class SingleTableView(SingleTableMixin, ListView):
     Generic view that renders a template and passes in a `.Table` object.
     """
 
-    table_pagination = {"per_page": 10}
+    table_pagination = {"per_page": 20}
     actions = None
     action_column_width = 80
 

@@ -11,6 +11,19 @@
     box-shadow: none;
 }
 
+.smart-style-3 input:not([type]).form-control,
+.smart-style-3 input[type="color"].form-control,
+.smart-style-3 input[type="email"].form-control,
+.smart-style-3 input[type="number"].form-control,
+.smart-style-3 input[type="password"].form-control,
+.smart-style-3 input[type="tel"].form-control,
+.smart-style-3 input[type="text"].form-control,
+.smart-style-3 input[type="url"].form-control,
+.smart-style-3 textarea.form-control,
+.smart-style-3 select.form-control{
+    width: 100%;
+}
+
 input:not([type]),
 input[type="color"],
 input[type="email"],
@@ -192,5 +205,12 @@ label.focus input.radiobox[type="radio"] + span:before, label.focus input.radiob
 .select2, .select2-searh, .select2-choice{
     width: 300px;
     margin-right: 260px;
+}
 
+/* Markdown Fix */
+.md-editor.active {
+    box-shadow: none;
+}
+.md-preview img {
+    max-width: 100%;
 }

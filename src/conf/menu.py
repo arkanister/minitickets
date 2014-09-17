@@ -11,6 +11,12 @@ MAIN_NAV = [{
     "verbose_name": u"Cadastro",
     "icon": "edit",
     "submenus": [{
+        "verbose_name": u"Ticket",
+        "action": "minitickets:list-ticket",
+        "icon": "building-o",
+        "permissions": ["minitickets.view_ticket"],
+        "pattern": r"^/tickets  /",
+    }, {
         "verbose_name": u"Cliente",
         "action": "minitickets:list-cliente",
         "icon": "building-o",

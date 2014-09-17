@@ -110,3 +110,22 @@
 .menu-on-top .menu-item-parent {
     max-width: 150px;
 }
+
+/* clock active animate */
+
+#inbox-table .inbox-data-attachment a.active i {
+    color: #A90329;
+    -moz-animation: clockpulse 1s infinite ease-out;
+}
+
+@keyframes clockpulse {
+    0% {
+        -moz-transform: scale(1);
+    }
+    50% {
+        -moz-transform: scale(1.5);
+    }
+    100% {
+        -moz-transform: scale(1);
+    }
+}

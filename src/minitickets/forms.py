@@ -176,14 +176,13 @@ class TicketCreateForm(forms.ModelForm):
         model = Ticket
         widgets = {
             'cliente': forms.HiddenInput(),
-            'produto': forms.Select(),
-            'analista': forms.Select(),
-            'titulo': forms.TextInput(),
-            'descricao': forms.Textarea(attrs={"class": "custom-scroll md-input", "id": "mymarkdown", "rows": 5}),
-            'tipo': forms_utils.InlineRadioSelect
+            'produto': forms.Select(attrs={"class": "form-control"}),
+            'titulo': forms.TextInput(attrs={"class": "form-control", "placeholder": u"Título do Ticket"}),
+            'descricao': forms.Textarea(attrs={"class": "custom-scroll md-input", "class": "mymarkdown", "rows": 4, "placeholder": "Descreva aqui o ticket."}),
+            'tipo': forms.Select(attrs={"class": "form-control"})
         }
         forms.CheckboxSelectMultiple
-        fields = ['cliente', 'produto', 'titulo', 'descricao', 'tipo']
+        fields = ['cliente', 'produto', 'tipo', 'titulo', 'descricao']
 
 
 class TicketUpdateForm(forms.ModelForm):
