@@ -106,7 +106,7 @@ class ModelFormMixin(LogMixin, DjangoModelFormMixin):
 
     def form_invalid(self, form):
         response = super(ModelFormMixin, self).form_invalid(form)
-        response.status = 400
+        response.status_code = 400
         self.messages.error(self.get_message('error'))
         return response
 

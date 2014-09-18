@@ -1,5 +1,5 @@
 # coding: utf-8
-
+from django.db.models import Q
 from django.shortcuts import render
 from django.views.generic.base import View as DjangoView
 
@@ -138,15 +138,27 @@ class TicketListView(ListView):
     def get_queryset(self):
         queryset = super(TicketListView, self).get_queryset()
 
+        se = self.request.GET.get('se')
+        if se is not None:
+            queryset = queryset.filter(Q(titulo__icontains=se) | Q(descricao__icontains=se))
+
+        t = self.request.GET.get('t')
+        if t is not None:
+            queryset = queryset.filter(tipo=t)
+
         s = self.request.GET.get('s')
-        if s is not None:
-            queryset = queryset.filter(situacao=s)
+        if s is None or s == 'open':
+            queryset = queryset.filter(situacao=1)
+        else:
+            queryset = queryset.filter(situacao=2)
 
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super(TicketListView, self).get_context_data(**kwargs)
+        context['t'] = self.request.GET.get('t')
         context['s'] = self.request.GET.get('s')
+        context['se'] = self.request.GET.get('se')
         return context
 
 
