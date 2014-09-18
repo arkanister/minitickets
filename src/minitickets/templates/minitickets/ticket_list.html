@@ -1,8 +1,10 @@
 {% extends 'base.html' %}
 
+{% load django_tables2 %}
 {% load i18n %}
 {% load humanize %}
 {% load icon from icons %}
+{% load lpad from utils %}
 
 {% block content.header %}
 {% endblock content.header %}
@@ -10,45 +12,78 @@
 {% block content %}
 <div class="inbox-nav-bar no-content-padding">
 
-    <h1 class="page-title txt-color-blueDark hidden-tablet">
-        {{ TITLE|safe }}
+    <h1 data-toggle="modal" data-action="{% url 'minitickets:add-ticket' %}" class="page-title txt-color-blueDark hidden-tablet" style="vertical-align: top;">
+        <i class="fa fa-fw fa-ticket"></i>
+        Tickets
     </h1>
 
+    <div class="btn-group hidden-desktop visible-tablet" style="vertical-align: top;">
+        <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            Inbox
+            <i class="fa fa-caret-down"></i>
+        </button>
+        <ul class="dropdown-menu pull-left">
+            <li>
+                <a class="inbox-load" href="javascript:void(0);">
+                    Inbox
+                    <i class="fa fa-check"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+
     <div class="inbox-checkbox-triggered">
-        <div class="btn-group">
-            <a class="btn btn-default" data-original-title="Mark Important" data-placement="bottom" title="" rel="tooltip" href="javascript:void(0);">
-                <strong>
-                    <i class="fa fa-exclamation fa-lg text-danger"></i>
-                </strong>
-            </a>
-            <a class="btn btn-default" data-original-title="Move to folder" data-placement="bottom" title="" rel="tooltip" href="javascript:void(0);">
-                <strong>
-                    <i class="fa fa-folder-open fa-lg"></i>
-                </strong>
-            </a>
-            <a class="deletebutton btn btn-default" data-original-title="Delete" data-placement="bottom" title="" rel="tooltip" href="javascript:void(0);">
-                <strong>
-                    <i class="fa fa-trash-o fa-lg"></i>
-                </strong>
-            </a>
+        <div class="input-group">
+            <input placeholder="{% trans 'Search' %}" class="form-control" type="text" size="13">
+            <div class="input-group-btn">
+                <button class="btn btn-default" type="button">
+                    {% icon 'search' 'class'='icon-only' %}
+                </button>
+            </div>
         </div>
     </div>
 
     <div class="btn-group pull-right inbox-paging">
-        <a class="btn btn-default btn-sm" href="javascript:void(0);">
-            <strong>
-                <i class="fa fa-chevron-left"></i>
-            </strong>
-        </a>
-        <a class="btn btn-default btn-sm" href="javascript:void(0);">
-            <strong>
-                <i class="fa fa-chevron-right"></i>
-            </strong>
-        </a>
+
+        {% if table.page %}
+            {% with table.page.paginator.count as total %}
+            {% with table.page.object_list|length as count %}
+                {% block pagination %}
+
+                <a class="btn btn-default btn-sm{% if not table.page.has_previous %} disabled{% endif %}" {% if table.page.has_previous %}href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}"{% endif %}>
+                    <strong>
+                        {% icon 'angle-left' %}
+                    </strong>
+                </a>
+
+                {% for page in table.paginator.page_range %}
+                <a class="btn btn-default btn-sm{% if page == table.page.number %} active{% endif %}" {% if page != table.page.number %}href="{% querystring table.prefixed_page_field=page %}"{% endif %}>
+                    <strong>
+                        {{ page }}
+                    </strong>
+                </a>
+                {% endfor %}
+
+                <a class="btn btn-default btn-sm{% if not table.page.has_next %} disabled{% endif %}" {% if table.page.has_next %}href="{% querystring table.prefixed_page_field=table.page.next_page_number %}"{% endif %}>
+                    <strong>
+                        {% icon 'angle-right' %}
+                    </strong>
+                </a>
+                {% endblock pagination %}
+            {% endwith %}
+            {% endwith %}
+        {% endif %}
+
     </div>
 
     <span class="pull-right">
-        <strong>1-30</strong> of <strong>3,452</strong>
+        {% blocktrans with table.page.paginator.count as count and table.page.object_list|length as total %}
+        <span style="line-height: 30px; ">
+            <strong>{{ count }}</strong> of <strong>{{ total }}</strong>
+        </span>
+        {% endblocktrans %}
+
+
     </span>
 
 </div>
@@ -56,31 +91,57 @@
 <div id="inbox-content" class="inbox-body no-content-padding">
 
     <div class="inbox-side-bar">
-
-        <a data-toggle="modal" class="btn btn-primary btn-block" href="{% url "minitickets:add-ticket" %}">
+        {% comment %}
+        <a data-toggle="modal" class="btn btn-primary btn-block" style="margin-top: 3px;" href="{% url "minitickets:add-ticket" %}">
             <strong>{% icon 'plus-circle' %} {% trans 'Add' %}</strong>
         </a>
+        {% endcomment %}
+
+        <h6>
+            {% trans 'Status' %}
+            <a class="pull-right txt-color-darken" data-original-title="Refresh" data-placement="right" title="" rel="tooltip" href="javascript:void(0);">
+        </h6>
 
         <ul class="inbox-menu-lg">
-            <li class="active">
-                <a class="inbox-load" href="#"> Inbox (14) </a>
+            <li{% if s == '1' or not s %} class="active"{% endif %}>
+                <a href="{% querystring 's'=1 %}">{% trans 'Open' %}</a>
+            </li>
+            <li{% if s == '2' %} class="active"{% endif %}>
+                <a href="{% querystring 's'=2 %}">{% trans 'Closed' %}</a>
+            </li>
+        </ul>
+
+        <h6>
+            {% trans 'Types' %}
+            <a class="pull-right txt-color-darken" data-original-title="Refresh" data-placement="right" title="" rel="tooltip" href="javascript:void(0);">
+        </h6>
+
+        <ul class="inbox-menu-lg">
+            <li>
+                <a href="#"> {% trans 'All' %} </a>
             </li>
             <li>
-                <a href="#">Sent</a>
+                <a href="#">{% trans 'Question' %}</a>
+            </li>
+            <li>
+                <a href="#">{% trans 'Error' %}</a>
+            </li>
+            <li>
+                <a href="#">{% trans 'Sujestion' %}</a>
             </li>
         </ul>
 
     </div>
 
-    <div class="table-wrap custom-scroll animated fast fadeInRight" style="height: 320px; opacity: 1;">
+    <div class="table-wrap custom-scroll animated fast fadeInRight no-padding-top" style="height: 320px; opacity: 1;">
 
         <table id="inbox-table" class="table table-striped table-hover">
             <tbody>
                 {% for row in table.page.object_list|default:table.rows %}
                 {% with row.record as ticket %}
-                <tr id="msg1" class="unread">
+                <tr id="msg1">
                     <td class="inbox-data-from hidden-xs hidden-sm">
-                        <div> {{ ticket.cliente.nome_fantasia }} </div>
+                        <div style="padding-left: 7px;"> {{ ticket.cliente.nome_fantasia }} </div>
                     </td>
                     <td class="inbox-data-message">
                         <div>
@@ -92,14 +153,14 @@
                                 {% elif ticket.tipo == 3 %}
                                 <span class="label bg-color-blue">{{ ticket.get_tipo_display }}</span>
                                 {% endif %}
-                                {{ ticket.titulo }}
+                                {{ ticket.titulo|truncatechars:20 }}
                             </span>
-                            {{ ticket.descricao }}
+                            {{ ticket.descricao|truncatechars:50 }}
                         </div>
                     </td>
                     <td class="inbox-data-attachment hidden-xs">
                         <div>
-                            <a class="active txt-color-darken" data-original-title="{% trans 'Start' %}" data-placement="left" rel="tooltip">
+                            <a class="txt-color-darken" data-original-title="{% trans 'Start' %}" data-placement="left" rel="tooltip">
                                 {% icon 'clock-o' 'class'='bigger-120' %}
                             </a>
                         </div>

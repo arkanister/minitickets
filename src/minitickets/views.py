@@ -134,5 +134,21 @@ class TicketCreateView(CreateView):
 class TicketListView(ListView):
     model = Ticket
     actions = False
+
+    def get_queryset(self):
+        queryset = super(TicketListView, self).get_queryset()
+
+        s = self.request.GET.get('s')
+        if s is not None:
+            queryset = queryset.filter(situacao=s)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(TicketListView, self).get_context_data(**kwargs)
+        context['s'] = self.request.GET.get('s')
+        return context
+
+
 # </editor-fold>
 

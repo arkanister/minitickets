@@ -13,7 +13,7 @@ MAIN_NAV = [{
     "submenus": [{
         "verbose_name": u"Ticket",
         "action": "minitickets:list-ticket",
-        "icon": "building-o",
+        "icon": "ticket",
         "permissions": ["minitickets.view_ticket"],
         "pattern": r"^/tickets  /",
     }, {
