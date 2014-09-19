@@ -188,4 +188,8 @@ $(document).ready(function() {
         }
     }
 
+    $('[trigger=click]').on('click', function () {
+        window.location = $(this).data('action');
+    });
+
 });

@@ -117,7 +117,6 @@
 
         <h6>
             {% trans 'Types' %}
-            <a class="pull-right txt-color-darken" data-original-title="Refresh" data-placement="right" title="" rel="tooltip" href="javascript:void(0);">
         </h6>
 
         <ul class="inbox-menu-lg">
@@ -143,7 +142,7 @@
             <tbody>
                 {% for row in table.page.object_list|default:table.rows %}
                 {% with row.record as ticket %}
-                <tr id="msg1"{% if ticket.situacao == 1 %} class="unread"{% endif %}>
+                <tr data-action="{% url 'minitickets:detail-ticket' ticket.pk %}" trigger="click" id="msg1"{% if ticket.situacao == 1 %} class="unread"{% endif %}>
                     <td class="inbox-data-from hidden-xs hidden-sm">
                         <div style="padding-left: 7px;"> {{ ticket.cliente.nome_fantasia }} </div>
                     </td>

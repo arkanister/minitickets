@@ -140,9 +140,11 @@ class Cliente(models.Model):
 class Ticket(models.Model):
     cliente = models.ForeignKey('Cliente')
     produto = models.ForeignKey('Produto')
-    analista = models.ForeignKey('Funcionario', null=True, blank=True)
+    analista = models.ForeignKey('Funcionario', null=True, blank=True, related_name='analista')
+    desenvolvedor = models.ForeignKey('Funcionario', null=True, blank=True, related_name='desenvolvedor')
     titulo = models.CharField(max_length=50)
     descricao = models.TextField()
+    solucao = models.TextField(null=True, blank=True)
     tipo = models.PositiveSmallIntegerField(
         choices=(
             (1, u'Dúvida'),
@@ -151,6 +153,7 @@ class Ticket(models.Model):
         ), default=1
     )
     data_abertura = models.DateTimeField(auto_now_add=True)
+    data_fechamento = models.DateTimeField(null=True, blank=True)
     situacao = models.PositiveIntegerField(
         choices=(
             (1, 'Aberto'),

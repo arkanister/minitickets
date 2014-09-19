@@ -185,6 +185,14 @@ class TicketCreateForm(forms.ModelForm):
         fields = ['cliente', 'produto', 'tipo', 'titulo', 'descricao']
 
 
+class TicketDetailForm(forms.ModelForm):
+    model = Ticket
+    widgets = {
+        'desenvolvedor': forms.Select(attrs={"class": "form-control"})
+
+    }
+
+
 class TicketUpdateForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):

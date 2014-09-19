@@ -4,11 +4,12 @@ from django.shortcuts import render
 from django.views.generic.base import View as DjangoView
 
 from lib.utils.views.base import TemplateSmartView as TemplateView
+from lib.utils.views.detail import DetailView
 from lib.utils.views.edit import CreateView, UpdateView, DeleteView
 from lib.utils.views.tables import SingleTableView as ListView
 from lib.utils.views.utils import JsonResponse
 from src.minitickets.forms import FuncionarioCreateForm, FuncionarioUpdateForm, ProdutoForm, \
-    ClienteUpdateForm, ClienteCreateForm, TicketCreateForm, TicketUpdateForm
+    ClienteUpdateForm, ClienteCreateForm, TicketCreateForm, TicketUpdateForm, TicketDetailForm
 
 from src.minitickets.models import Funcionario, Produto, Cliente, Ticket
 from src.minitickets.tables import FuncionarioTable, ProdutoTable, ClienteTable
@@ -131,12 +132,25 @@ class TicketCreateView(CreateView):
         return JsonResponse({'redirect_to': self.get_success_url()})
 
 
+class TicketDetailView(DetailView):
+    model = Ticket
+    form_class = TicketDetailForm
+
+
 class TicketListView(ListView):
     model = Ticket
     actions = False
 
     def get_queryset(self):
         queryset = super(TicketListView, self).get_queryset()
+
+        funcionario = self.request.user
+
+        if funcionario.cargo == 1:
+            queryset = queryset.filter(analista=funcionario.pk)
+
+        elif funcionario.cargo == 2:
+            queryset = queryset.filter(desenvolvedor=funcionario.pk)
 
         se = self.request.GET.get('se')
         if se is not None:
