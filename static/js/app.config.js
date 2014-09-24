@@ -73,21 +73,38 @@ $(document).ready(function() {
         $('[rel=tooltip]').tooltip();
     };
 
-    // Loader for popovers
-    $.loaders['popover'] = function() {
-        $('[rel=popover].top.hover').popover({trigger: 'hover', placement: 'top'});
-        $('[rel=popover].bottom.hover').popover({trigger: 'hover', placement: 'bottom'});
-        $('[rel=popover].left.hover').popover({trigger: 'hover', placement: 'left'});
-        $('[rel=popover].right.hover').popover({trigger: 'hover', placement: 'right'});
+    // loader popover
+    $.loaders['popover'] = function  () {
+        var $popover = $('[rel=popover]');
 
-        $('[rel=popover].hover').popover({trigger: 'hover', placement: 'top'});
+        $popover.each(function () {
+            var $el = $(this),
+                data = $el.data(),
+                attrs = {};
 
-        $('[rel=popover].top').popover({placement: 'top'});
-        $('[rel=popover].bottom').popover({placement: 'bottom'});
-        $('[rel=popover].left').popover({placement: 'left'});
-        $('[rel=popover].right').popover({placement: 'right'});
+            // check direction by class
+            if ($el.hasClass('popover-top')) attrs['placement'] = 'top';
+            if ($el.hasClass('popover-left')) attrs['placement'] = 'left';
+            if ($el.hasClass('popover-bottom')) attrs['placement'] = 'bottom';
+            if ($el.hasClass('popover-right')) attrs['placement'] = 'right';
 
-        $('[rel=popover]').popover();
+            // check trigger
+            if ($el.hasClass('popover-hover')) attrs['trigger'] = 'hover';
+            if ($el.hasClass('popover-click')) attrs['trigger'] = 'click';
+
+            // check html
+            if ($el.hasClass('popover-html')) {
+                var $target = $(data.target);
+                attrs['html'] = true;
+                attrs['content'] = function () {
+                    return $target.html();
+                };
+            }
+
+            $el.popover($.extend(data, attrs));
+        });
+
+        return $popover;
     };
 
     // Modal

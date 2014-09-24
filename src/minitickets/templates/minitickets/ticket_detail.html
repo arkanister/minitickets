@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 
+{% load static from staticfiles %}
 {% load django_tables2 %}
 {% load input from forms %}
 {% load i18n %}
@@ -9,6 +10,74 @@
 
 {% block content.header %}
 {% endblock content.header %}
+
+{% block scripts %}
+<script src="{% static 'js/plugin/x-editable/moment.min.js' %}"></script>
+<script src="{% static 'js/plugin/x-editable/jquery.mockjax.min.js' %}"></script>
+<script src="{% static 'js/plugin/x-editable/x-editable.min.js' %}"></script>
+{% endblock scripts %}
+
+{% block scripts.inline %}
+    <script type="text/javascript">
+$(function () {
+    $("[rel=tooltip]").tooltip();
+
+    $('#desenvolvedor').editable({
+        name: 'desenvolvedor',
+        url: '{% url 'minitickets:change-desenvolvedor-ticket' ticket.pk %}',
+        pk: '{{ ticket.pk }}',
+        ajaxOptions: {
+            headers: {'X-Csrftoken': '{{ csrf_token }}'}
+        },
+        title: 'Select developer',
+        type: 'select',
+        value: '{{ ticket.desenvolvedor.pk|default:'' }}',
+        source: function () {
+            return {
+                {% for desenvolvedor in desenvolvedores %}
+                    '{{ desenvolvedor.pk }}':'{{ desenvolvedor }}',
+                {% endfor %}
+            }
+        }
+    });
+
+    $('#tipo').editable({
+        name: 'tipo',
+        url: '{% url 'minitickets:change-tipo-ticket' ticket.pk %}',
+        pk: '{{ ticket.pk }}',
+        ajaxOptions: {
+            headers: {'X-Csrftoken': '{{ csrf_token }}'}
+        },
+        title: 'Select Type',
+        type: 'select',
+        value: '{{ ticket.tipo }}',
+        source: function () {
+            return {
+                1: "Dúvida",
+                2: "Erro",
+                3: "Sugestão"
+            }
+        },
+        success: function (data, newValue) {
+            $('#id_tipo-badge').html(data.tipo_display).attr("class", 'badge');
+
+            if (data.tipo == 1) {
+                $('#id_tipo-badge').addClass("bg-color-blue");
+            }
+            else if (data.tipo == 2) {
+                $('#id_tipo-badge').addClass("bg-color-red");
+            }
+            else if (data.tipo == 3) {
+                $('#id_tipo-badge').addClass("bg-color-green");
+            }
+
+        }
+    });
+
+});
+</script>
+{% endblock scripts.inline %}
+
 
 {% block content %}
 <div class="inbox-nav-bar no-content-padding">
@@ -46,7 +115,7 @@
 
         <h6>
             {% trans 'Status' %}
-            <a class="pull-right txt-color-darken" data-original-title="Refresh" data-placement="right" title="" rel="tooltip" href="javascript:void(0);">
+            <a class="pull-right txt-color-darken" data-original-title="Refresh" data-placement="right" title="" rel="tooltip" href="javascript:void(0);"></a>
         </h6>
 
         <ul class="inbox-menu-lg">
@@ -80,43 +149,123 @@
 
     </div>
 
-    <div class="table-wrap custom-scroll animated fast fadeInRight no-padding-top" style="height: 400px; opacity: 1;">
+    <div class="table-wrap custom-scroll animated fast fadeInRight no-padding-top" style="height: 500px; opacity: 1;">
 
-        <h2 class="email-open-header no-margin-right">
-            <span class="label txt-color-white">{{ ticket.get_tipo_display }}</span>
-            {{ ticket.titulo }}
-            <small class="pull-right">
-                <time datetime="{{ ticket.data_abertura|date:'Y-m-d' }}">
-                    {% icon 'clock-o' %}
-                    {{ ticket.data_abertura|naturaltime }}
-                </time>
-            </small>
-        </h2>
+        <div class="email-infobox no-border-top" style="border-bottom: 0; top: 0;">
+            <div class="well well-sm well-light">
 
-        <div class="inbox-info-bar no-padding-top no-padding-bottom">
+                <label class="bolder">Cliente</label>
+
+                <div>
+                    {{ ticket.cliente.nome_fantasia }}
+                </div>
+
+                <div class="space-6"></div>
+
+                <ul class="list-unstyled">
+                    {% with ticket.cliente as cliente %}
+                    <li>{% icon 'phone' %} {{ cliente.telefone }}</li>
+                    <li class="hr hr-4"></li>
+                    <li>
+                        <a href="mailto:{{ cliente.email }}">
+                            {% icon 'envelope' %} {{ cliente.email }}
+                        </a>
+
+                    </li>
+                    {% endwith %}
+                </ul>
+             </div>
+
+            <div class="well well-sm well-light">
+
+                <div>
+
+                    <label class="bolder">Produto</label>
+
+                    <div class="editable-input block">
+                        {{ ticket.produto }}
+                    </div>
+
+                </div>
+
+                <div class="space-6"></div>
+
+                <div>
+
+                    <label class="bolder">Tipo</label>
+
+                    <div class="editable-input block">
+                        <span id="tipo" class="cursor-pointer"> {{ ticket.get_tipo_display }}</span>
+                    </div>
+
+                </div>
+
+                <div class="space-6"></div>
+
+                <div>
+
+                    <label class="bolder">Analista</label>
+
+                    <div>
+                       {{ ticket.analista }}
+                    </div>
+
+                </div>
+
+                <div class="space-6"></div>
+
+                <div>
+
+                    <label class="bolder">Desenvolvedor</label>
+
+                    <div class="editable-input block">
+                        <span id="desenvolvedor" class="cursor-pointer">{{ ticket.desenvolvedor|default:'' }}</span>
+                    </div>
+
+                </div>
+
+                <div class="space-6"></div>
+
+            </div>
+        </div>
+
+        <div class="inbox-info-bar">
+
             <div class="row">
-                <div class="col-sm-12">
-                    <h3><i class="fa fa-fw fa-money bigger-120 txt-color-lighten"></i> {{ ticket.cliente.nome_fantasia }}</h3>
-                        <div class="col-xs-6">
-                            <span><h5>Telefone: {{ ticket.cliente.telefone }}</h5></span>
-                        </div>
-                        <div class="col-xs-6">
-                            <a><h5>Email: {{ ticket.cliente.email }}</h5></a>
-                        </div>
 
-                        <h2>
-                            <span class="label txt-color-white">{{ ticket.produto }}</span>
-                            Analista: {{ ticket.analista }}
-                            <a> Desenvolvedor: {{ ticket.desenvolvedor }}</a>
-                        </h2>
+                <div class="col-xs-12">
+
+                    {% if ticket.tipo == 1 %}
+                        <span id="id_tipo-badge" class="badge bg-color-blue">{{ ticket.get_tipo_display }}</span>
+                    {% elif ticket.tipo == 2 %}
+                        <span id="id_tipo-badge" class="badge bg-color-red">{{ ticket.get_tipo_display }}</span>
+                    {% elif ticket.tipo == 3 %}
+                        <span id="id_tipo-badge" class="badge bg-color-green">{{ ticket.get_tipo_display }}</span>
+                    {% endif %}
+
+                    <strong>{{ ticket.titulo }}</strong>
+
+                    <small class="pull-right" style="color: #999;">
+                        <time datetime="{{ ticket.data_abertura|date:'Y-m-d' }}">
+                            {% icon 'clock-o' %}
+                            {{ ticket.data_abertura|naturaltime }}
+                        </time>
+                    </small>
 
                 </div>
 
             </div>
+
         </div>
-        <div class="inbox-message">
+
+        <div class="inbox-message" style="min-height: 200px">
             <p> {{ ticket.descricao }} </p>
         </div>
+
+        <div>
+            <a class="col-lg-offset-8 cursor-pointer">Histórico</a>
+        </div>
+
     </div>
 </div>
 {% endblock content %}

@@ -66,6 +66,48 @@ class ClienteDeleteView(DeleteView):
     model = Cliente
 
 
+class TicketTipoUpdateView(UpdateView):
+    breadcrumbs = False
+    model = Ticket
+    fields = ['tipo']
+
+    def get_form_kwargs(self):
+        kwargs = super(TicketTipoUpdateView, self).get_form_kwargs()
+        data = {'tipo': self.request.POST.get('value')}
+        kwargs['data'] = data
+        return kwargs
+
+    def form_valid(self, form):
+        self.object = form.save()
+        return JsonResponse({'tipo': self.object.tipo, 'tipo_display': self.object.get_tipo_display()})
+
+
+class TicketDesenvolvedorUpdateView(UpdateView):
+    breadcrumbs = False
+    model = Ticket
+    fields = ['desenvolvedor']
+
+    def get_form_kwargs(self):
+        kwargs = super(TicketDesenvolvedorUpdateView, self).get_form_kwargs()
+        data = {'desenvolvedor': self.request.POST.get('value')}
+        kwargs['data'] = data
+        return kwargs
+
+    def get_form(self, form_class):
+        form = super(TicketDesenvolvedorUpdateView, self).get_form(form_class)
+        form.fields['desenvolvedor'].required = True
+        form.fields['desenvolvedor'].queryset = Funcionario.objects.filter(cargo=1, situacao=1)  # TODO: cargo=2
+        return form
+
+    def form_valid(self, form):
+        self.object = form.save()
+        return JsonResponse({})
+
+    def form_invalid(self, form):
+        error = form.errors['desenvolvedor'][0]
+        return JsonResponse(error, status=400)
+
+
 class ClienteAutoCompleteView(DjangoView):
     model = Cliente
 
@@ -135,6 +177,11 @@ class TicketCreateView(CreateView):
 class TicketDetailView(DetailView):
     model = Ticket
     form_class = TicketDetailForm
+
+    def get_context_data(self, **kwargs):
+        context = super(TicketDetailView, self).get_context_data(**kwargs)
+        context['desenvolvedores'] = Funcionario.objects.filter(cargo=1, situacao=1)  # TODO: cargo=2
+        return context
 
 
 class TicketListView(ListView):
