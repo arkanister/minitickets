@@ -11,7 +11,7 @@ from lib.utils.views.utils import JsonResponse
 from src.minitickets.forms import FuncionarioCreateForm, FuncionarioUpdateForm, ProdutoForm, \
     ClienteUpdateForm, ClienteCreateForm, TicketCreateForm, TicketUpdateForm, TicketDetailForm
 
-from src.minitickets.models import Funcionario, Produto, Cliente, Ticket
+from src.minitickets.models import Funcionario, Produto, Cliente, Ticket, HistoricoTicket
 from src.minitickets.tables import FuncionarioTable, ProdutoTable, ClienteTable
 
 
@@ -64,48 +64,6 @@ class ClienteListView(ListView):
 
 class ClienteDeleteView(DeleteView):
     model = Cliente
-
-
-class TicketTipoUpdateView(UpdateView):
-    breadcrumbs = False
-    model = Ticket
-    fields = ['tipo']
-
-    def get_form_kwargs(self):
-        kwargs = super(TicketTipoUpdateView, self).get_form_kwargs()
-        data = {'tipo': self.request.POST.get('value')}
-        kwargs['data'] = data
-        return kwargs
-
-    def form_valid(self, form):
-        self.object = form.save()
-        return JsonResponse({'tipo': self.object.tipo, 'tipo_display': self.object.get_tipo_display()})
-
-
-class TicketDesenvolvedorUpdateView(UpdateView):
-    breadcrumbs = False
-    model = Ticket
-    fields = ['desenvolvedor']
-
-    def get_form_kwargs(self):
-        kwargs = super(TicketDesenvolvedorUpdateView, self).get_form_kwargs()
-        data = {'desenvolvedor': self.request.POST.get('value')}
-        kwargs['data'] = data
-        return kwargs
-
-    def get_form(self, form_class):
-        form = super(TicketDesenvolvedorUpdateView, self).get_form(form_class)
-        form.fields['desenvolvedor'].required = True
-        form.fields['desenvolvedor'].queryset = Funcionario.objects.filter(cargo=1, situacao=1)  # TODO: cargo=2
-        return form
-
-    def form_valid(self, form):
-        self.object = form.save()
-        return JsonResponse({})
-
-    def form_invalid(self, form):
-        error = form.errors['desenvolvedor'][0]
-        return JsonResponse(error, status=400)
 
 
 class ClienteAutoCompleteView(DjangoView):
@@ -223,5 +181,59 @@ class TicketListView(ListView):
         return context
 
 
+class TicketTipoUpdateView(UpdateView):
+    breadcrumbs = False
+    model = Ticket
+    fields = ['tipo']
+
+    def get_form_kwargs(self):
+        kwargs = super(TicketTipoUpdateView, self).get_form_kwargs()
+        data = {'tipo': self.request.POST.get('value')}
+        kwargs['data'] = data
+        return kwargs
+
+    def form_valid(self, form):
+        self.object = form.save()
+        return JsonResponse({'tipo': self.object.tipo, 'tipo_display': self.object.get_tipo_display()})
+
+
+class TicketDesenvolvedorUpdateView(UpdateView):
+    breadcrumbs = False
+    model = Ticket
+    fields = ['desenvolvedor']
+
+    def get_form_kwargs(self):
+        kwargs = super(TicketDesenvolvedorUpdateView, self).get_form_kwargs()
+        data = {'desenvolvedor': self.request.POST.get('value')}
+        kwargs['data'] = data
+        return kwargs
+
+    def get_form(self, form_class):
+        form = super(TicketDesenvolvedorUpdateView, self).get_form(form_class)
+        form.fields['desenvolvedor'].required = True
+        form.fields['desenvolvedor'].queryset = Funcionario.objects.filter(cargo=1, situacao=1)  # TODO: cargo=2
+        return form
+
+    def form_valid(self, form):
+        self.object = form.save()
+        return JsonResponse({})
+
+    def form_invalid(self, form):
+        error = form.errors['desenvolvedor'][0]
+        return JsonResponse(error, status=400)
 # </editor-fold>
 
+
+# <editor-fold desc="HistoricoTicket">
+class HistoricoTicketCreateView(CreateView):
+    model = HistoricoTicket
+    prefix = 'history'
+    fields = ['conteudo']
+    ajax_required = True
+
+    def form_valid(self, form):
+        ticket = Ticket.objects.get(pk=self.kwargs.get('ticket'))
+        self.model.objects.create_historico(ticket, form.cleaned_data.get('conteudo'), self.request.user)
+
+        return JsonResponse({})
+# </editor-fold>

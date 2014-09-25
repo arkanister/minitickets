@@ -15,7 +15,11 @@
         "minitickets.add_ticket",
         "minitickets.change_ticket",
         "minitickets.delete_ticket",
-        "minitickets.view_ticket"
+        "minitickets.view_ticket",
+        "minitickets.add_historicoticket",
+        "minitickets.change_historicoticket",
+        "minitickets.delete_historicoticket",
+        "minitickets.view_historicoticket"
 
     ],
     "2": [

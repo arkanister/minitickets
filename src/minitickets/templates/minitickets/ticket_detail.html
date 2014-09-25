@@ -74,12 +74,39 @@ $(function () {
         }
     });
 
+    $(".markdown").markdown({
+        autofocus: false,
+        savable: true,
+        onSave: function(e) {
+            $.ajax({
+                url: '{% url 'minitickets:add-historicoticket' ticket=ticket.pk %}',
+                method: 'post',
+                headers: {'X-CsrfToken': '{{ csrf_token }}'},
+                data: {'history-conteudo': e.getContent()},
+                dataType: 'json'
+            });
+        }
+    });
+
 });
 </script>
 {% endblock scripts.inline %}
 
 
 {% block content %}
+<style>
+.md-editor.active textarea.markdown {
+    height: 150px;
+    -moz-transition: all 0.3s ease-out;
+}
+
+.md-editor textarea.markdown {
+    height: 50px;
+    -moz-transition: all 0.1s ease-out;
+}
+</style>
+
+
 <div class="inbox-nav-bar no-content-padding">
 
     <h1 class="page-title txt-color-blueDark hidden-tablet" style="vertical-align: top;">
@@ -235,15 +262,19 @@ $(function () {
 
                 <div class="col-xs-12">
 
-                    {% if ticket.tipo == 1 %}
-                        <span id="id_tipo-badge" class="badge bg-color-blue">{{ ticket.get_tipo_display }}</span>
-                    {% elif ticket.tipo == 2 %}
-                        <span id="id_tipo-badge" class="badge bg-color-red">{{ ticket.get_tipo_display }}</span>
-                    {% elif ticket.tipo == 3 %}
-                        <span id="id_tipo-badge" class="badge bg-color-green">{{ ticket.get_tipo_display }}</span>
-                    {% endif %}
+                    <h5 class="inline no-margin">
 
-                    <strong>{{ ticket.titulo }}</strong>
+                        {% if ticket.tipo == 1 %}
+                            <span id="id_tipo-badge" class="badge bg-color-blue" style="top: -2px; position: relative;">{{ ticket.get_tipo_display }}</span>
+                        {% elif ticket.tipo == 2 %}
+                            <span id="id_tipo-badge" class="badge bg-color-red" style="top: -2px; position: relative;">{{ ticket.get_tipo_display }}</span>
+                        {% elif ticket.tipo == 3 %}
+                            <span id="id_tipo-badge" class="badge bg-color-green" style="top: -2px; position: relative;">{{ ticket.get_tipo_display }}</span>
+                        {% endif %}
+
+                        {{ ticket.titulo }}
+
+                    </h5>
 
                     <small class="pull-right" style="color: #999;">
                         <time datetime="{{ ticket.data_abertura|date:'Y-m-d' }}">
@@ -258,12 +289,17 @@ $(function () {
 
         </div>
 
-        <div class="inbox-message" style="min-height: 200px">
-            <p> {{ ticket.descricao }} </p>
+        <div class="inbox-message no-border">
+            {{ ticket.descricao }}
         </div>
 
-        <div>
-            <a class="col-lg-offset-8 cursor-pointer">Histórico</a>
+
+        <div class="inbox-download no-padding no-border">
+
+            <h6 class="lighter">{% icon 'comments' %} {% trans 'History' %}</h6>
+
+            <textarea id="id_history-conteudo" name="history-conteudo" class="markdown" placeholder="{% trans 'Types your comment here!' %}"></textarea>
+
         </div>
 
     </div>

@@ -4,6 +4,7 @@ import os
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils import simplejson as json, dateformat
 from lib.utils.models.validators import CpfValidator, CnpjValidator
@@ -162,3 +163,57 @@ class Ticket(models.Model):
     )
 # </editor-fold>
 
+
+# <editor-fold desc="HistoricoTicket">
+class HistoricoTicketManager(models.Manager):
+    def create_historico(self, ticket, conteudo, autor=None):
+        kwargs = {
+            'ticket': ticket,
+            'conteudo': conteudo
+        }
+
+        if autor:
+            content_type = ContentType.objects.get(
+                app_label__iexact=autor._meta.app_label,
+                model__iexact=autor._meta.object_name
+            )
+
+            object_id = getattr(autor, 'id')
+
+            kwargs.update({
+                'content_type': content_type,
+                'object_id': object_id
+            })
+
+        instance = self.model(**kwargs)
+
+        instance.save()
+        return instance
+
+
+class HistoricoTicket(models.Model):
+    data_cadastro = models.DateTimeField(auto_now_add=True)
+
+    # Generic ForeignKey --->
+    content_type = models.ForeignKey(ContentType, null=True, blank=True)
+    object_id = models.IntegerField(blank=True, null=True)
+    # Generic ForeignKey <---
+
+    ticket = models.ForeignKey('Ticket')
+    conteudo = models.TextField()
+
+    objects = HistoricoTicketManager()
+
+    def _get_criado_por(self):
+        if not hasattr(self, '_criado_por'):
+            if self.content_type and self.object_id:
+                AutorModel = self.content_type.model_class()
+                try:
+                    self._criado_por = AutorModel.objects.get(id=self.object_id)
+                except AutorModel.DoesNotExists:
+                    self.criado_por = None
+            else:
+                self._criado_por = None
+        return self._criado_por
+    criado_por = property(_get_criado_por)
+# </editor-fold>
