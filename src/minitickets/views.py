@@ -3,15 +3,14 @@ from django.db.models import Q
 from django.shortcuts import render
 from django.views.generic.base import View as DjangoView
 
-from lib.utils.views.base import TemplateSmartView as TemplateView
+from lib.utils.views.base import SmartView as View, TemplateSmartView as TemplateView
 from lib.utils.views.detail import DetailView
 from lib.utils.views.edit import CreateView, UpdateView, DeleteView
 from lib.utils.views.tables import SingleTableView as ListView
 from lib.utils.views.utils import JsonResponse
 from src.minitickets.forms import FuncionarioCreateForm, FuncionarioUpdateForm, ProdutoForm, \
-    ClienteUpdateForm, ClienteCreateForm, TicketCreateForm, TicketUpdateForm, TicketDetailForm
-
-from src.minitickets.models import Funcionario, Produto, Cliente, Ticket, HistoricoTicket
+    ClienteUpdateForm, ClienteCreateForm, TicketCreateForm, TicketDetailForm
+from src.minitickets.models import Funcionario, Produto, Cliente, Ticket, HistoricoTicket, TempoTicket
 from src.minitickets.tables import FuncionarioTable, ProdutoTable, ClienteTable
 
 
@@ -254,5 +253,27 @@ class HistoricoTicketCreateView(CreateView):
             'criado_por': unicode(self.object.criado_por),
             'conteudo': self.object.conteudo,
             'data_cadastro': self.object.data_cadastro.strftime('%Y-%m-%d %H:%M')
+        })
+# </editor-fold>
+
+
+# <editor-fold desc="TempoTicket">
+class TempoTicketCreateView(View):
+    breadcrumbs = False
+    model = TempoTicket
+
+    def post(self, request, *args, **kwargs):
+        ticket = Ticket.objects.get(pk=kwargs.get('ticket'))
+        user = request.user
+
+        self.object = self.model(funcionario=user, ticket=ticket)
+        self.object.save()
+        history = HistoricoTicket.objects.create_historico(
+            ticket=ticket,
+            conteudo="%s iniciou o ticket." % (unicode(self.request.user))
+        )
+        return JsonResponse({
+            'conteudo': history.conteudo,
+            'data_cadastro': history.data_cadastro.strftime('%Y-%m-%d %H:%M')
         })
 # </editor-fold>

@@ -12,7 +12,7 @@ class Migration(SchemaMigration):
         db.create_table(u'minitickets_tempoticket', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('data_inicio', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('data_termino', self.gf('django.db.models.fields.DateTimeField')()),
+            ('data_termino', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
             ('ticket', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['minitickets.Ticket'])),
             ('funcionario', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['minitickets.Funcionario'])),
         ))
@@ -79,7 +79,7 @@ class Migration(SchemaMigration):
         u'minitickets.tempoticket': {
             'Meta': {'object_name': 'TempoTicket'},
             'data_inicio': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'data_termino': ('django.db.models.fields.DateTimeField', [], {}),
+            'data_termino': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'funcionario': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['minitickets.Funcionario']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'ticket': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['minitickets.Ticket']"})

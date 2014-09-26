@@ -6,7 +6,7 @@ from django.utils.translation import ugettext as _
 from lib.utils import forms as forms_utils
 from django.db.models import Q
 from lib.utils.forms.widgets import CheckboxSelectMultiple
-from src.minitickets.models import Funcionario, Produto, Cliente, Ticket
+from src.minitickets.models import Funcionario, Produto, Cliente, Ticket, TempoTicket
 
 
 class AuthenticationForm(BaseAuthenticationForm):

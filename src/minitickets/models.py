@@ -225,7 +225,7 @@ class HistoricoTicket(models.Model):
 # <editor-fold desc="TempoTicket">
 class TempoTicket(models.Model):
     data_inicio = models.DateTimeField(auto_now_add=True)
-    data_termino = models.DateTimeField()
+    data_termino = models.DateTimeField(blank=True, null=True)
     ticket = models.ForeignKey('Ticket')
     funcionario = models.ForeignKey('Funcionario')
 # </editor-fold>

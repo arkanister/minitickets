@@ -7,6 +7,7 @@
 {% load humanize %}
 {% load icon from icons %}
 {% load lpad from utils %}
+{% load lpad from string %}
 
 {% block content.header %}
 {% endblock content.header %}
@@ -100,6 +101,19 @@ $(function () {
         }
     });
 
+    $('#ticket-start').on('click', function () {
+        $.ajax({
+            url: $(this).attr('href'),
+            method: 'post',
+            headers: {'X-CsrfToken': '{{ csrf_token }}'},
+            success: function (data) {
+                var li = '<li class="message"> {% icon 'clock-o' %} <div class="message-text"> <time datetime="' + data.data_cadastro + '">{% icon 'clock-o' %} {% trans 'now' %}</time> ' + data.conteudo + '</div></li>';
+                $('#chat-body ul').prepend(li);
+            }
+        });
+        return false;
+    });
+
 });
 </script>
 {% endblock scripts.inline %}
@@ -124,7 +138,7 @@ $(function () {
     <h1 class="page-title txt-color-blueDark hidden-tablet" style="vertical-align: top;">
         <a href="{{ request.path }}" style="color: #333; text-decoration: none;">
             <i class="fa fa-fw fa-ticket "></i>
-            Tickets &nbsp<strong><span class="small "># 0000{{ ticket.pk }}</strong></span>
+            Tickets &nbsp;<span class="small "><strong># {{ ticket.pk|lpad:5 }}</strong></span>
         </a>
     </h1>
 
@@ -134,8 +148,9 @@ $(function () {
         </a>
     </div>
 
-    <a href="#" class="btn btn-primary pull-right">
-        {% icon 'play' %} {% trans 'Start' %}
+    <a id="ticket-start" href="{% url "minitickets:add-tempoticket" ticket=ticket.pk %}" class="btn btn-primary pull-right">
+        {% icon 'play' %}
+        {% trans 'Start' %}
     </a>
 
     <a href="#" class="btn btn-warning pull-right">
