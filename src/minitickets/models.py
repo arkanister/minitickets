@@ -204,6 +204,9 @@ class HistoricoTicket(models.Model):
 
     objects = HistoricoTicketManager()
 
+    class Meta:
+        ordering = ['-data_cadastro']
+
     def _get_criado_por(self):
         if not hasattr(self, '_criado_por'):
             if self.content_type and self.object_id:
@@ -216,4 +219,13 @@ class HistoricoTicket(models.Model):
                 self._criado_por = None
         return self._criado_por
     criado_por = property(_get_criado_por)
+# </editor-fold>
+
+
+# <editor-fold desc="TempoTicket">
+class TempoTicket(models.Model):
+    data_inicio = models.DateTimeField(auto_now_add=True)
+    data_termino = models.DateTimeField()
+    ticket = models.ForeignKey('Ticket')
+    funcionario = models.ForeignKey('Funcionario')
 # </editor-fold>

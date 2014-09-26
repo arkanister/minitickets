@@ -194,7 +194,16 @@ class TicketTipoUpdateView(UpdateView):
 
     def form_valid(self, form):
         self.object = form.save()
-        return JsonResponse({'tipo': self.object.tipo, 'tipo_display': self.object.get_tipo_display()})
+        history = HistoricoTicket.objects.create_historico(
+            ticket=self.object,
+            conteudo="%s alterou o tipo do ticket para %s." % (unicode(self.request.user), self.object.get_tipo_display())
+        )
+        return JsonResponse({
+            'tipo': self.object.tipo,
+            'tipo_display': self.object.get_tipo_display(),
+            'conteudo': history.conteudo,
+            'data_cadastro': history.data_cadastro.strftime('%Y-%m-%d %H:%M')
+        })
 
 
 class TicketDesenvolvedorUpdateView(UpdateView):
@@ -216,7 +225,14 @@ class TicketDesenvolvedorUpdateView(UpdateView):
 
     def form_valid(self, form):
         self.object = form.save()
-        return JsonResponse({})
+        history = HistoricoTicket.objects.create_historico(
+            ticket=self.object,
+            conteudo="%s repassou o ticket para %s." % (unicode(self.request.user), unicode(self.object.desenvolvedor))
+        )
+        return JsonResponse({
+            'conteudo': history.conteudo,
+            'data_cadastro': history.data_cadastro.strftime('%Y-%m-%d %H:%M')
+        })
 
     def form_invalid(self, form):
         error = form.errors['desenvolvedor'][0]
@@ -233,7 +249,10 @@ class HistoricoTicketCreateView(CreateView):
 
     def form_valid(self, form):
         ticket = Ticket.objects.get(pk=self.kwargs.get('ticket'))
-        self.model.objects.create_historico(ticket, form.cleaned_data.get('conteudo'), self.request.user)
-
-        return JsonResponse({})
+        self.object = self.model.objects.create_historico(ticket, form.cleaned_data.get('conteudo'), self.request.user)
+        return JsonResponse({
+            'criado_por': unicode(self.object.criado_por),
+            'conteudo': self.object.conteudo,
+            'data_cadastro': self.object.data_cadastro.strftime('%Y-%m-%d %H:%M')
+        })
 # </editor-fold>

@@ -38,6 +38,10 @@ $(function () {
                     '{{ desenvolvedor.pk }}':'{{ desenvolvedor }}',
                 {% endfor %}
             }
+        },
+        success: function (data) {
+            var li = '<li class="message"> {% icon 'exclamation-triangle' %} <div class="message-text"> <time datetime="' + data.data_cadastro + '">{% icon 'clock-o' %} {% trans 'now' %}</time> ' + data.conteudo + '</div></li>';
+            $('#chat-body ul').prepend(li);
         }
     });
 
@@ -71,6 +75,8 @@ $(function () {
                 $('#id_tipo-badge').addClass("bg-color-green");
             }
 
+            var li = '<li class="message"> {% icon 'exclamation-triangle' %} <div class="message-text"> <time datetime="' + data.data_cadastro + '">{% icon 'clock-o' %} {% trans 'now' %}</time> ' + data.conteudo + '</div></li>';
+            $('#chat-body ul').prepend(li);
         }
     });
 
@@ -83,7 +89,13 @@ $(function () {
                 method: 'post',
                 headers: {'X-CsrfToken': '{{ csrf_token }}'},
                 data: {'history-conteudo': e.getContent()},
-                dataType: 'json'
+                dataType: 'json',
+                success: function (data) {
+                    e.$textarea.val('');
+                    e.$editor.removeClass('active');
+                    var li = '<li class="message"> {% icon 'comment' %} <div class="message-text"> <time datetime="' + data.data_cadastro + '">{% icon 'clock-o' %} {% trans 'now' %}</time> <a class="username" href="javascript:void(0);">' + data.criado_por +  '</a>' + data.conteudo + '</div></li>';
+                    $('#chat-body ul').prepend(li);
+                }
             });
         }
     });
@@ -176,7 +188,7 @@ $(function () {
 
     </div>
 
-    <div class="table-wrap custom-scroll animated fast fadeInRight no-padding-top" style="height: 500px; opacity: 1;">
+    <div class="table-wrap ticket-detail animated fast fadeInRight no-padding-top" style="min-height: 410px; opacity: 1;">
 
         <div class="email-infobox no-border-top" style="border-bottom: 0; top: 0;">
             <div class="well well-sm well-light">
@@ -300,7 +312,40 @@ $(function () {
 
             <textarea id="id_history-conteudo" name="history-conteudo" class="markdown" placeholder="{% trans 'Types your comment here!' %}"></textarea>
 
+            <div class="space-6"></div>
+
+            <div id="chat-body" class="chat-body ticket-history">
+                <ul>
+                    {% for history in ticket.historicoticket_set.all %}
+                    <li class="message">
+                        {% if history.criado_por %}
+                            {% icon 'comment' %}
+                        {% else %}
+                            {% icon 'exclamation-triangle' %}
+                        {% endif %}
+
+                        <div class="message-text">
+                            <time datetime="{{ history.data_cadastro|date:'Y-m-d h:i' }}">
+                                {% icon 'clock-o' %} {{ history.data_cadastro|naturaltime }}
+                            </time>
+
+                            {% if history.criado_por %}
+                            <a class="username" href="javascript:void(0);">
+                                {{ history.criado_por }}
+                            </a>
+                            {% endif %}
+
+                            {{ history.conteudo }}
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
         </div>
+
+
+
 
     </div>
 </div>
