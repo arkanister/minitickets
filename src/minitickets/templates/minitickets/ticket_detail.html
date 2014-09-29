@@ -106,9 +106,28 @@ $(function () {
             url: $(this).attr('href'),
             method: 'post',
             headers: {'X-CsrfToken': '{{ csrf_token }}'},
+            data: null,
             success: function (data) {
                 var li = '<li class="message"> {% icon 'clock-o' %} <div class="message-text"> <time datetime="' + data.data_cadastro + '">{% icon 'clock-o' %} {% trans 'now' %}</time> ' + data.conteudo + '</div></li>';
                 $('#chat-body ul').prepend(li);
+                $('#ticket-start').addClass('hide');
+                $('#ticket-pause').removeClass('hide');
+            }
+        });
+        return false;
+    });
+
+    $('#ticket-pause').on('click', function () {
+        $.ajax({
+            url: $(this).attr('href'),
+            method: 'post',
+            headers: {'X-CsrfToken': '{{ csrf_token }}'},
+            data: null,
+            success: function (data) {
+                var li = '<li class="message"> {% icon 'clock-o' %} <div class="message-text"> <time datetime="' + data.data_cadastro + '">{% icon 'clock-o' %} {% trans 'now' %}</time> ' + data.conteudo + '</div></li>';
+                $('#chat-body ul').prepend(li);
+                $('#ticket-pause').addClass('hide');
+                $('#ticket-start').removeClass('hide');
             }
         });
         return false;
@@ -148,9 +167,14 @@ $(function () {
         </a>
     </div>
 
-    <a id="ticket-start" href="{% url "minitickets:add-tempoticket" ticket=ticket.pk %}" class="btn btn-primary pull-right">
+    <a id="ticket-start" href="{% url "minitickets:add-tempoticket" ticket=ticket.pk %}" class="btn btn-primary pull-right{% if has_started %} hide{% endif %}">
         {% icon 'play' %}
         {% trans 'Start' %}
+    </a>
+
+    <a id="ticket-pause" href="{% url "minitickets:pause-tempoticket" ticket=ticket.pk %}" class="btn btn-warning pull-right{% if not has_started %} hide{% endif %}">
+        {% icon 'pause' %}
+        {% trans 'Pause' %}
     </a>
 
     <a href="#" class="btn btn-warning pull-right">

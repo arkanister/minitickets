@@ -1,6 +1,8 @@
 # coding: utf-8
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.shortcuts import render
+from django.utils import timezone
 from django.views.generic.base import View as DjangoView
 
 from lib.utils.views.base import SmartView as View, TemplateSmartView as TemplateView
@@ -138,6 +140,9 @@ class TicketDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(TicketDetailView, self).get_context_data(**kwargs)
         context['desenvolvedores'] = Funcionario.objects.filter(cargo=1, situacao=1)  # TODO: cargo=2
+        tempo = TempoTicket.objects.filter(ticket=self.object, funcionario=self.request.user, data_termino__isnull=True)
+        if tempo.exists():
+            context['has_started'] = True
         return context
 
 
@@ -177,6 +182,12 @@ class TicketListView(ListView):
         context['t'] = self.request.GET.get('t')
         context['s'] = self.request.GET.get('s')
         context['se'] = self.request.GET.get('se')
+
+        started_ticket = self.request.user.tempoticket_set.filter(data_termino__isnull=True)
+        if started_ticket.exists():
+            started_ticket = started_ticket.get()
+            context['started_ticket'] = started_ticket.ticket
+
         return context
 
 
@@ -266,14 +277,35 @@ class TempoTicketCreateView(View):
         ticket = Ticket.objects.get(pk=kwargs.get('ticket'))
         user = request.user
 
-        self.object = self.model(funcionario=user, ticket=ticket)
-        self.object.save()
-        history = HistoricoTicket.objects.create_historico(
-            ticket=ticket,
-            conteudo="%s iniciou o ticket." % (unicode(self.request.user))
-        )
+        if ticket.tempoticket_set.filter(funcionario=user.pk, data_termino__isnull=True).exists():
+            raise PermissionDenied()
+
+        user_tempo_ticket = user.tempoticket_set.filter(data_termino__isnull=True)
+        if user_tempo_ticket.exists():
+            user_tempo_ticket = user_tempo_ticket.get()
+            TempoTicket.objects.pause(user_tempo_ticket)
+
+        self.object, history = self.model.objects.start(ticket, user)
+
         return JsonResponse({
             'conteudo': history.conteudo,
             'data_cadastro': history.data_cadastro.strftime('%Y-%m-%d %H:%M')
         })
+
+
+class TempoTicketPauseView(View):
+    breadcrumbs = False
+    model = TempoTicket
+
+    def post(self, request, *args, **kwargs):
+        user = request.user.pk
+
+        self.object = self.model.objects.filter(funcionario=user, ticket=kwargs.get('ticket'), data_termino__isnull=True)[0]
+        self.object, history = self.model.objects.pause(self.object)
+
+        return JsonResponse({
+            'conteudo': history.conteudo,
+            'data_cadastro': history.data_cadastro.strftime('%Y-%m-%d %H:%M')
+        })
+
 # </editor-fold>

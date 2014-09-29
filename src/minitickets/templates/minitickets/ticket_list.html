@@ -5,9 +5,51 @@
 {% load humanize %}
 {% load icon from icons %}
 {% load lpad from utils %}
+{% load lpad from utils %}
 
 {% block content.header %}
 {% endblock content.header %}
+
+{% block scripts.inline %}
+<script type="text/javascript">
+$(function () {
+    $('.ticket-start').on('click', function () {
+        var self = $(this),
+            $td = self.parent().parent();
+
+        $.ajax({
+            url: $(this).attr('href'),
+            method: 'post',
+            headers: {'X-CsrfToken': '{{ csrf_token }}'},
+            data: null,
+            success: function () {
+                $('.ticket-start').removeClass('hide');
+                $('.ticket-pause').addClass('hide');
+                $td.find('.ticket-start').addClass('hide');
+                $td.find('.ticket-pause').removeClass('hide');
+            }
+        });
+        return false;
+    });
+
+    $('.ticket-pause').on('click', function () {
+        var self = $(this),
+            $td = self.parent().parent();
+        $.ajax({
+            url: $(this).attr('href'),
+            method: 'post',
+            headers: {'X-CsrfToken': '{{ csrf_token }}'},
+            data: null,
+            success: function () {
+                $td.find('.ticket-pause').addClass('hide');
+                $td.find('.ticket-start').removeClass('hide');
+            }
+        });
+        return false;
+    });
+});
+</script>
+{% endblock scripts.inline %}
 
 {% block content %}
 <div class="inbox-nav-bar no-content-padding">
@@ -156,15 +198,19 @@
                                 {% elif ticket.tipo == 3 %}
                                 <span class="label bg-color-blue">{{ ticket.get_tipo_display }}</span>
                                 {% endif %}
-                                {{ ticket.titulo|truncatechars:20 }}
+                                {{ ticket.produto|truncatechars:20 }}
                             </span>
-                            {{ ticket.descricao|truncatechars:50 }}
+                            {{ ticket.titulo|truncatechars:50 }}
                         </div>
                     </td>
                     <td class="inbox-data-attachment hidden-xs">
                         <div>
-                            <a class="txt-color-darken" data-original-title="{% trans 'Start' %}" data-placement="left" rel="tooltip">
+                            <a href="{% url "minitickets:add-tempoticket" ticket=ticket.pk %}" class="ticket-start txt-color-darken{% if started_ticket.pk == ticket.pk %} hide{% endif %}" data-original-title="{% trans 'Start' %}"  data-placement="left" rel="tooltip">
                                 {% icon 'play' 'class'='bigger-120' %}
+                            </a>
+
+                            <a href="{% url "minitickets:pause-tempoticket" ticket=ticket.pk %}"  class="ticket-pause txt-color-darken active{% if not started_ticket.pk == ticket.pk %} hide{% endif %}" data-original-title="{% trans 'Pause' %}" data-placement="left" rel="tooltip">
+                                {% icon 'pause' 'class'='bigger-120' %}
                             </a>
                         </div>
                     </td>

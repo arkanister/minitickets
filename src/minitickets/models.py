@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.utils import simplejson as json, dateformat
+from django.utils import simplejson as json, dateformat, timezone
 from lib.utils.models.validators import CpfValidator, CnpjValidator
 from src.minitickets.managers import FuncionarioManager
 
@@ -223,9 +223,35 @@ class HistoricoTicket(models.Model):
 
 
 # <editor-fold desc="TempoTicket">
+class TempoTicketManager(models.Manager):
+    def start(self, ticket, funcionario):
+        tempo_ticket = self.model(funcionario=funcionario, ticket=ticket)
+        tempo_ticket.save()
+
+        history = HistoricoTicket.objects.create_historico(
+            ticket=ticket,
+            conteudo="%s iniciou o ticket." % (unicode(funcionario))
+        )
+
+        return (tempo_ticket, history)
+
+    def pause(self, tempo_ticket):
+        tempo_ticket.data_termino = timezone.now()
+        tempo_ticket.save()
+
+        history = HistoricoTicket.objects.create_historico(
+            ticket=tempo_ticket.ticket,
+            conteudo="%s pausou o ticket." % (unicode(tempo_ticket.funcionario))
+        )
+
+        return (tempo_ticket, history)
+
+
 class TempoTicket(models.Model):
     data_inicio = models.DateTimeField(auto_now_add=True)
     data_termino = models.DateTimeField(blank=True, null=True)
     ticket = models.ForeignKey('Ticket')
     funcionario = models.ForeignKey('Funcionario')
+
+    objects = TempoTicketManager()
 # </editor-fold>
