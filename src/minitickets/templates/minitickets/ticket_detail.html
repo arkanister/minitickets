@@ -1,0 +1,393 @@
+{% extends 'base.html' %}
+
+{% load static from staticfiles %}
+{% load django_tables2 %}
+{% load input from forms %}
+{% load i18n %}
+{% load humanize %}
+{% load icon from icons %}
+{% load lpad from utils %}
+{% load lpad from string %}
+
+{% block content.header %}
+{% endblock content.header %}
+
+{% block scripts %}
+<script src="{% static 'js/plugin/x-editable/moment.min.js' %}"></script>
+<script src="{% static 'js/plugin/x-editable/jquery.mockjax.min.js' %}"></script>
+<script src="{% static 'js/plugin/x-editable/x-editable.min.js' %}"></script>
+{% endblock scripts %}
+
+{% block scripts.inline %}
+    <script type="text/javascript">
+$(function () {
+    $("[rel=tooltip]").tooltip();
+
+    $('#desenvolvedor').editable({
+        name: 'desenvolvedor',
+        url: '{% url 'minitickets:change-desenvolvedor-ticket' ticket.pk %}',
+        pk: '{{ ticket.pk }}',
+        ajaxOptions: {
+            headers: {'X-Csrftoken': '{{ csrf_token }}'}
+        },
+        title: 'Select developer',
+        type: 'select',
+        value: '{{ ticket.desenvolvedor.pk|default:'' }}',
+        source: function () {
+            return {
+                {% for desenvolvedor in desenvolvedores %}
+                    '{{ desenvolvedor.pk }}':'{{ desenvolvedor }}',
+                {% endfor %}
+            }
+        },
+        success: function (data) {
+            var li = '<li class="message"> {% icon 'exclamation-triangle' %} <div class="message-text"> <time datetime="' + data.data_cadastro + '">{% icon 'clock-o' %} {% trans 'now' %}</time> ' + data.conteudo + '</div></li>';
+            $('#chat-body ul').prepend(li);
+        }
+    });
+
+    $('#tipo').editable({
+        name: 'tipo',
+        url: '{% url 'minitickets:change-tipo-ticket' ticket.pk %}',
+        pk: '{{ ticket.pk }}',
+        ajaxOptions: {
+            headers: {'X-Csrftoken': '{{ csrf_token }}'}
+        },
+        title: 'Select Type',
+        type: 'select',
+        value: '{{ ticket.tipo }}',
+        source: function () {
+            return {
+                1: "Dúvida",
+                2: "Erro",
+                3: "Sugestão"
+            }
+        },
+        success: function (data, newValue) {
+            $('#id_tipo-badge').html(data.tipo_display).attr("class", 'badge');
+
+            if (data.tipo == 1) {
+                $('#id_tipo-badge').addClass("bg-color-blue");
+            }
+            else if (data.tipo == 2) {
+                $('#id_tipo-badge').addClass("bg-color-red");
+            }
+            else if (data.tipo == 3) {
+                $('#id_tipo-badge').addClass("bg-color-green");
+            }
+
+            var li = '<li class="message"> {% icon 'exclamation-triangle' %} <div class="message-text"> <time datetime="' + data.data_cadastro + '">{% icon 'clock-o' %} {% trans 'now' %}</time> ' + data.conteudo + '</div></li>';
+            $('#chat-body ul').prepend(li);
+        }
+    });
+
+    $(".markdown").markdown({
+        autofocus: false,
+        savable: true,
+        onSave: function(e) {
+            $.ajax({
+                url: '{% url 'minitickets:add-historicoticket' ticket=ticket.pk %}',
+                method: 'post',
+                headers: {'X-CsrfToken': '{{ csrf_token }}'},
+                data: {'history-conteudo': e.getContent()},
+                dataType: 'json',
+                success: function (data) {
+                    e.$textarea.val('');
+                    e.$editor.removeClass('active');
+                    var li = '<li class="message"> {% icon 'comment' %} <div class="message-text"> <time datetime="' + data.data_cadastro + '">{% icon 'clock-o' %} {% trans 'now' %}</time> <a class="username" href="javascript:void(0);">' + data.criado_por +  '</a>' + data.conteudo + '</div></li>';
+                    $('#chat-body ul').prepend(li);
+                }
+            });
+        }
+    });
+
+    $('#ticket-start').on('click', function () {
+        $.ajax({
+            url: $(this).attr('href'),
+            method: 'post',
+            headers: {'X-CsrfToken': '{{ csrf_token }}'},
+            data: null,
+            success: function (data) {
+                var li = '<li class="message"> {% icon 'clock-o' %} <div class="message-text"> <time datetime="' + data.data_cadastro + '">{% icon 'clock-o' %} {% trans 'now' %}</time> ' + data.conteudo + '</div></li>';
+                $('#chat-body ul').prepend(li);
+                $('#ticket-start').addClass('hide');
+                $('#ticket-pause').removeClass('hide');
+            }
+        });
+        return false;
+    });
+
+    $('#ticket-pause').on('click', function () {
+        $.ajax({
+            url: $(this).attr('href'),
+            method: 'post',
+            headers: {'X-CsrfToken': '{{ csrf_token }}'},
+            data: null,
+            success: function (data) {
+                var li = '<li class="message"> {% icon 'clock-o' %} <div class="message-text"> <time datetime="' + data.data_cadastro + '">{% icon 'clock-o' %} {% trans 'now' %}</time> ' + data.conteudo + '</div></li>';
+                $('#chat-body ul').prepend(li);
+                $('#ticket-pause').addClass('hide');
+                $('#ticket-start').removeClass('hide');
+            }
+        });
+        return false;
+    });
+
+});
+</script>
+{% endblock scripts.inline %}
+
+
+{% block content %}
+<style>
+.md-editor.active textarea.markdown {
+    height: 150px;
+    -moz-transition: all 0.3s ease-out;
+}
+
+.md-editor textarea.markdown {
+    height: 50px;
+    -moz-transition: all 0.1s ease-out;
+}
+</style>
+
+
+<div class="inbox-nav-bar no-content-padding">
+
+    <h1 class="page-title txt-color-blueDark hidden-tablet" style="vertical-align: top;">
+        <a href="{{ request.path }}" style="color: #333; text-decoration: none;">
+            <i class="fa fa-fw fa-ticket "></i>
+            Tickets &nbsp;<span class="small "><strong># {{ ticket.pk|lpad:5 }}</strong></span>
+        </a>
+    </h1>
+
+    <div class="hidden-desktop visible-tablet" style="vertical-align: top;">
+        <a href="{% url 'minitickets:list-ticket' %}" class="bottom" rel="tooltip" data-original-title="{% trans 'Back to Tickets' %}">
+            {% icon 'arrow-circle-o-left' 'class'='bigger-300' %}
+        </a>
+    </div>
+
+    <a id="ticket-start" href="{% url "minitickets:add-tempoticket" ticket=ticket.pk %}" class="btn btn-primary pull-right{% if has_started %} hide{% endif %}">
+        {% icon 'play' %}
+        {% trans 'Start' %}
+    </a>
+
+    <a id="ticket-pause" href="{% url "minitickets:pause-tempoticket" ticket=ticket.pk %}" class="btn btn-warning pull-right{% if not has_started %} hide{% endif %}">
+        {% icon 'pause' %}
+        {% trans 'Pause' %}
+    </a>
+
+    <a href="#" class="btn btn-warning pull-right">
+        {% icon 'times' %} {% trans 'Close Ticket' %}
+    </a>
+
+</div>
+
+<div id="inbox-content" class="inbox-body no-content-padding">
+
+    <div class="inbox-side-bar no-padding-top">
+
+        <a data-toggle="modal" class="btn btn-primary btn-block" href="{% url "minitickets:add-ticket" %}">
+            <strong>{% icon 'plus-circle' %} {% trans 'Add Ticket' %}</strong>
+        </a>
+
+        <h6>
+            {% trans 'Status' %}
+            <a class="pull-right txt-color-darken" data-original-title="Refresh" data-placement="right" title="" rel="tooltip" href="javascript:void(0);"></a>
+        </h6>
+
+        <ul class="inbox-menu-lg">
+            <li>
+                <a href="{% url 'minitickets:list-ticket' %}?s=open">{% trans 'Open' %}</a>
+            </li>
+
+            <li>
+                <a href="{% url 'minitickets:list-ticket' %}?s=closed">{% trans 'Closed' %}</a>
+            </li>
+        </ul>
+
+        <h6>
+            {% trans 'Types' %}
+        </h6>
+
+        <ul class="inbox-menu-lg">
+            <li>
+                <a href="{% url 'minitickets:list-ticket' %}"> {% trans 'All' %} </a>
+            </li>
+            <li>
+                <a href="{% url 'minitickets:list-ticket' %}?t=1">{% trans 'Question' %}</a>
+            </li>
+            <li>
+                <a href="{% url 'minitickets:list-ticket' %}?t=2">{% trans 'Error' %}</a>
+            </li>
+            <li>
+                <a href="{% url 'minitickets:list-ticket' %}?t=3">{% trans 'Sujestion' %}</a>
+            </li>
+        </ul>
+
+    </div>
+
+    <div class="table-wrap ticket-detail animated fast fadeInRight no-padding-top" style="min-height: 410px; opacity: 1;">
+
+        <div class="email-infobox no-border-top" style="border-bottom: 0; top: 0;">
+            <div class="well well-sm well-light">
+
+                <label class="bolder">Cliente</label>
+
+                <div>
+                    {{ ticket.cliente.nome_fantasia }}
+                </div>
+
+                <div class="space-6"></div>
+
+                <ul class="list-unstyled">
+                    {% with ticket.cliente as cliente %}
+                    <li>{% icon 'phone' %} {{ cliente.telefone }}</li>
+                    <li class="hr hr-4"></li>
+                    <li>
+                        <a href="mailto:{{ cliente.email }}">
+                            {% icon 'envelope' %} {{ cliente.email }}
+                        </a>
+
+                    </li>
+                    {% endwith %}
+                </ul>
+             </div>
+
+            <div class="well well-sm well-light">
+
+                <div>
+
+                    <label class="bolder">Produto</label>
+
+                    <div class="editable-input block">
+                        {{ ticket.produto }}
+                    </div>
+
+                </div>
+
+                <div class="space-6"></div>
+
+                <div>
+
+                    <label class="bolder">Tipo</label>
+
+                    <div class="editable-input block">
+                        <span id="tipo" class="cursor-pointer"> {{ ticket.get_tipo_display }}</span>
+                    </div>
+
+                </div>
+
+                <div class="space-6"></div>
+
+                <div>
+
+                    <label class="bolder">Analista</label>
+
+                    <div>
+                       {{ ticket.analista }}
+                    </div>
+
+                </div>
+
+                <div class="space-6"></div>
+
+                <div>
+
+                    <label class="bolder">Desenvolvedor</label>
+
+                    <div class="editable-input block">
+                        <span id="desenvolvedor" class="cursor-pointer">{{ ticket.desenvolvedor|default:'' }}</span>
+                    </div>
+
+                </div>
+
+                <div class="space-6"></div>
+
+            </div>
+        </div>
+
+        <div class="inbox-info-bar">
+
+            <div class="row">
+
+                <div class="col-xs-12">
+
+                    <h5 class="inline no-margin">
+
+                        {% if ticket.tipo == 1 %}
+                            <span id="id_tipo-badge" class="badge bg-color-blue" style="top: -2px; position: relative;">{{ ticket.get_tipo_display }}</span>
+                        {% elif ticket.tipo == 2 %}
+                            <span id="id_tipo-badge" class="badge bg-color-red" style="top: -2px; position: relative;">{{ ticket.get_tipo_display }}</span>
+                        {% elif ticket.tipo == 3 %}
+                            <span id="id_tipo-badge" class="badge bg-color-green" style="top: -2px; position: relative;">{{ ticket.get_tipo_display }}</span>
+                        {% endif %}
+
+                        {{ ticket.titulo }}
+
+                    </h5>
+
+                    <small class="pull-right" style="color: #999;">
+                        <time datetime="{{ ticket.data_abertura|date:'Y-m-d' }}">
+                            {% icon 'clock-o' %}
+                            {{ ticket.data_abertura|naturaltime }}
+                        </time>
+                    </small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="inbox-message no-border">
+            {{ ticket.descricao }}
+        </div>
+
+
+        <div class="inbox-download no-padding no-border">
+
+            <h6 class="lighter">{% icon 'comments' %} {% trans 'History' %}</h6>
+
+            <textarea id="id_history-conteudo" name="history-conteudo" class="markdown" placeholder="{% trans 'Types your comment here!' %}"></textarea>
+
+            <div class="space-6"></div>
+
+            <div id="chat-body" class="chat-body ticket-history">
+                <ul>
+                    {% for history in ticket.historicoticket_set.all %}
+                    <li class="message">
+                        {% if history.criado_por %}
+                            {% icon 'comment' %}
+                        {% else %}
+                            {% icon 'exclamation-triangle' %}
+                        {% endif %}
+
+                        <div class="message-text">
+                            <time datetime="{{ history.data_cadastro|date:'Y-m-d h:i' }}">
+                                {% icon 'clock-o' %} {{ history.data_cadastro|naturaltime }}
+                            </time>
+
+                            {% if history.criado_por %}
+                            <a class="username" href="javascript:void(0);">
+                                {{ history.criado_por }}
+                            </a>
+                            {% endif %}
+
+                            {{ history.conteudo }}
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+        </div>
+
+
+
+
+    </div>
+</div>
+{% endblock content %}
+
+

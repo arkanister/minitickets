@@ -1,4 +1,8 @@
 // Calculate nav height
+$.fn.hasAttr = function(name) {
+   return this.attr(name) !== undefined;
+};
+
 $.calc_navbar_height = function() {
     var height = null;
 
@@ -69,21 +73,38 @@ $(document).ready(function() {
         $('[rel=tooltip]').tooltip();
     };
 
-    // Loader for popovers
-    $.loaders['popover'] = function() {
-        $('[rel=popover].top.hover').popover({trigger: 'hover', placement: 'top'});
-        $('[rel=popover].bottom.hover').popover({trigger: 'hover', placement: 'bottom'});
-        $('[rel=popover].left.hover').popover({trigger: 'hover', placement: 'left'});
-        $('[rel=popover].right.hover').popover({trigger: 'hover', placement: 'right'});
+    // loader popover
+    $.loaders['popover'] = function  () {
+        var $popover = $('[rel=popover]');
 
-        $('[rel=popover].hover').popover({trigger: 'hover', placement: 'top'});
+        $popover.each(function () {
+            var $el = $(this),
+                data = $el.data(),
+                attrs = {};
 
-        $('[rel=popover].top').popover({placement: 'top'});
-        $('[rel=popover].bottom').popover({placement: 'bottom'});
-        $('[rel=popover].left').popover({placement: 'left'});
-        $('[rel=popover].right').popover({placement: 'right'});
+            // check direction by class
+            if ($el.hasClass('popover-top')) attrs['placement'] = 'top';
+            if ($el.hasClass('popover-left')) attrs['placement'] = 'left';
+            if ($el.hasClass('popover-bottom')) attrs['placement'] = 'bottom';
+            if ($el.hasClass('popover-right')) attrs['placement'] = 'right';
 
-        $('[rel=popover]').popover();
+            // check trigger
+            if ($el.hasClass('popover-hover')) attrs['trigger'] = 'hover';
+            if ($el.hasClass('popover-click')) attrs['trigger'] = 'click';
+
+            // check html
+            if ($el.hasClass('popover-html')) {
+                var $target = $(data.target);
+                attrs['html'] = true;
+                attrs['content'] = function () {
+                    return $target.html();
+                };
+            }
+
+            $el.popover($.extend(data, attrs));
+        });
+
+        return $popover;
     };
 
     // Modal
@@ -93,7 +114,7 @@ $(document).ready(function() {
             $.root_.append($modal);
             $.defaults['modal'] = $modal;
 
-            $('[rel=modal]').on('click', function(e) {
+            $('[data-toggle=modal]').on('click', function(e) {
                 var modal = $(this).data('modal'),
                     action = $(this).data('action');
 
@@ -142,24 +163,50 @@ $(document).ready(function() {
     };
 
     // Masks
-    $.loaders['mask'] = {
-        cpf: function() {
-            $('[data-mask=cpf]').mask('999.999.999-99')
-                .attr('placeholder', '999.999.999-99');
+    $.loaders['inputMask'] = {
+        _getDataOptions: function(input) {
+            opts = {};
+            if (input.hasAttr('data-reverse') == 1)
+                opts['reverse'] = input.data('reverse') == 1;
+            if (input.hasAttr('data-clearifnotmatch'))
+                opts['clearIfNotMatch'] = input.data('clearifnotmatch') == 1;
+            return opts
         },
-        cnpj: function() {
-            $('[data-mask=cnpj]').mask('999.999.999/9999-99')
-                .attr('placeholder', '999.999.999/9999-99');
+        _getElement: function(name) {
+            return $('[data-input-mask='+ name +'], .input-mask-' + name);
         },
         cep: function() {
-            $('[data-mask=cnpj]').mask('99999-999')
-                .attr('placeholder', '99999-99');
+            var input = this._getElement('cep');
+            input.attr('placeholder', '99999-99')
+                .mask('99999-999', this._getDataOptions(input));
+            return input;
         },
+        telefone: function(){
+            var input = this._getElement('telefone');
+                input.attr('placeholder', '(99)9999-9999')
+                    .mask('(99)9999-9999', this._getDataOptions(input));
+            return input;
+        },
+        cnpj: function() {
+            var input = this._getElement('cnpj');
+            input.attr('placeholder', '99.999.999/9999-99')
+                .mask('99.999.999/9999-99', this._getDataOptions(input));
+            return input;
+        },
+        cpf: function() {
+            var input = this._getElement('cpf');
+            input.attr('placeholder', '999.999.999-99')
+                .mask('999.999.999-99', this._getDataOptions(input));
+            return input;
+        },
+
         all: function() {
-            this.cpf();
-            this.cnpj();
-            this.cep();
+            this.cep(); this.telefone();this.cnpj(); this.cpf();
         }
     }
+
+    $('[trigger=click]').on('click', function () {
+        window.location = $(this).data('action');
+    });
 
 });

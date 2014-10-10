@@ -6,7 +6,8 @@ import json
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http.response import HttpResponse
-from django.utils.html import strip_tags, format_html
+from django.utils.encoding import force_str
+from django.utils.html import format_html, strip_tags
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
@@ -14,7 +15,7 @@ from ..html import Icon, AttributeDict
 
 
 class JsonResponse(HttpResponse):
-    def __init__(self, context, status=None):
+    def __init__(self, context=None, status=None):
         content_type = mimetype = 'application/json'
         self.context_data = context
         super(JsonResponse, self).__init__('', content_type, status, mimetype)
@@ -41,6 +42,7 @@ class Accessor(str):
         if self == '':
             return ()
         return self.split(Accessor.SEPARATOR)
+
     bits = property(_bits)
 
     def resolve(self, instance, quiet=False):
@@ -92,12 +94,12 @@ class Accessor(str):
                             current = current[int(bit)]
                         except (IndexError,  # list index out of range
                                 ValueError,  # invalid literal for int()
-                                KeyError,    # dict without `int(bit)` key
-                                TypeError,   # unsubscriptable object
-                                ):
+                                KeyError,  # dict without `int(bit)` key
+                                TypeError,  # unsubscriptable object
+                        ):
                             raise ValueError('Failed lookup for key [%s] in %r'
                                              ', when resolving the accessor %s'
-                                              % (bit, current, self))
+                                             % (bit, current, self))
                 if callable(current):
                     current = current()
                 # important that we break in None case, or a relationship
@@ -148,9 +150,9 @@ class SmartStr(str):
             string = regex.sub(Icon(icon.lower()).as_html(), string)
 
         if prettify:
-            words = strip_tags(string.strip()).split(' ')
-            for word in words:
-                string.replace(word, word.capitalize())
+            for word in strip_tags(string.strip()).split(' '):
+                word_re = re.compile(word)
+                string = word_re.sub(word.title(), string)
 
         return string
 
@@ -158,7 +160,6 @@ S = SmartStr
 
 
 class UrlHelper(object):
-
     @staticmethod
     def make_by_model(model, view_type, args=[], kwargs={}):
         """
@@ -178,6 +179,70 @@ class UrlHelper(object):
             # views without namespace
             url_conf = template_view_short.format(view_type, model_name)
             return reverse(url_conf, args=args, kwargs=kwargs)
+
+
+class Messages(object):
+    DEBUG = messages.DEBUG
+    INFO = messages.INFO
+    SUCCESS = messages.SUCCESS
+    WARNING = messages.WARNING
+    ERROR = messages.ERROR
+
+    DEFAULT_TAGS = messages.DEFAULT_TAGS
+
+    _errors = {
+        "type_error": _("'%s' object doest not is a %s.")
+    }
+
+    def __init__(self, request):
+        self.request = request
+
+    def success(self, message, extra_tags='alert-success'):
+        """
+        Add a success message in request
+        :param message: content of message
+        :param extra_tags: tags of message
+        """
+        messages.success(self.request, mark_safe(message), extra_tags=extra_tags)
+
+    def info(self, message, extra_tags='alert-info'):
+        """
+        Add a info message in request
+        :param message: content of message
+        :param extra_tags: tags of message
+        """
+        messages.info(self.request, mark_safe(message), extra_tags=extra_tags)
+
+    def error(self, message, extra_tags='alert-danger'):
+        """
+        Add a danger message in request
+        :param message: content of message
+        :param extra_tags: tags of message
+        """
+        messages.error(self.request, mark_safe(message), extra_tags=extra_tags)
+
+    def debug(self, message, extra_tags='alert-warning'):
+        """
+        Add a debug message in request
+        :param message: content of message
+        :param extra_tags: tags of message
+        """
+        messages.debug(self.request, mark_safe(message), extra_tags=extra_tags)
+
+    def warning(self, message, extra_tags='alert-warning'):
+        """
+        Add a warning message in request
+        :param message: content of message
+        :param extra_tags: tags of message
+        """
+        messages.warning(self.request, mark_safe(message), extra_tags=extra_tags)
+
+    def remove(self, index):
+        assert isinstance(index, int), self._errors['type_error'] % (type(index).__name__, 'integer')
+        self.request._messages.remove(index)
+
+    def __repr__(self):
+        return '<MessageRequestAdapter>'
 
 
 # <editor-fold desc="Breadcrumbs">
@@ -272,77 +337,18 @@ class Breadcrumbs(object):
     def is_empty(self):
         return len(self.breadcrumbs) == 0
 
+    def __repr__(self):
+        return "<Breadcrumb: [%s]>" % ', '.join([
+            force_str(breadcrumb.name) for breadcrumb in self.breadcrumbs
+        ])
+
     def __iter__(self):
         for breadcrumb in self.breadcrumbs:
             yield BoundBreadcrumbs(self, breadcrumb)
 # </editor-fold>
 
 
-class Messages(object):
-
-    DEBUG = messages.DEBUG
-    INFO = messages.INFO
-    SUCCESS = messages.SUCCESS
-    WARNING = messages.WARNING
-    ERROR = messages.ERROR
-
-    DEFAULT_TAGS = messages.DEFAULT_TAGS
-
-    _errors = {
-        "type_error": _("'%s' object doest not is a %s.")
-    }
-
-    def __init__(self, request):
-        self.request = request
-
-    def success(self, message, extra_tags='alert-success'):
-        """
-        Add a success message in request
-        :param message: content of message
-        :param extra_tags: tags of message
-        """
-        messages.success(self.request, mark_safe(message), extra_tags=extra_tags)
-
-    def info(self, message, extra_tags='alert-info'):
-        """
-        Add a info message in request
-        :param message: content of message
-        :param extra_tags: tags of message
-        """
-        messages.info(self.request, mark_safe(message), extra_tags=extra_tags)
-
-    def error(self, message, extra_tags='alert-danger'):
-        """
-        Add a danger message in request
-        :param message: content of message
-        :param extra_tags: tags of message
-        """
-        messages.error(self.request, mark_safe(message), extra_tags=extra_tags)
-
-    def debug(self, message, extra_tags='alert-warning'):
-        """
-        Add a debug message in request
-        :param message: content of message
-        :param extra_tags: tags of message
-        """
-        messages.debug(self.request, mark_safe(message), extra_tags=extra_tags)
-
-    def warning(self, message, extra_tags='alert-warning'):
-        """
-        Add a warning message in request
-        :param message: content of message
-        :param extra_tags: tags of message
-        """
-        messages.warning(self.request, mark_safe(message), extra_tags=extra_tags)
-
-    def remove(self, index):
-        assert isinstance(index, int), self._errors['type_error'] % (type(index).__name__, 'integer')
-        self.request._messages.remove(index)
-
-    def __repr__(self):
-        return '<MessageRequestAdapter>'
-
-
+# <editor-fold desc="Table Actions">
 class Action(object):
     def __init__(self, viewname, verbose_name=None, icon=None, args=None,
                  kwargs=None, perms=None, attrs=None):
@@ -420,3 +426,4 @@ class TableActions(object):
     def __iter__(self):
         for action in self.actions:
             yield action
+# </editor-fold>

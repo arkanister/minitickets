@@ -24,6 +24,7 @@
     <link rel="stylesheet" type="text/css" media="screen" href="{% static 'css/smartadmin-skins.min.css' %}">
 
     <link rel="stylesheet" type="text/css" media="screen" href="{% static 'css/app.css' %}">
+    <link rel="stylesheet" type="text/css" media="screen" href="{% static 'css/forms.css' %}">
 
     {% block styles.base %}{% endblock styles.base %}
     {% block styles %}{% endblock styles %}
@@ -33,7 +34,7 @@
 
 </head>
 
-<body class="smart-style-3">
+<body class="smart-style-3 menu-on-top container">
 
     {# Page definition #}
     {% block page %}{% endblock page %}
@@ -43,6 +44,11 @@
     <!-- JQuery -->
     <script src="{% static 'js/libs/jquery-2.0.2.min.js' %}"></script>
     <script src="{% static 'js/libs/jquery-ui-1.10.3.min.js' %}"></script>
+
+    <!-- MarkDown -->
+    <script src="{% static 'js/plugin/markdown/markdown.min.js'%}"></script>
+    <script src="{% static 'js/plugin/markdown/to-markdown.min.js' %}"></script>
+    <script src="{% static 'js/plugin/markdown/bootstrap-markdown.min.js'%}"></script>
 
     <!-- Config -->
     <script src="{% static 'js/app.config.js' %}"></script>

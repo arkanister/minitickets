@@ -11,6 +11,19 @@
     box-shadow: none;
 }
 
+.smart-style-3 input:not([type]).form-control,
+.smart-style-3 input[type="color"].form-control,
+.smart-style-3 input[type="email"].form-control,
+.smart-style-3 input[type="number"].form-control,
+.smart-style-3 input[type="password"].form-control,
+.smart-style-3 input[type="tel"].form-control,
+.smart-style-3 input[type="text"].form-control,
+.smart-style-3 input[type="url"].form-control,
+.smart-style-3 textarea.form-control,
+.smart-style-3 select.form-control{
+    width: 100%;
+}
+
 input:not([type]),
 input[type="color"],
 input[type="email"],
@@ -28,7 +41,6 @@ select {
     color: #555;
     display: inline;
     font-size: 13px;
-    height: 32px;
     line-height: 1.42857;
     padding: 6px 12px;
     transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
@@ -37,6 +49,17 @@ select {
     -o-transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
     -ms-transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
     width: auto;
+}
+
+input:not([type]),
+input[type="color"],
+input[type="email"],
+input[type="number"],
+input[type="password"],
+input[type="tel"],
+input[type="text"],
+input[type="url"] {
+    height: 32px;
 }
 
 input:not([type]):focus,
@@ -149,4 +172,45 @@ input.checkbox[type="checkbox"], input.radiobox[type="radio"] {
 label.focus input.radiobox[type="radio"] + span:before, label.focus input.radiobox[type="radio"]:checked + span:before {
     border-color: #2e7bcc;
     color: #2e7bcc;
+}
+
+/* checkbox select */
+
+.checkbox-select {
+    padding: 4px;
+    border: 1px solid #E7E7e7;
+    border-color: #a3a3a3 #ccc #ccc #a3a3a3;
+    width: 350px;
+    max-height: 165px;
+    overflow-y: auto;
+}
+
+.checkbox-select li {
+    padding: 8px 4px 7px;
+    border-bottom: 1px solid #e1e1e1;
+    list-style: none;
+    margin-bottom: 1px;
+}
+.checkbox-select li label {
+    width: 100%;
+    cursor: pointer;
+}
+.checkbox-select li:last-child {
+    border: none;
+}
+.checkbox-select li:hover {
+    background-color: #F7F7F7;
+}
+
+.select2, .select2-searh, .select2-choice{
+    width: 300px;
+    margin-right: 260px;
+}
+
+/* Markdown Fix */
+.md-editor.active {
+    box-shadow: none;
+}
+.md-preview img {
+    max-width: 100%;
 }

@@ -1,0 +1,63 @@
+{% extends 'modal.html' %}
+
+{% load input from forms %}
+
+{% block modal %}
+<div class="modal-content">
+
+    {% block modal.header %}
+    <div class="modal-header">
+
+        <button class="close" data-dismiss="modal" type="button">×</button>
+
+        {% block modal.header.title %}
+        <h4>{{ TITLE|safe }}</h4>
+        {% endblock modal.header.title %}
+
+    </div>
+    {% endblock modal.header %}
+
+	<form method="post" role="form" action="{{ request.get_full_path }}" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>
+		{% csrf_token %}
+
+		{% block content.form.fields.hidden %}
+		{% for field in form.hidden_fields %}
+		{{ field }}
+		{% endfor %}
+		{% endblock content.form.fields.hidden %}
+	
+		{% block modal.body %}
+		<div class="modal-body">
+	
+			{% block content.form.fields %}
+				{% for field in form.visible_fields %}
+					{% block content.form.fields.field %}
+					{% input field 'label_size'='3' 'input_size'='9' %}
+					<div class="space-4 clearfix"></div>
+					{% endblock content.form.fields.field %}
+				{% endfor %}
+			{% endblock content.form.fields %}
+		
+		</div>
+		{% endblock modal.body %}
+	
+		{% block modal.footer %}
+		<div class="modal-footer{% if padded == False %} no-margin-top{% endif %}">
+			{% block modal.footer.content %}
+			<button class="btn btn-sm" data-dismiss="modal">
+				<i class="ace-icon fa fa-times"></i>
+				Cancel
+			</button>
+
+			<button class="btn btn-sm btn-info" type="submit">
+				<i class="ace-icon fa fa-check bigger-110"></i>
+				Submit
+			</button>
+			{% endblock modal.footer.content %}
+		</div>
+		{% endblock modal.footer %}
+
+	</form>
+
+</div>
+{% endblock modal %}

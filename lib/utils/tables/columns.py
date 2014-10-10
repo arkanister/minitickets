@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
+
 from django.template import loader
+from django.utils import formats
+from django.utils.text import Truncator
 
 import django_tables2 as tables
 from django.utils.safestring import mark_safe
@@ -192,3 +195,23 @@ class CurrencyColumn(tables.Column):
 
     def render(self, value):
         return formats.number_format(value, decimal_pos=2)
+
+
+class TruncateCharsColumn(tables.Column):
+
+    def __init__(self, length=30, *args, **kwargs):
+        self.length = length
+        super(TruncateCharsColumn, self).__init__(*args, **kwargs)
+
+    def render(self, value):
+        return Truncator(value).chars(self.length)
+
+
+class TruncateWordsColumn(tables.Column):
+
+    def __init__(self, words=5, *args, **kwargs):
+        self.words = words
+        super(TruncateWordsColumn, self).__init__(*args, **kwargs)
+
+    def render(self, value):
+        return Truncator(value).words(self.words, truncate=' ...')

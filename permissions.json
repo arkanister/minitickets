@@ -3,10 +3,29 @@
         "minitickets.add_funcionario",
         "minitickets.change_funcionario",
         "minitickets.delete_funcionario",
-        "minitickets.view_funcionario"
+        "minitickets.view_funcionario",
+        "minitickets.add_produto",
+        "minitickets.change_produto",
+        "minitickets.delete_produto",
+        "minitickets.view_produto",
+        "minitickets.add_cliente",
+        "minitickets.change_cliente",
+        "minitickets.delete_cliente",
+        "minitickets.view_cliente",
+        "minitickets.add_ticket",
+        "minitickets.change_ticket",
+        "minitickets.delete_ticket",
+        "minitickets.view_ticket",
+        "minitickets.add_historicoticket",
+        "minitickets.change_historicoticket",
+        "minitickets.delete_historicoticket",
+        "minitickets.view_historicoticket"
+
     ],
     "2": [
 
     ],
-    "3": []
+    "3": [
+
+    ]
 }

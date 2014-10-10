@@ -1,8 +1,5 @@
 $(function () {
 
-    // load masks
-    $.loaders.mask.all();
-
     // form group addon fix prepend class
     $(':input').on('focus focusout', function () {
         $(this).parent().find('.input-group-addon').toggleClass('focus');
@@ -14,5 +11,11 @@ $(function () {
     $('input.checkbox[type="checkbox"], input.radiobox[type="radio"]').on('focus focusout', function() {
        $(this).parent().toggleClass('focus');
     });
+
+    // load masks
+    $.loaders.inputMask.all();
+
+    // load select2
+    $('select.select2').select2();
 
 });

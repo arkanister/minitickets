@@ -7,10 +7,12 @@ from django_tables2.views import SingleTableMixin as BaseSingleTableMixin
 from .list import ListView
 from .utils import TableActions
 
+from ..html.icons.base import Icon
 from ..tables.utils import table_factory
 
 
 class SingleTableMixin(BaseSingleTableMixin):
+
     def get_table_class(self):
         """
         Return the class to use for the table, by view or by factory.
@@ -29,7 +31,8 @@ class SingleTableView(SingleTableMixin, ListView):
     """
     Generic view that renders a template and passes in a `.Table` object.
     """
-    table_pagination = False  # {"per_page": 10}
+
+    table_pagination = {"per_page": 20}
     actions = None
     action_column_width = 80
 
@@ -56,7 +59,7 @@ class SingleTableView(SingleTableMixin, ListView):
                 verbose_name=_('Detail'),
                 icon='search-plus',
                 args=['pk'],
-                attrs={"class": "txt-color-pinkDark", "rel": "tooltip"},
+                attrs={"class": "purple", "rel": "tooltip"},
                 perms=[self.view_permission]
             )
 

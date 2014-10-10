@@ -97,3 +97,74 @@
     width: 100%;
 }
 
+/* fix menu icon */
+
+.menu-on-top nav ul ul li > a > i {
+    transform: translateY(-3px);
+    -moz-transform: translateY(-3px);
+    -webkit-transform: translateY(-3px);
+    -o-transform: translateY(-3px);
+    -ms-transform: translateY(-3px);
+}
+
+.menu-on-top .menu-item-parent {
+    max-width: 150px;
+}
+
+/* clock active animate */
+
+#inbox-table .inbox-data-attachment a.active i {
+    color: #A90329;
+    -moz-animation: clockpulse 1s infinite ease-out;
+}
+
+@keyframes clockpulse {
+    0% {
+        -moz-transform: scale(1);
+    }
+    50% {
+        -moz-transform: scale(1.5);
+    }
+    100% {
+        -moz-transform: scale(1);
+    }
+}
+
+/* ticket-history */
+.chat-body.ticket-history {
+    overflow: hidden;
+    height: auto;
+    background: transparent;
+    box-shadow: none;
+}
+
+.chat-body.ticket-history li.message {
+    border-bottom: 1px solid #F1F1F1;
+    padding-bottom: 15px;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.chat-body.ticket-history li.message:last-child { border-bottom: none; }
+
+.chat-body.ticket-history li.message > i {
+
+    position: absolute;
+    display: inline-block;
+    font-size: 200%;
+    color: #DEDEDE;
+    margin-left: 20px;
+    margin-top: -5px;
+
+}
+
+/* ticket */
+
+.ticket-detail {
+    overflow: hidden;
+    height: auto;
+}
+
+#inbox-content {
+    height: auto;
+}

@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
+from django.conf import settings
 
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.decorators import login_required as django_login_required, user_passes_test
+from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
+from django.shortcuts import resolve_url
 from django.utils.decorators import method_decorator
-
+from django.utils.encoding import force_str
 
 from.types import CREATE, UPDATE, DELETE, DETAIL, LIST
 
@@ -81,6 +84,37 @@ def permission_required(method, login_url=None, raise_exception=True):
                 return method(_self, *ag, **kwg)
 
             return wrap(self, *args, **kwargs)
+
+        return method(self, *args, **kwargs)
+
+    return wrapper
+
+
+def ajax_required(method, redirect_field_name=REDIRECT_FIELD_NAME, login_url=None, raise_exception=False):
+    """
+    Decorator for views that checks that the user is logged in, redirecting
+    to the log-in page if necessary.
+    """
+
+    def wrapper(self, *args, **kwargs):
+
+        required = getattr(self, 'ajax_required', True)
+        request = getattr(self, 'request', False)
+
+        if required and not request.is_ajax():
+
+            if raise_exception:
+                raise PermissionDenied
+
+            # urlparse chokes on lazy objects in Python 3, force to str
+            resolved_login_url = force_str(resolve_url(login_url or settings.LOGIN_URL))
+            path = request.get_full_path()
+
+            response = redirect_to_login(
+                path, resolved_login_url, redirect_field_name)
+            response.status_code = 405
+
+            return response
 
         return method(self, *args, **kwargs)
 

@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
+from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import NoReverseMatch
+from django.template import loader
 
 from django.views.generic.list import MultipleObjectMixin,\
     MultipleObjectTemplateResponseMixin
-from django.http.response import Http404
+from django.http.response import Http404, HttpResponse
 from django.utils.translation import ugettext as _
-from .base import SmartView as View
+from .base import SmartView as View, DjangoView, ContextMixin
 from .utils import UrlHelper
 
 from .types import LIST, CREATE
@@ -65,3 +67,39 @@ class ListView(MultipleObjectTemplateResponseMixin, BaseListView):
         context = super(ListView, self).get_context_data(**kwargs)
         context['create_url'] = self.get_create_url()
         return context
+
+
+class GetModelOptionsView(ContextMixin, DjangoView):
+    model = None
+    object_list = None
+
+    def get_queryset(self, **kwargs):
+        if self.model is None:
+            raise ImproperlyConfigured("please set a model to view.")
+        if not kwargs:
+            return self.model.objects.all()
+        else:
+            return self.model.objects.filter(**kwargs).distinct()
+
+    def get_queryset_kwargs(self, **kwargs):
+        names = self.request.GET.getlist("f[name]", [])
+        values = self.request.GET.getlist("f[value]", [])
+        kwargs.update(
+            dict([(name, value) for name, value in zip(names, values)])
+        )
+        return kwargs
+
+    def get_template(self):
+        if hasattr(self, "template_name"):
+            return loader.get_template(self.get_template_name())
+        return loader.get_template_from_string(
+            u"{% for option in object_list %}" + \
+            u'<option value="{{ option.pk }}">{{ option }}</option>' + \
+            u"{% endfor %}"
+        )
+
+    def get(self, request, *args, **kwargs):
+        self.object_list = ['----------'] + list(self.get_queryset(**self.get_queryset_kwargs()))
+        template = self.get_template()
+        context = loader.Context(self.get_context_data(object_list=self.object_list))
+        return HttpResponse(template.render(context))

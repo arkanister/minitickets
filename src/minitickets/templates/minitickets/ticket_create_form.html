@@ -1,0 +1,142 @@
+{% extends 'forms/modal.html' %}
+
+{% load i18n %}
+{% load input from forms %}
+
+{% block scripts %}
+<script type="text/javascript">
+
+$(function () {
+
+    $('.modal form').on("submit", function () {
+
+        var jqxhr = $.ajax({
+            url: $(this).attr("action"),
+            method: "post",
+            data: $(this).serialize(),
+            success: function (data) {
+                window.location = data.redirect_to;
+            }
+        });
+
+        jqxhr.fail(function (xhr) {
+            $(".modal").html(xhr.responseText);
+        });
+
+        return false;
+    });
+
+    // Metodo de auto complete.
+    $("#id_cliente_autocomplete").autocomplete({
+        appendTo: '.modal-dialog',
+        source: function (request, response) {
+            $.ajax({
+                url: "{% url "minitickets:autocomplete-cliente" %}",
+                headers: {'X-CsrfToken': '{{ csrf_token }}'},
+                method: "post",
+                data: {term: request.term},
+                dataType: "json",
+                success: function (data) {
+                    response(data);
+                }
+            });
+        },
+
+        //Seleciona o id, pega valor do campo e copia para o item
+        select: function (event, ui) {
+            $("#id_cliente").val(ui.item.id);
+
+            console.log(ui.item);
+
+            var output = '<option selected="selected" value="">---------</option>';
+            for(var i in ui.item.products) {
+                var product = ui.item.products[i];
+                output += '<option value="' + product.id + '">' + product.label + '</option>';
+            }
+
+            $("#id_produto").html(output);
+        },
+        //Alterar o campo auto complite - cliente
+        change: function (event, ui) {
+            //se o valor do campo não existir o campo sera apagado
+            if (!ui.item) {
+                $("#id_cliente").val('');
+                $("#id_cliente_autocomplete").val('');
+            }
+        }
+    });
+
+    $(".mymarkdown").markdown({
+        autofocus:false,
+        savable:false
+    });
+
+});
+</script>
+{% endblock scripts %}
+
+{% block content.form.fields %}
+
+<div class="row">
+
+    <div class="col-xs-12">
+        <label for="{{ form.cliente.id_for_label }}_autocomplete">
+            <span class="txt-color-red">*</span>
+            {{ form.cliente.label }}
+        </label>
+
+        <input id="{{ form.cliente.id_for_label }}_autocomplete" type="text" class="form-control">
+
+        {% for error in form.cliente.errors %}
+        <div class="note txt-color-red">
+            {{ error }}
+        </div>
+        {% endfor %}
+
+    </div>
+
+</div>
+
+<div class="space-10"></div>
+
+<div class="row">
+
+    <div class="col-xs-6">
+
+        {% input form.produto 'template'='forms/input_vertical.html' %}
+
+    </div>
+
+    <div class="col-xs-6">
+
+        {% input form.tipo 'template'='forms/input_vertical.html' %}
+
+    </div>
+
+</div>
+
+<div class="space-10"></div>
+
+<div class="row">
+
+    <div class="col-xs-12">
+
+        {% input form.titulo 'template'='forms/input_vertical.html' 'no_label'=True %}
+
+    </div>
+
+</div>
+
+<div class="space-10"></div>
+
+<div class="row">
+
+    <div class="col-xs-12">
+
+        {% input form.descricao 'template'='forms/input_vertical.html' 'no_label'=True %}
+
+    </div>
+
+</div>
+
+{% endblock content.form.fields %}
