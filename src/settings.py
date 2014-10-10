@@ -29,7 +29,6 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 INSTALLED_APPS = (
     'django.contrib.admin',
@@ -44,6 +43,7 @@ INSTALLED_APPS = (
     'south',
     'django_tables2',
     'rest_framework',
+    'markdown_deux',
 
     'lib.utils.html',
     'lib.utils.forms',

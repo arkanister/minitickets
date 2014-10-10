@@ -157,9 +157,11 @@ class TicketListView(ListView):
 
         if funcionario.cargo == 1:
             queryset = queryset.filter(analista=funcionario.pk)
-
         elif funcionario.cargo == 2:
             queryset = queryset.filter(desenvolvedor=funcionario.pk)
+        elif funcionario.cargo == 3:
+            # Se for gerente apenas apresenta todos os tickets
+            pass
 
         se = self.request.GET.get('se')
         if se is not None:
@@ -307,5 +309,4 @@ class TempoTicketPauseView(View):
             'conteudo': history.conteudo,
             'data_cadastro': history.data_cadastro.strftime('%Y-%m-%d %H:%M')
         })
-
 # </editor-fold>

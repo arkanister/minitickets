@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 
+{% load markdown_deux_tags %}
 {% load static from staticfiles %}
 {% load django_tables2 %}
 {% load input from forms %}
@@ -341,7 +342,7 @@ $(function () {
         </div>
 
         <div class="inbox-message no-border">
-            {{ ticket.descricao }}
+            {{ ticket.descricao|markdown }}
         </div>
 
 
@@ -374,7 +375,7 @@ $(function () {
                             </a>
                             {% endif %}
 
-                            {{ history.conteudo }}
+                            {{ history.conteudo|markdown }}
                         </div>
                     </li>
                     {% endfor %}
