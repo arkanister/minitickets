@@ -18,6 +18,7 @@ urlpatterns = patterns('',
     url(r'logout/$', logout, name='logout'),
 
     url(r'^', include('src.minitickets.urls', namespace='minitickets')),
+    url(r'^(?P<accesstoken>[a-zA-Z0-9+=]+)/', include('src.services.urls', namespace='services')),
 
     url(r'teste/$', teste, name='teste'),
 )

@@ -43,6 +43,7 @@ INSTALLED_APPS = (
     # Other Apps
     'south',
     'django_tables2',
+    'rest_framework',
 
     'lib.utils.html',
     'lib.utils.forms',
@@ -137,3 +138,8 @@ SESSION_COOKIE_NAME = 'minitickets'
 
 # User Model
 AUTH_USER_MODEL = 'minitickets.Funcionario'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': ( 'rest_framework.authentication.TokenAuthentication', ),
+    'DEFAULT_PERMISSION_CLASSES': ( 'rest_framework.permissions.AllowAny', )
+}

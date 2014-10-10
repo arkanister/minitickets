@@ -1,52 +1,72 @@
 # coding: utf-8
 
 import re
-from django.conf import settings
-from django.core.urlresolvers import resolve
 
-from django.db.models import get_model
+from django.utils.http import int_to_base36, base36_to_int
 
 from rest_framework import exceptions
 from rest_framework.views import APIView
 
 from lib.utils.secure import MD5Encrypt
 
-
-CDKEY_RE = re.compile('([a-zA-Z0-9]{5})-([a-zA-Z0-9]{9})-([a-zA-Z0-9]{5})')
-Licence = get_model(*getattr(settings, 'REST_LICENCE_MODEL').split('.'))
+from src.minitickets.models import Cliente, Produto
 
 
-class BaseServiceView(APIView):
-    log_class = get_model(*getattr(settings, 'REST_LOG_MODEL').split('.'))
+class AccessToken(object):
+
+    @staticmethod
+    def _parse_cnpj(cpnj):
+        cdkey = str(base36_to_int(cpnj))
+        return '%2s.%3s.%2s/%4s-%2s' % (
+            cdkey[:2],
+            cdkey[2:5],
+            cdkey[5:8],
+            cdkey[8:12],
+            cdkey[12:14]
+        )
+
+    @staticmethod
+    def make(cnpj, product_id):
+        return (
+            int_to_base36(int(''.join(re.findall(r"\d+", cnpj)))) +
+            '&' + str(product_id)
+        ).upper()
+
+    @staticmethod
+    def get_client_from_access_token(access_token):
+        try:
+            return Cliente.objects.get(cnpj=AccessToken._parse_cnpj(access_token.split('&')[0]))
+        except Cliente.DoesNotExist:
+            return None
+
+    @staticmethod
+    def get_product_from_access_token(access_token):
+        try:
+            return Produto.objects.get(pk=int(access_token.split('&')[1]))
+        except Produto.DoesNotExist:
+            return False
+
+
+ACCESS_TOKEN_RE = re.compile(r'^([a-zA-Z0-9]{9})&(\d+)')
+
+
+class View(APIView):
 
     def initial(self, request, *args, **kwargs):
-        super(BaseServiceView, self).initial(request, *args, **kwargs)
-
         # load cdkey and licence
         try:
-            cdkey = MD5Encrypt.decrypt(kwargs.get('cdkey'))
+            access_token = MD5Encrypt.decrypt(kwargs.get('accesstoken').replace('==bar==', '/'))
         except (ValueError, TypeError):
             raise exceptions.AuthenticationFailed()
 
-        if not bool(CDKEY_RE.match(cdkey)):
+        if not bool(ACCESS_TOKEN_RE.match(access_token)):
             # cdkey in invalid format
             raise exceptions.AuthenticationFailed()
 
-        self.cdkey = cdkey
+        self.client = AccessToken.get_client_from_access_token(access_token)
+        self.product = AccessToken.get_product_from_access_token(access_token)
 
-        # get licence by cdkey
-        licence = Licence._default_manager.filter(cdkey__iexact=cdkey)
-
-        if not licence.exists():
-            # cdkey not exists
+        if not self.client or not self.product:
             raise exceptions.AuthenticationFailed()
 
-        self.licence = licence.get()
-
-    def finalize_response(self, request, response, *args, **kwargs):
-        self.log_class._default_manager.create(
-            licence=getattr(self, 'licence', None),
-            status=response.status_code,
-            view_name=resolve(request.path_info).url_name
-        )
-        return super(BaseServiceView, self).finalize_response(request, response, *args, **kwargs)
+        super(View, self).initial(request, *args, **kwargs)
