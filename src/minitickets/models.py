@@ -146,7 +146,7 @@ class Ticket(models.Model):
     desenvolvedor = models.ForeignKey('Funcionario', null=True, blank=True, related_name='desenvolvedor')
     titulo = models.CharField(max_length=50)
     descricao = models.TextField()
-    solucao = models.TextField(null=True, blank=True)
+    solucao = models.TextField(u'Solução', null=True, blank=True)
     tipo = models.PositiveSmallIntegerField(
         choices=(
             (1, u'Dúvida'),

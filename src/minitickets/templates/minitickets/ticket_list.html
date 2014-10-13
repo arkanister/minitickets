@@ -205,6 +205,7 @@ $(function () {
                     </td>
                     <td class="inbox-data-attachment hidden-xs">
                         <div>
+                            {% if ticket.situacao == 1 %}
                             <a href="{% url "minitickets:add-tempoticket" ticket=ticket.pk %}" class="ticket-start txt-color-darken{% if started_ticket.pk == ticket.pk %} hide{% endif %}" data-original-title="{% trans 'Start' %}"  data-placement="left" rel="tooltip">
                                 {% icon 'play' 'class'='bigger-120' %}
                             </a>
@@ -212,6 +213,7 @@ $(function () {
                             <a href="{% url "minitickets:pause-tempoticket" ticket=ticket.pk %}"  class="ticket-pause txt-color-darken active{% if not started_ticket.pk == ticket.pk %} hide{% endif %}" data-original-title="{% trans 'Pause' %}" data-placement="left" rel="tooltip">
                                 {% icon 'pause' 'class'='bigger-120' %}
                             </a>
+                            {% endif %}
                         </div>
                     </td>
                     <td class="inbox-data-date hidden-xs align-right" style="white-space: nowrap;">

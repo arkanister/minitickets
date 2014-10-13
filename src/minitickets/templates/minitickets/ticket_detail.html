@@ -168,6 +168,15 @@ $(function () {
         </a>
     </div>
 
+    {% if ticket.situacao == 1 %}
+    <span class="badge bg-color-blue bigger-120 pull-right">{{ ticket.get_situacao_display }}</span>
+    {% elif ticket.situacao == 2 %}
+    <span class="badge bg-color-orange bigger-120 pull-right">{{ ticket.get_situacao_display }}</span>
+    {% elif ticket.situacao == 3 %}
+    <span class="badge bg-color-green bigger-120 pull-right">{{ ticket.get_situacao_display }}</span>
+    {% endif %}
+
+    {% if ticket.situacao == 1 %}
     <a id="ticket-start" href="{% url "minitickets:add-tempoticket" ticket=ticket.pk %}" class="btn btn-primary pull-right{% if has_started %} hide{% endif %}">
         {% icon 'play' %}
         {% trans 'Start' %}
@@ -178,9 +187,10 @@ $(function () {
         {% trans 'Pause' %}
     </a>
 
-    <a href="#" class="btn btn-warning pull-right">
+    <a data-toggle="modal" href="{% url "minitickets:close-ticket" pk=ticket.pk %}" class="btn btn-warning pull-right">
         {% icon 'times' %} {% trans 'Close Ticket' %}
     </a>
+    {% endif %}
 
 </div>
 
@@ -274,7 +284,11 @@ $(function () {
                     <label class="bolder">Tipo</label>
 
                     <div class="editable-input block">
+                        {% if ticket.situacao == 1 %}
                         <span id="tipo" class="cursor-pointer"> {{ ticket.get_tipo_display }}</span>
+                        {% else %}
+                        <span> {{ ticket.get_tipo_display }}</span>
+                        {% endif %}
                     </div>
 
                 </div>
@@ -298,7 +312,11 @@ $(function () {
                     <label class="bolder">Desenvolvedor</label>
 
                     <div class="editable-input block">
-                        <span id="desenvolvedor" class="cursor-pointer">{{ ticket.desenvolvedor|default:'' }}</span>
+                        {% if ticket.situacao == 1 %}
+                        <span id="desenvolvedor" class="cursor-pointer">{{ ticket.desenvolvedor|default:'Indefinido' }}</span>
+                        {% else %}
+                        <span>{{ ticket.desenvolvedor|default:'Indefinido' }}</span>
+                        {% endif %}
                     </div>
 
                 </div>
@@ -345,14 +363,23 @@ $(function () {
             {{ ticket.descricao|markdown }}
         </div>
 
+        {% if ticket.situacao == 2 %}
+        <div class="inbox-message no-border">
+            <h6 class="lighter">{% icon 'file-text-o' %} {% trans 'Solution' %}</h6>
+            {{ ticket.solucao|markdown }}
+            <div class="timeline-seperator text-center"><span>{{ ticket.data_fechamento }}</span></div>
+        </div>
+        {% endif %} 
 
         <div class="inbox-download no-padding no-border">
 
-            <h6 class="lighter">{% icon 'comments' %} {% trans 'History' %}</h6>
+            <h6 class="lighter">{% icon 'comments-o' %} {% trans 'Historical' %}</h6>
 
+            {% if ticket.situacao == 1 %}
             <textarea id="id_history-conteudo" name="history-conteudo" class="markdown" placeholder="{% trans 'Types your comment here!' %}"></textarea>
 
             <div class="space-6"></div>
+            {% endif %}
 
             <div id="chat-body" class="chat-body ticket-history">
                 <ul>

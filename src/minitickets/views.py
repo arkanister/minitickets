@@ -1,5 +1,6 @@
 # coding: utf-8
 from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.shortcuts import render
 from django.utils import timezone
@@ -11,7 +12,7 @@ from lib.utils.views.edit import CreateView, UpdateView, DeleteView
 from lib.utils.views.tables import SingleTableView as ListView
 from lib.utils.views.utils import JsonResponse
 from src.minitickets.forms import FuncionarioCreateForm, FuncionarioUpdateForm, ProdutoForm, \
-    ClienteUpdateForm, ClienteCreateForm, TicketCreateForm, TicketDetailForm
+    ClienteUpdateForm, ClienteCreateForm, TicketCreateForm, TicketDetailForm, TicketEncerrarForm
 from src.minitickets.models import Funcionario, Produto, Cliente, Ticket, HistoricoTicket, TempoTicket
 from src.minitickets.tables import FuncionarioTable, ProdutoTable, ClienteTable
 
@@ -249,6 +250,31 @@ class TicketDesenvolvedorUpdateView(UpdateView):
     def form_invalid(self, form):
         error = form.errors['desenvolvedor'][0]
         return JsonResponse(error, status=400)
+
+
+class TicketEncerrarUpdateView(UpdateView):
+    model = Ticket
+    form_class = TicketEncerrarForm
+    template_name = "minitickets/ticket_encerrar_form.html"
+    title = u"[icon:times] Encerrar Ticket"
+
+    def get_success_url(self):
+        return reverse("minitickets:detail-ticket", kwargs={"pk": self.object.pk})
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.data_fechamento = timezone.now()
+        self.object.situacao = 2
+        self.object.save()
+
+        HistoricoTicket.objects.create_historico(
+            ticket=self.object,
+            conteudo=u"Ticket encerrado pelo usuário %s." % unicode(self.request.user)
+        )
+
+        return JsonResponse({
+            "redirect_to": self.get_success_url()
+        })
 # </editor-fold>
 
 
@@ -310,3 +336,5 @@ class TempoTicketPauseView(View):
             'data_cadastro': history.data_cadastro.strftime('%Y-%m-%d %H:%M')
         })
 # </editor-fold>
+
+

@@ -210,4 +210,17 @@ class TicketUpdateForm(forms.ModelForm):
         }
         fields = ['cliente', 'produto', 'titulo', 'descricao', 'tipo']
 
+
+class TicketEncerrarForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(TicketEncerrarForm, self).__init__(*args, **kwargs)
+        self.fields['solucao'].required = True
+
+    class Meta:
+        model = Ticket
+        widgets = {
+            'solucao': forms.Textarea(attrs={"class": "custom-scroll md-input", "class": "mymarkdown", "rows": 4, "placeholder": "Digite a solução do ticket."}),
+        }
+        fields = ['solucao']
 # </editor-fold>

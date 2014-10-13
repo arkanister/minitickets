@@ -1,0 +1,50 @@
+{% extends 'forms/modal.html' %}
+
+{% load i18n %}
+{% load input from forms %}
+
+{% block scripts %}
+<script type="text/javascript">
+
+$(function () {
+
+    $('.modal form').on("submit", function () {
+
+        var jqxhr = $.ajax({
+            url: $(this).attr("action"),
+            method: "post",
+            data: $(this).serialize(),
+            success: function (data) {
+                window.location = data.redirect_to;
+            }
+        });
+
+        jqxhr.fail(function (xhr) {
+            $(".modal").html(xhr.responseText);
+        });
+
+        return false;
+    });
+
+    $(".mymarkdown").markdown({
+        autofocus:false,
+        savable:false
+    });
+
+});
+</script>
+{% endblock scripts %}
+
+{% block content.form.fields %}
+
+<div class="row">
+
+    <div class="col-xs-12">
+
+        {% input form.solucao 'template'='forms/input_vertical.html'%}
+
+    </div>
+
+</div>
+
+{% endblock content.form.fields %}

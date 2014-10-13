@@ -6,7 +6,7 @@ from src.minitickets.views import FuncionarioCreateView, FuncionarioUpdateView,\
     FuncionarioListView, FuncionarioDeleteView, ProdutoCreateView, ProdutoUpdateView, ProdutoDeleteView, ProdutoListView, \
     ClienteListView, ClienteUpdateView, ClienteDeleteView, ClienteCreateView, TicketCreateView, \
     TicketListView, ClienteAutoCompleteView, TicketDetailView, TicketDesenvolvedorUpdateView, TicketTipoUpdateView, \
-    HistoricoTicketCreateView, TempoTicketCreateView, TempoTicketPauseView
+    HistoricoTicketCreateView, TempoTicketCreateView, TempoTicketPauseView, TicketEncerrarUpdateView
 
 urlpatterns = patterns('src.minitickets.views',
     # <editor-fold desc="Funcionário">
@@ -38,6 +38,8 @@ urlpatterns = patterns('src.minitickets.views',
     url(r'^ticket/detail/(?P<pk>\d+)/$',TicketDetailView.as_view(), name='detail-ticket'),
     url(r'^tickets/change/desenvolvedor/(?P<pk>\d+)/$',TicketDesenvolvedorUpdateView.as_view(), name='change-desenvolvedor-ticket'),
     url(r'^tickets/change/tipo/(?P<pk>\d+)/$',TicketTipoUpdateView.as_view(), name='change-tipo-ticket'),
+    url(r'^ticket/close/(?P<pk>\d+)/$',TicketEncerrarUpdateView.as_view(), name='close-ticket'),
+
     # </editor-fold>
     
     # <editor-fold desc="HistoryTicket">
