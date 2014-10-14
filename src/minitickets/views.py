@@ -140,7 +140,7 @@ class TicketDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(TicketDetailView, self).get_context_data(**kwargs)
-        context['desenvolvedores'] = Funcionario.objects.filter(cargo=1, situacao=1)  # TODO: cargo=2
+        context['desenvolvedores'] = Funcionario.objects.filter(cargo=2, situacao=1)
         tempo = TempoTicket.objects.filter(ticket=self.object, funcionario=self.request.user, data_termino__isnull=True)
         if tempo.exists():
             context['has_started'] = True
@@ -233,7 +233,7 @@ class TicketDesenvolvedorUpdateView(UpdateView):
     def get_form(self, form_class):
         form = super(TicketDesenvolvedorUpdateView, self).get_form(form_class)
         form.fields['desenvolvedor'].required = True
-        form.fields['desenvolvedor'].queryset = Funcionario.objects.filter(cargo=1, situacao=1)  # TODO: cargo=2
+        form.fields['desenvolvedor'].queryset = Funcionario.objects.filter(cargo=2, situacao=1)
         return form
 
     def form_valid(self, form):

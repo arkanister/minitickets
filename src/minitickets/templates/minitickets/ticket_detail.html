@@ -187,9 +187,12 @@ $(function () {
         {% trans 'Pause' %}
     </a>
 
-    <a data-toggle="modal" href="{% url "minitickets:close-ticket" pk=ticket.pk %}" class="btn btn-warning pull-right">
-        {% icon 'times' %} {% trans 'Close Ticket' %}
-    </a>
+        {% if user.pk == ticket.analista.pk %}
+        <a data-toggle="modal" href="{% url "minitickets:close-ticket" pk=ticket.pk %}" class="btn btn-warning pull-right">
+            {% icon 'times' %} {% trans 'Close Ticket' %}
+        </a>
+        {% endif %}
+
     {% endif %}
 
 </div>
@@ -198,9 +201,11 @@ $(function () {
 
     <div class="inbox-side-bar no-padding-top">
 
+        {% if perms.minitickets.add_ticket %}
         <a data-toggle="modal" class="btn btn-primary btn-block" href="{% url "minitickets:add-ticket" %}">
             <strong>{% icon 'plus-circle' %} {% trans 'Add Ticket' %}</strong>
         </a>
+        {% endif %}
 
         <h6>
             {% trans 'Status' %}
@@ -284,7 +289,7 @@ $(function () {
                     <label class="bolder">Tipo</label>
 
                     <div class="editable-input block">
-                        {% if ticket.situacao == 1 %}
+                        {% if ticket.situacao == 1 and user.pk == ticket.analista.pk %}
                         <span id="tipo" class="cursor-pointer"> {{ ticket.get_tipo_display }}</span>
                         {% else %}
                         <span> {{ ticket.get_tipo_display }}</span>
@@ -312,7 +317,7 @@ $(function () {
                     <label class="bolder">Desenvolvedor</label>
 
                     <div class="editable-input block">
-                        {% if ticket.situacao == 1 %}
+                        {% if ticket.situacao == 1 and user.pk == ticket.analista.pk %}
                         <span id="desenvolvedor" class="cursor-pointer">{{ ticket.desenvolvedor|default:'Indefinido' }}</span>
                         {% else %}
                         <span>{{ ticket.desenvolvedor|default:'Indefinido' }}</span>

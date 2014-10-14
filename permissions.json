@@ -1,5 +1,22 @@
 {
     "1": [
+        "minitickets.add_ticket",
+        "minitickets.change_ticket",
+        "minitickets.delete_ticket",
+        "minitickets.view_ticket",
+        "minitickets.add_historicoticket",
+        "minitickets.change_historicoticket",
+        "minitickets.delete_historicoticket",
+        "minitickets.view_historicoticket"
+    ],
+    "2": [
+        "minitickets.view_ticket",
+        "minitickets.add_historicoticket",
+        "minitickets.change_historicoticket",
+        "minitickets.delete_historicoticket",
+        "minitickets.view_historicoticket"
+    ],
+    "3": [
         "minitickets.add_funcionario",
         "minitickets.change_funcionario",
         "minitickets.delete_funcionario",
@@ -12,20 +29,10 @@
         "minitickets.change_cliente",
         "minitickets.delete_cliente",
         "minitickets.view_cliente",
-        "minitickets.add_ticket",
-        "minitickets.change_ticket",
-        "minitickets.delete_ticket",
         "minitickets.view_ticket",
         "minitickets.add_historicoticket",
         "minitickets.change_historicoticket",
         "minitickets.delete_historicoticket",
         "minitickets.view_historicoticket"
-
-    ],
-    "2": [
-
-    ],
-    "3": [
-
     ]
 }

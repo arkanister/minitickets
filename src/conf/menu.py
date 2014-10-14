@@ -8,15 +8,15 @@ MAIN_NAV = [{
    "icon": "home",
    "pattern": r"^/$",
 }, {
-    "verbose_name": u"Cadastro",
-    "icon": "edit",
-    "submenus": [{
-        "verbose_name": u"Ticket",
+        "verbose_name": u"Tickets",
         "action": "minitickets:list-ticket",
         "icon": "ticket",
         "permissions": ["minitickets.view_ticket"],
         "pattern": r"^/tickets  /",
     }, {
+    "verbose_name": u"Cadastro",
+    "icon": "edit",
+    "submenus": [{
         "verbose_name": u"Cliente",
         "action": "minitickets:list-cliente",
         "icon": "building-o",

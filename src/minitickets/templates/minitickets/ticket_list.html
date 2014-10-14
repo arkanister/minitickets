@@ -61,6 +61,7 @@ $(function () {
         </a>
     </h1>
 
+    {% if perms.minitickets.add_ticket %}
     <div class="btn-group hidden-desktop visible-tablet" style="vertical-align: top;">
         <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
             {% trans 'Actions' %}
@@ -75,6 +76,7 @@ $(function () {
             </li>
         </ul>
     </div>
+    {% endif %}
 
     <div class="inbox-checkbox-triggered">
         <form action="{{ request.get_full_path }}">
@@ -138,9 +140,11 @@ $(function () {
 
     <div class="inbox-side-bar no-padding-top">
 
+        {% if perms.minitickets.add_ticket %}
         <a data-toggle="modal" class="btn btn-primary btn-block" href="{% url "minitickets:add-ticket" %}">
             <strong>{% icon 'plus-circle' %} {% trans 'Add Ticket' %}</strong>
         </a>
+        {% endif %}
 
         <h6>
             {% trans 'Status' %}
