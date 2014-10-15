@@ -29,6 +29,7 @@
         "minitickets.change_cliente",
         "minitickets.delete_cliente",
         "minitickets.view_cliente",
+        "minitickets.change_ticket",
         "minitickets.view_ticket",
         "minitickets.add_historicoticket",
         "minitickets.change_historicoticket",

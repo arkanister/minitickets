@@ -24,6 +24,7 @@
 $(function () {
     $("[rel=tooltip]").tooltip();
 
+
     $('#desenvolvedor').editable({
         name: 'desenvolvedor',
         url: '{% url 'minitickets:change-desenvolvedor-ticket' ticket.pk %}',
@@ -176,7 +177,7 @@ $(function () {
     <span class="badge bg-color-green bigger-120 pull-right">{{ ticket.get_situacao_display }}</span>
     {% endif %}
 
-    {% if ticket.situacao == 1 %}
+    {% if ticket.situacao == 1 and user.pk == ticket.analista.pk or user.pk == ticket.desenvolvedor.pk  %}
     <a id="ticket-start" href="{% url "minitickets:add-tempoticket" ticket=ticket.pk %}" class="btn btn-primary pull-right{% if has_started %} hide{% endif %}">
         {% icon 'play' %}
         {% trans 'Start' %}

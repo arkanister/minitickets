@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 
+{% load static from staticfiles %}
 {% load django_tables2 %}
 {% load i18n %}
 {% load humanize %}
@@ -10,9 +11,44 @@
 {% block content.header %}
 {% endblock content.header %}
 
+{% block scripts %}
+<script src="{% static 'js/plugin/x-editable/moment.min.js' %}"></script>
+<script src="{% static 'js/plugin/x-editable/jquery.mockjax.min.js' %}"></script>
+<script src="{% static 'js/plugin/x-editable/x-editable.min.js' %}"></script>
+{% endblock scripts %}
+
 {% block scripts.inline %}
 <script type="text/javascript">
 $(function () {
+
+    $('.analista').each(function () {
+        var self = $(this),
+            url = self.data('action'),
+            pk = self.data('id');
+
+        self.editable({
+            name: 'analista',
+            url: url,
+            pk: pk,
+            container: 'body',
+            ajaxOptions: {
+                headers: {'X-Csrftoken': '{{ csrf_token }}'}
+            },
+            title: 'Selecione o analista',
+            type: 'select',
+            value: pk,
+            source: function () {
+                return {
+                    {% for analista in analistas %}
+                        '{{ analista.pk }}': '{{ analista }}',
+                    {% endfor %}
+                }
+            }
+        });
+    }).on('click', function (e) {
+        return false;
+    });
+    
     $('.ticket-start').on('click', function () {
         var self = $(this),
             $td = self.parent().parent();
@@ -147,8 +183,36 @@ $(function () {
         {% endif %}
 
         <h6>
+            Analista
+        </h6>
+
+        <div class="btn-group width-100">
+
+            <button class="btn btn-default dropdown-toggle width-100 align-left" data-toggle="dropdown">
+                <span>
+                {% if a %}
+                    {{ a }}
+                {% else %}
+                    Todos
+                {% endif %}
+                <span class="caret pull-right" style="margin-top: -10px;"></span>
+
+                </span>
+            </button>
+
+            <ul class="dropdown-menu">
+                <li> <a href="{% querystring without 'a' %}">Todos</a> </li>
+                <li> <a href="{% querystring 'a'='i' %}">Indefinidos</a> </li>
+                <li class="divider"></li>
+                {% for analista in analistas %}
+                <li> <a href="{% querystring "a"=analista.pk %}">{{ analista }}</a> </li>
+                {% endfor %}
+            </ul>
+
+        </div>
+
+        <h6>
             {% trans 'Status' %}
-            <a class="pull-right txt-color-darken" data-original-title="Refresh" data-placement="right" title="" rel="tooltip" href="javascript:void(0);">
         </h6>
 
         <ul class="inbox-menu-lg">
@@ -208,6 +272,13 @@ $(function () {
                         </div>
                     </td>
                     <td class="inbox-data-attachment hidden-xs">
+                        {% if user.cargo == 3 %}
+                        <div class="editable-input block">
+                            <span data-id="{{ ticket.analista.id }}" data-action="{% url 'minitickets:change-analista-ticket' pk=ticket.pk %}" class="cursor-pointer analista">
+                                {{ ticket.analista|default:'Indefinido' }}
+                            </span>
+                        </div>
+                        {% else %}
                         <div>
                             {% if ticket.situacao == 1 %}
                             <a href="{% url "minitickets:add-tempoticket" ticket=ticket.pk %}" class="ticket-start txt-color-darken{% if started_ticket.pk == ticket.pk %} hide{% endif %}" data-original-title="{% trans 'Start' %}"  data-placement="left" rel="tooltip">
@@ -219,6 +290,7 @@ $(function () {
                             </a>
                             {% endif %}
                         </div>
+                        {% endif %}
                     </td>
                     <td class="inbox-data-date hidden-xs align-right" style="white-space: nowrap;">
 

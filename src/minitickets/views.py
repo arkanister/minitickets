@@ -178,6 +178,12 @@ class TicketListView(ListView):
         else:
             queryset = queryset.filter(situacao=2)
 
+        a = self.request.GET.get('a')
+        if a == 'i':
+            queryset = queryset.filter(analista__isnull=True)
+        elif a is not None:
+            queryset = queryset.filter(analista=a)
+
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -186,10 +192,21 @@ class TicketListView(ListView):
         context['s'] = self.request.GET.get('s')
         context['se'] = self.request.GET.get('se')
 
+        analista = self.request.GET.get('a')
+        if analista == 'i':
+            analista = "Indefinidos"
+        elif analista is not None:
+            analista = Funcionario.objects.filter(pk=analista)
+            if analista.exists():
+                analista = analista.get()
+        context['a'] = analista
+
         started_ticket = self.request.user.tempoticket_set.filter(data_termino__isnull=True)
         if started_ticket.exists():
             started_ticket = started_ticket.get()
             context['started_ticket'] = started_ticket.ticket
+
+        context['analistas'] = Funcionario.objects.filter(cargo=1, situacao=1)
 
         return context
 
@@ -250,6 +267,37 @@ class TicketDesenvolvedorUpdateView(UpdateView):
     def form_invalid(self, form):
         error = form.errors['desenvolvedor'][0]
         return JsonResponse(error, status=400)
+
+
+class TicketAnalistaUpdateView(UpdateView):
+    breadcrumbs = False
+    model = Ticket
+    fields = ['analista']
+
+    def get_form_kwargs(self):
+        kwargs = super(TicketAnalistaUpdateView, self).get_form_kwargs()
+        data = {'analista': self.request.POST.get('value')}
+        kwargs['data'] = data
+        return kwargs
+
+    def get_form(self, form_class):
+        form = super(TicketAnalistaUpdateView, self).get_form(form_class)
+        form.fields['analista'].required = True
+        form.fields['analista'].queryset = Funcionario.objects.filter(cargo=1, situacao=1)
+        return form
+
+    def form_valid(self, form):
+        self.object = form.save()
+        HistoricoTicket.objects.create_historico(
+            ticket=self.object,
+            conteudo="%s repassou o ticket para %s." % (unicode(self.request.user), unicode(self.object.analista))
+        )
+        return JsonResponse({})
+
+    def form_invalid(self, form):
+        error = form.errors['desenvolvedor'][0]
+        return JsonResponse(error, status=400)
+
 
 
 class TicketEncerrarUpdateView(UpdateView):
