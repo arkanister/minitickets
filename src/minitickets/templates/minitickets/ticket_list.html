@@ -212,6 +212,37 @@ $(function () {
         </div>
 
         <h6>
+            Desenvolvedor
+        </h6>
+
+        <div class="btn-group width-100">
+
+            <button class="btn btn-default dropdown-toggle width-100 align-left" data-toggle="dropdown">
+                <span>
+                {% if de %}
+                    {{ de }}
+                {% else %}
+                    Todos
+                {% endif %}
+                <span class="caret pull-right" style="margin-top: -10px;"></span>
+
+                </span>
+            </button>
+
+            <ul class="dropdown-menu">
+                <li> <a href="{% querystring without 'de' %}">Todos</a> </li>
+                <li> <a href="{% querystring 'de'='i' %}">Indefinidos</a> </li>
+                <li class="divider"></li>
+                {% for desenvolvedor in desenvolvedores %}
+                <li> <a href="{% querystring "de"=desenvolvedor.pk %}">{{ desenvolvedor }}</a> </li>
+                {% endfor %}
+            </ul>
+
+        </div>
+
+        <hr class="simple">
+
+        <h6>
             {% trans 'Status' %}
         </h6>
 
@@ -224,6 +255,8 @@ $(function () {
                 <a href="{% querystring 's'='closed' %}">{% trans 'Closed' %}</a>
             </li>
         </ul>
+
+        <hr class="simple">
 
         <h6>
             {% trans 'Types' %}

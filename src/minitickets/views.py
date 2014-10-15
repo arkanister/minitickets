@@ -184,6 +184,12 @@ class TicketListView(ListView):
         elif a is not None:
             queryset = queryset.filter(analista=a)
 
+        de = self.request.GET.get('de')
+        if de == 'i' and funcionario.analista.pk is not None:
+            queryset = queryset.filter(desenvolvedor__isnull=True)
+        elif de is not None:
+            queryset = queryset.filter(desenvolvedor=de)
+
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -201,13 +207,22 @@ class TicketListView(ListView):
                 analista = analista.get()
         context['a'] = analista
 
+        desenvolvedor = self.request.GET.get('de')
+        if desenvolvedor == 'i':
+            desenvolvedor = "Indefinidos"
+        elif desenvolvedor is not None:
+            desenvolvedor = Funcionario.objects.filter(pk=desenvolvedor)
+            if desenvolvedor.exists():
+                desenvolvedor = desenvolvedor.get()
+        context['de'] = desenvolvedor
+
         started_ticket = self.request.user.tempoticket_set.filter(data_termino__isnull=True)
         if started_ticket.exists():
             started_ticket = started_ticket.get()
             context['started_ticket'] = started_ticket.ticket
 
         context['analistas'] = Funcionario.objects.filter(cargo=1, situacao=1)
-
+        context['desenvolvedores'] = Funcionario.objects.filter(cargo=2, situacao=1)
         return context
 
 
