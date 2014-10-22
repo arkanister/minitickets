@@ -25,10 +25,6 @@ class HomeView(TemplateView):
     title = 'Home Page!'
 
 
-def teste(request):
-    return render(request, template_name='teste-modal.html')
-
-
 # <editor-fold desc="Funcionario">
 class FuncionarioCreateView(CreateView):
     model = Funcionario
@@ -339,7 +335,7 @@ class TicketReOpenUpdateView(UpdateView):
         self.object.save()
 
         HistoricoTicket.objects.create_historico(
-            autor=self.request.user,
+            criado_por=self.request.user,
             ticket=self.object,
             conteudo=form.cleaned_data.get("historico")
         )
@@ -373,7 +369,7 @@ class TicketReleaseUpdateView(UpdateView):
         self.object.save()
 
         HistoricoTicket.objects.create_historico(
-            autor=self.request.user,
+            criado_por=self.request.user,
             ticket=self.object,
             conteudo=form.cleaned_data.get("historico")
         )

@@ -5,7 +5,7 @@ from django.conf.urls import patterns, include, url
 # from django.contrib import admin
 from django.contrib.auth.views import login, logout
 from src.minitickets.forms import AuthenticationForm
-from src.minitickets.views import HomeView, teste
+from src.minitickets.views import HomeView
 
 # admin.autodiscover()
 
@@ -19,6 +19,4 @@ urlpatterns = patterns('',
 
     url(r'^', include('src.minitickets.urls', namespace='minitickets')),
     url(r'^(?P<accesstoken>[a-zA-Z0-9+=]+)/', include('src.services.urls', namespace='services')),
-
-    url(r'teste/$', teste, name='teste'),
 )

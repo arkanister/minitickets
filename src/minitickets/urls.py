@@ -24,7 +24,6 @@ urlpatterns = patterns('src.minitickets.views',
     url(r'^produto/delete/(?P<pk>\d+)/$',ProdutoDeleteView.as_view(), name='delete-produto'),
     # </editor-fold>
 
-
     # <editor-fold desc="Cliente">
     url(r'^cliente/add/$',ClienteCreateView.as_view(), name='add-cliente'),
     url(r'^cliente/change/(?P<pk>\d+)/$',ClienteUpdateView.as_view(), name='change-cliente'),
@@ -33,7 +32,7 @@ urlpatterns = patterns('src.minitickets.views',
     url(r'^cliente/autocomplete/$',ClienteAutoCompleteView.as_view(), name='autocomplete-cliente'),
     # </editor-fold>
 
-     # <editor-fold desc="Ticket">
+    # <editor-fold desc="Ticket">
     url(r'^ticket/add/$', TicketCreateView.as_view(), name='add-ticket'),
     url(r'^tickets/$',TicketListView.as_view(), name='list-ticket'),
     url(r'^ticket/detail/(?P<pk>\d+)/$',TicketDetailView.as_view(), name='detail-ticket'),
@@ -53,7 +52,4 @@ urlpatterns = patterns('src.minitickets.views',
     url(r'^time/ticket/add/(?P<ticket>\d+)/$', TempoTicketCreateView.as_view(), name='add-tempoticket'),
     url(r'^time/ticket/pause/(?P<ticket>\d+)/$', TempoTicketPauseView.as_view(), name='pause-tempoticket'),
     # </editor-fold>
-
-
-
 )
