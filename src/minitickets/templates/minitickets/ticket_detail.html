@@ -448,7 +448,6 @@ $(function () {
         <div class="inbox-message no-border">
             <h6 class="lighter">{% icon 'file-text-o' %} {% trans 'Solution' %}</h6>
             {{ ticket.solucao|markdown }}
-            <div class="timeline-seperator text-center"><span>{{ ticket.data_fechamento }}</span></div>
         </div>
         {% endif %} 
 
@@ -467,18 +466,15 @@ $(function () {
             <table class="table table-striped table-forum">
                 <tbody>
                     {% for history in ticket.historicoticket_set.all %}
+                    {% if history.criado_por %}
                     <tr>
-                        <td width="300px">
-                            <strong>
-                                {% if history.criado_por %}
-                                    {% icon 'comment' 'class'='text-muted bigger-120' %}
-                                {% else %}
-                                    {% icon 'exclamation-triangle' 'class'='text-muted bigger-120' %}
-                                {% endif %}
+                        <td width="50%">
 
-                                {% if history.criado_por %}
-                                    {{ history.criado_por }}
-                                {% endif %}
+
+                            {% icon 'comment' 'class'='text-muted bigger-120 no-padding' %}
+
+                            <strong>
+                                {{ history.criado_por }}
                             </strong>
                         </td>
                         <td class="align-right">
@@ -494,6 +490,24 @@ $(function () {
                             {{ history.conteudo|markdown }}
                         </td>
                     </tr>
+                    {% else %}
+                    <tr>
+                        <td width="50%">
+                            {% icon 'exclamation-triangle' 'class'='text-muted no-padding bigger-120' %}
+                            {{ history.conteudo }}
+                        </td>
+                        <td class="align-right">
+                            <em>
+                                <time datetime="{{ history.data_cadastro|date:'Y-m-d h:i' }}">
+                                {% icon 'clock-o' %} {{ history.data_cadastro|naturaltime }}
+                                </time>
+                            </em>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"></td>
+                    </tr>
+                    {% endif %}
                     {% endfor %}
                 </tbody>
             </table>
