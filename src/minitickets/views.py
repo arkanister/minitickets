@@ -4,15 +4,17 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.shortcuts import render
 from django.utils import timezone
-from django.views.generic.base import View as DjangoView
+from django.views.generic.base import View as DjangoView, TemplateResponseMixin
+from django.views.generic.detail import SingleObjectMixin
+from django.views.generic.edit import FormMixin
 
 from lib.utils.views.base import SmartView as View, TemplateSmartView as TemplateView
 from lib.utils.views.detail import DetailView
-from lib.utils.views.edit import CreateView, UpdateView, DeleteView
+from lib.utils.views.edit import CreateView, UpdateView, DeleteView, ProcessFormView
 from lib.utils.views.tables import SingleTableView as ListView
 from lib.utils.views.utils import JsonResponse
 from src.minitickets.forms import FuncionarioCreateForm, FuncionarioUpdateForm, ProdutoForm, \
-    ClienteUpdateForm, ClienteCreateForm, TicketCreateForm, TicketDetailForm, TicketEncerrarForm
+    ClienteUpdateForm, ClienteCreateForm, TicketCreateForm, TicketDetailForm, TicketEncerrarForm, TicketReleaseForm
 from src.minitickets.models import Funcionario, Produto, Cliente, Ticket, HistoricoTicket, TempoTicket
 from src.minitickets.tables import FuncionarioTable, ProdutoTable, ClienteTable
 
@@ -174,7 +176,16 @@ class TicketListView(ListView):
 
         s = self.request.GET.get('s')
         if s is None or s == 'open':
-            queryset = queryset.filter(situacao=1)
+            if self.request.user.cargo == 1:
+                de = self.request.GET.get('de')
+                if de is not None:
+                    queryset = queryset.filter(desenvolvedor=de).exclude(situacao=2)
+                else:
+                    queryset = queryset.filter(Q(situacao=1, desenvolvedor__isnull=True) | Q(situacao=3))
+            elif self.request.user.cargo == 2:
+                queryset = queryset.filter(situacao=1)
+            elif self.request.user.cargo == 3:
+                queryset = queryset.exclude(situacao=2)
         else:
             queryset = queryset.filter(situacao=2)
 
@@ -184,13 +195,7 @@ class TicketListView(ListView):
         elif a is not None:
             queryset = queryset.filter(analista=a)
 
-        de = self.request.GET.get('de')
-        if de == 'i' and funcionario.analista.pk is not None:
-            queryset = queryset.filter(desenvolvedor__isnull=True)
-        elif de is not None:
-            queryset = queryset.filter(desenvolvedor=de)
-
-        return queryset
+        return queryset.order_by('-situacao', 'data_abertura')
 
     def get_context_data(self, **kwargs):
         context = super(TicketListView, self).get_context_data(**kwargs)
@@ -222,7 +227,10 @@ class TicketListView(ListView):
             context['started_ticket'] = started_ticket.ticket
 
         context['analistas'] = Funcionario.objects.filter(cargo=1, situacao=1)
-        context['desenvolvedores'] = Funcionario.objects.filter(cargo=2, situacao=1)
+        context['desenvolvedores'] = Funcionario.objects.filter(
+            cargo=2, situacao=1,
+            desenvolvedor__analista__pk=self.request.user.pk
+        ).distinct()
         return context
 
 
@@ -313,6 +321,73 @@ class TicketAnalistaUpdateView(UpdateView):
         error = form.errors['desenvolvedor'][0]
         return JsonResponse(error, status=400)
 
+
+class TicketReOpenUpdateView(UpdateView):
+    model = Ticket
+    form_class = TicketReleaseForm
+    template_name = "minitickets/ticket_release_form.html"
+    title = u"[icon:reply] Reopen Ticket"
+
+    success_message = u"[icon:check] Ticket <b>[titulo]</b> reaberto com sucesso!"
+
+    def get_success_url(self):
+        return reverse("minitickets:list-ticket")
+
+    def form_valid(self, form):
+        self.object = self.get_object()
+        self.object.situacao = 1
+        self.object.save()
+
+        HistoricoTicket.objects.create_historico(
+            autor=self.request.user,
+            ticket=self.object,
+            conteudo=form.cleaned_data.get("historico")
+        )
+
+        HistoricoTicket.objects.create_historico(
+            ticket=self.object,
+            conteudo=u"Ticket reaberto pelo usuário %s." % unicode(self.request.user)
+        )
+
+        self.messages.success(self.get_message("success"))
+
+        return JsonResponse({
+            "redirect_to": self.get_success_url()
+        })
+
+
+class TicketReleaseUpdateView(UpdateView):
+    model = Ticket
+    form_class = TicketReleaseForm
+    template_name = "minitickets/ticket_release_form.html"
+    title = u"[icon:check] Release Ticket"
+
+    success_message = u"[icon:check] Ticket <b>[titulo]</b> liberado com sucesso!"
+
+    def get_success_url(self):
+        return reverse("minitickets:list-ticket")
+
+    def form_valid(self, form):
+        self.object = self.get_object()
+        self.object.situacao = 3
+        self.object.save()
+
+        HistoricoTicket.objects.create_historico(
+            autor=self.request.user,
+            ticket=self.object,
+            conteudo=form.cleaned_data.get("historico")
+        )
+
+        HistoricoTicket.objects.create_historico(
+            ticket=self.object,
+            conteudo=u"Ticket liberado pelo usuário %s." % unicode(self.request.user)
+        )
+
+        self.messages.success(self.get_message("success"))
+
+        return JsonResponse({
+            "redirect_to": self.get_success_url()
+        })
 
 
 class TicketEncerrarUpdateView(UpdateView):

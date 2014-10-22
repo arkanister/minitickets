@@ -211,6 +211,15 @@ class TicketUpdateForm(forms.ModelForm):
         fields = ['cliente', 'produto', 'titulo', 'descricao', 'tipo']
 
 
+class TicketReleaseForm(forms.Form):
+
+    def __init__(self, instance=None, *args, **kwargs):
+        super(TicketReleaseForm, self).__init__(*args, **kwargs)
+        self.instance = instance
+
+    historico = forms.CharField(widget=forms.Textarea(attrs={"class": "custom-scroll md-input", "class": "mymarkdown", "rows": 4, "placeholder": "Digite a solução do ticket."}))
+
+
 class TicketEncerrarForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):

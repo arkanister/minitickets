@@ -159,7 +159,8 @@ class Ticket(models.Model):
     situacao = models.PositiveIntegerField(
         choices=(
             (1, 'Aberto'),
-            (2, 'Fechado')
+            (2, 'Fechado'),
+            (3, 'Liberado')
         ), default=1
     )
 # </editor-fold>
@@ -167,39 +168,21 @@ class Ticket(models.Model):
 
 # <editor-fold desc="HistoricoTicket">
 class HistoricoTicketManager(models.Manager):
-    def create_historico(self, ticket, conteudo, autor=None):
-        kwargs = {
-            'ticket': ticket,
-            'conteudo': conteudo
-        }
+    def create_historico(self, ticket, conteudo, criado_por=None):
+        kwargs = {'ticket': ticket, 'conteudo': conteudo}
 
-        if autor:
-            content_type = ContentType.objects.get(
-                app_label__iexact=autor._meta.app_label,
-                model__iexact=autor._meta.object_name
-            )
-
-            object_id = getattr(autor, 'id')
-
-            kwargs.update({
-                'content_type': content_type,
-                'object_id': object_id
-            })
+        if criado_por is not None:
+            kwargs['criado_por'] = criado_por
 
         instance = self.model(**kwargs)
-
         instance.save()
+
         return instance
 
 
 class HistoricoTicket(models.Model):
     data_cadastro = models.DateTimeField(auto_now_add=True)
-
-    # Generic ForeignKey --->
-    content_type = models.ForeignKey(ContentType, null=True, blank=True)
-    object_id = models.IntegerField(blank=True, null=True)
-    # Generic ForeignKey <---
-
+    criado_por = models.ForeignKey('Funcionario', null=True, blank=True)
     ticket = models.ForeignKey('Ticket')
     conteudo = models.TextField()
 
@@ -207,19 +190,6 @@ class HistoricoTicket(models.Model):
 
     class Meta:
         ordering = ['-data_cadastro']
-
-    def _get_criado_por(self):
-        if not hasattr(self, '_criado_por'):
-            if self.content_type and self.object_id:
-                AutorModel = self.content_type.model_class()
-                try:
-                    self._criado_por = AutorModel.objects.get(id=self.object_id)
-                except AutorModel.DoesNotExists:
-                    self.criado_por = None
-            else:
-                self._criado_por = None
-        return self._criado_por
-    criado_por = property(_get_criado_por)
 # </editor-fold>
 
 

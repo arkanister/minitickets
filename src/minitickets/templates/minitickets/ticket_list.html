@@ -182,6 +182,7 @@ $(function () {
         </a>
         {% endif %}
 
+        {% if user.cargo == 3 %}
         <h6>
             Analista
         </h6>
@@ -210,7 +211,9 @@ $(function () {
             </ul>
 
         </div>
+        {% endif %}
 
+        {% if user.cargo == 1 %}
         <h6>
             Desenvolvedor
         </h6>
@@ -230,8 +233,7 @@ $(function () {
             </button>
 
             <ul class="dropdown-menu">
-                <li> <a href="{% querystring without 'de' %}">Todos</a> </li>
-                <li> <a href="{% querystring 'de'='i' %}">Indefinidos</a> </li>
+                <li> <a href="{% querystring without 'de' %}">----------</a> </li>
                 <li class="divider"></li>
                 {% for desenvolvedor in desenvolvedores %}
                 <li> <a href="{% querystring "de"=desenvolvedor.pk %}">{{ desenvolvedor }}</a> </li>
@@ -239,6 +241,7 @@ $(function () {
             </ul>
 
         </div>
+        {% endif %}
 
         <hr class="simple">
 
@@ -285,9 +288,11 @@ $(function () {
             <tbody>
                 {% for row in table.page.object_list|default:table.rows %}
                 {% with row.record as ticket %}
-                <tr data-action="{% url 'minitickets:detail-ticket' ticket.pk %}" trigger="click" id="msg1"{% if ticket.situacao == 1 %} class="unread"{% endif %}>
+                <tr data-action="{% url 'minitickets:detail-ticket' ticket.pk %}" trigger="click" class="{% if ticket.situacao == 1 %}unread{% elif ticket.situacao == 3 %}success unread{% endif %}">
                     <td class="inbox-data-from hidden-xs hidden-sm">
-                        <div style="padding-left: 7px;"> {{ ticket.cliente.nome_fantasia }} </div>
+                        <div style="padding-left: 7px;">
+                            {{ ticket.pk|lpad:5 }} - {{ ticket.cliente.nome_fantasia }}
+                        </div>
                     </td>
                     <td class="inbox-data-message">
                         <div>
@@ -305,15 +310,14 @@ $(function () {
                         </div>
                     </td>
                     <td class="inbox-data-attachment hidden-xs">
-                        {% if user.cargo == 3 %}
+                        {% if user.cargo == 3 and ticket.situacao != 2 %}
                         <div class="editable-input block">
                             <span data-id="{{ ticket.analista.id }}" data-action="{% url 'minitickets:change-analista-ticket' pk=ticket.pk %}" class="cursor-pointer analista">
                                 {{ ticket.analista|default:'Indefinido' }}
                             </span>
                         </div>
-                        {% else %}
+                        {% elif ticket.situacao != 2 %}
                         <div>
-                            {% if ticket.situacao == 1 %}
                             <a href="{% url "minitickets:add-tempoticket" ticket=ticket.pk %}" class="ticket-start txt-color-darken{% if started_ticket.pk == ticket.pk %} hide{% endif %}" data-original-title="{% trans 'Start' %}"  data-placement="left" rel="tooltip">
                                 {% icon 'play' 'class'='bigger-120' %}
                             </a>
@@ -321,7 +325,6 @@ $(function () {
                             <a href="{% url "minitickets:pause-tempoticket" ticket=ticket.pk %}"  class="ticket-pause txt-color-darken active{% if not started_ticket.pk == ticket.pk %} hide{% endif %}" data-original-title="{% trans 'Pause' %}" data-placement="left" rel="tooltip">
                                 {% icon 'pause' 'class'='bigger-120' %}
                             </a>
-                            {% endif %}
                         </div>
                         {% endif %}
                     </td>
