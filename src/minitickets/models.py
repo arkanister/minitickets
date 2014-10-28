@@ -268,4 +268,7 @@ class TempoTicket(models.Model):
     funcionario = models.ForeignKey('Funcionario')
 
     objects = TempoTicketManager()
+
+    def as_seconds(self):
+        return (self.data_termino - self.data_inicio).total_seconds()
 # </editor-fold>

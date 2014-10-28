@@ -143,6 +143,10 @@ class TicketDetailView(DetailView):
         tempo = TempoTicket.objects.filter(ticket=self.object, funcionario=self.request.user, data_termino__isnull=True)
         if tempo.exists():
             context['has_started'] = True
+
+        for t in self.object.tempoticket_set.all():
+            print t.as_seconds()
+
         return context
 
 
