@@ -20,10 +20,9 @@
 {% endblock scripts %}
 
 {% block scripts.inline %}
-    <script type="text/javascript">
+<script type="text/javascript">
 $(function () {
     $("[rel=tooltip]").tooltip();
-
 
     $('#desenvolvedor').editable({
         name: 'desenvolvedor',
@@ -43,8 +42,7 @@ $(function () {
             }
         },
         success: function (data) {
-            var li = '<li class="message"> {% icon 'exclamation-triangle' %} <div class="message-text"> <time datetime="' + data.data_cadastro + '">{% icon 'clock-o' %} {% trans 'now' %}</time> ' + data.conteudo + '</div></li>';
-            $('#chat-body ul').prepend(li);
+            $('#id_historicos').prepend(data.historico);
         }
     });
 
@@ -78,8 +76,7 @@ $(function () {
                 $('#id_tipo-badge').addClass("bg-color-green");
             }
 
-            var li = '<li class="message"> {% icon 'exclamation-triangle' %} <div class="message-text"> <time datetime="' + data.data_cadastro + '">{% icon 'clock-o' %} {% trans 'now' %}</time> ' + data.conteudo + '</div></li>';
-            $('#chat-body ul').prepend(li);
+            $('#id_historicos').prepend(data.historico);
         }
     });
 
@@ -96,8 +93,7 @@ $(function () {
                 success: function (data) {
                     e.$textarea.val('');
                     e.$editor.removeClass('active');
-                    var li = '<li class="message"> {% icon 'comment' %} <div class="message-text"> <time datetime="' + data.data_cadastro + '">{% icon 'clock-o' %} {% trans 'now' %}</time> <a class="username" href="javascript:void(0);">' + data.criado_por +  '</a>' + data.conteudo + '</div></li>';
-                    $('#chat-body ul').prepend(li);
+                    $('#id_historicos').prepend(data.historico);
                 }
             });
         }
@@ -110,10 +106,10 @@ $(function () {
             headers: {'X-CsrfToken': '{{ csrf_token }}'},
             data: null,
             success: function (data) {
-                var li = '<li class="message"> {% icon 'clock-o' %} <div class="message-text"> <time datetime="' + data.data_cadastro + '">{% icon 'clock-o' %} {% trans 'now' %}</time> ' + data.conteudo + '</div></li>';
-                $('#chat-body ul').prepend(li);
                 $('#ticket-start').addClass('hide');
                 $('#ticket-pause').removeClass('hide');
+
+                $('#id_historicos').prepend(data.historico);
             }
         });
         return false;
@@ -126,15 +122,14 @@ $(function () {
             headers: {'X-CsrfToken': '{{ csrf_token }}'},
             data: null,
             success: function (data) {
-                var li = '<li class="message"> {% icon 'clock-o' %} <div class="message-text"> <time datetime="' + data.data_cadastro + '">{% icon 'clock-o' %} {% trans 'now' %}</time> ' + data.conteudo + '</div></li>';
-                $('#chat-body ul').prepend(li);
                 $('#ticket-pause').addClass('hide');
                 $('#ticket-start').removeClass('hide');
+
+                $('#id_historicos').prepend(data.historico);
             }
         });
         return false;
     });
-
 });
 </script>
 {% endblock scripts.inline %}
@@ -464,50 +459,9 @@ $(function () {
             <div class="space-10"></div>
 
             <table class="table table-striped table-forum">
-                <tbody>
+                <tbody id="id_historicos">
                     {% for history in ticket.historicoticket_set.all %}
-                    {% if history.criado_por %}
-                    <tr>
-                        <td width="50%">
-
-
-                            {% icon 'comment' 'class'='text-muted bigger-120 no-padding' %}
-
-                            <strong>
-                                {{ history.criado_por }}
-                            </strong>
-                        </td>
-                        <td class="align-right">
-                            <em>
-                                <time datetime="{{ history.data_cadastro|date:'Y-m-d h:i' }}">
-                                {% icon 'clock-o' %} {{ history.data_cadastro|naturaltime }}
-                                </time>
-                            </em>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                            {{ history.conteudo|markdown }}
-                        </td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td width="50%">
-                            {% icon 'exclamation-triangle' 'class'='text-muted no-padding bigger-120' %}
-                            {{ history.conteudo }}
-                        </td>
-                        <td class="align-right">
-                            <em>
-                                <time datetime="{{ history.data_cadastro|date:'Y-m-d h:i' }}">
-                                {% icon 'clock-o' %} {{ history.data_cadastro|naturaltime }}
-                                </time>
-                            </em>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"></td>
-                    </tr>
-                    {% endif %}
+                        {{ history.render|safe }}
                     {% endfor %}
                 </tbody>
             </table>

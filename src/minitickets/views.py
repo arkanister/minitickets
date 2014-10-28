@@ -3,6 +3,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.shortcuts import render
+from django.template import loader
 from django.utils import timezone
 from django.views.generic.base import View as DjangoView, TemplateResponseMixin
 from django.views.generic.detail import SingleObjectMixin
@@ -250,8 +251,7 @@ class TicketTipoUpdateView(UpdateView):
         return JsonResponse({
             'tipo': self.object.tipo,
             'tipo_display': self.object.get_tipo_display(),
-            'conteudo': history.conteudo,
-            'data_cadastro': history.data_cadastro.strftime('%Y-%m-%d %H:%M')
+            'historico': history.render()
         })
 
 
@@ -278,10 +278,7 @@ class TicketDesenvolvedorUpdateView(UpdateView):
             ticket=self.object,
             conteudo="%s repassou o ticket para %s." % (unicode(self.request.user), unicode(self.object.desenvolvedor))
         )
-        return JsonResponse({
-            'conteudo': history.conteudo,
-            'data_cadastro': history.data_cadastro.strftime('%Y-%m-%d %H:%M')
-        })
+        return JsonResponse({'historico': history.render()})
 
     def form_invalid(self, form):
         error = form.errors['desenvolvedor'][0]
@@ -337,7 +334,8 @@ class TicketReOpenUpdateView(UpdateView):
         HistoricoTicket.objects.create_historico(
             criado_por=self.request.user,
             ticket=self.object,
-            conteudo=form.cleaned_data.get("historico")
+            conteudo=form.cleaned_data.get("historico"),
+            tipo=2
         )
 
         HistoricoTicket.objects.create_historico(
@@ -371,7 +369,8 @@ class TicketReleaseUpdateView(UpdateView):
         HistoricoTicket.objects.create_historico(
             criado_por=self.request.user,
             ticket=self.object,
-            conteudo=form.cleaned_data.get("historico")
+            conteudo=form.cleaned_data.get("historico"),
+            tipo=2
         )
 
         HistoricoTicket.objects.create_historico(
@@ -421,12 +420,13 @@ class HistoricoTicketCreateView(CreateView):
 
     def form_valid(self, form):
         ticket = Ticket.objects.get(pk=self.kwargs.get('ticket'))
-        self.object = self.model.objects.create_historico(ticket, form.cleaned_data.get('conteudo'), self.request.user)
-        return JsonResponse({
-            'criado_por': unicode(self.object.criado_por),
-            'conteudo': self.object.conteudo,
-            'data_cadastro': self.object.data_cadastro.strftime('%Y-%m-%d %H:%M')
-        })
+        self.object = self.model.objects.create_historico(
+            ticket=ticket,
+            conteudo=form.cleaned_data.get('conteudo'),
+            criado_por=self.request.user,
+            tipo=2
+        )
+        return JsonResponse({'historico': self.object.render()})
 # </editor-fold>
 
 
@@ -449,10 +449,7 @@ class TempoTicketCreateView(View):
 
         self.object, history = self.model.objects.start(ticket, user)
 
-        return JsonResponse({
-            'conteudo': history.conteudo,
-            'data_cadastro': history.data_cadastro.strftime('%Y-%m-%d %H:%M')
-        })
+        return JsonResponse({'historico': history.render()})
 
 
 class TempoTicketPauseView(View):
@@ -465,10 +462,7 @@ class TempoTicketPauseView(View):
         self.object = self.model.objects.filter(funcionario=user, ticket=kwargs.get('ticket'), data_termino__isnull=True)[0]
         self.object, history = self.model.objects.pause(self.object)
 
-        return JsonResponse({
-            'conteudo': history.conteudo,
-            'data_cadastro': history.data_cadastro.strftime('%Y-%m-%d %H:%M')
-        })
+        return JsonResponse({'historico': history.render()})
 # </editor-fold>
 
 

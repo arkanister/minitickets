@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.template import loader
 from django.utils import timezone
 from lib.utils.models.validators import CpfValidator
 from src.minitickets.managers import FuncionarioManager
@@ -168,8 +169,8 @@ class Ticket(models.Model):
 
 # <editor-fold desc="HistoricoTicket">
 class HistoricoTicketManager(models.Manager):
-    def create_historico(self, ticket, conteudo, criado_por=None):
-        kwargs = {'ticket': ticket, 'conteudo': conteudo}
+    def create_historico(self, ticket, conteudo, criado_por=None, tipo=1):
+        kwargs = {'ticket': ticket, 'conteudo': conteudo, "tipo": tipo}
 
         if criado_por is not None:
             kwargs['criado_por'] = criado_por
@@ -185,11 +186,51 @@ class HistoricoTicket(models.Model):
     criado_por = models.ForeignKey('Funcionario', null=True, blank=True)
     ticket = models.ForeignKey('Ticket')
     conteudo = models.TextField()
+    tipo = models.IntegerField(choices=(
+        (1, u"Padrão"),
+        (2, u"Comentário"),
+        (3, u"Iniciar/Pausar")
+    ))
 
     objects = HistoricoTicketManager()
 
     class Meta:
         ordering = ['-data_cadastro']
+
+    def _get_icon_name(self):
+        return 'warning' if self.tipo == 1 else ('comment' if self.tipo == 2 else 'clock-o')
+    icon_name = property(_get_icon_name)
+
+    def get_template(self):
+        if self.tipo == 2:
+            return (
+                '{% load markdown_deux_tags %}{% load humanize %}{% load icon from icons %}'
+                '<tr><td width="50%">{% icon icon_name "class"="text-muted bigger-120 no-padding" %}'
+                '<strong> {{ criado_por }} </strong></td><td class="align-right">'
+                '<em><time datetime="{{ data_cadastro|date:"Y-m-d H:i" }}">'
+                '{% icon "clock-o" %} {{ data_cadastro|naturaltime }}</time></em>'
+                '</td></tr><tr><td colspan="2">{{ conteudo|markdown }}</td></tr>'
+            )
+        else:
+            return (
+                '{% load markdown_deux_tags %}{% load humanize %}{% load icon from icons %}'
+                '<tr><td width="50%">{% icon icon_name "class"="text-muted no-padding bigger-120" %}'
+                ' {{ conteudo }}</td><td class="align-right">'
+                '<em><time datetime="{{ data_cadastro|date:"Y-m-d H:i" }}">'
+                '{% icon "clock-o" %} {{ data_cadastro|naturaltime }}</time></em>'
+                '</td></tr><tr><td colspan="2"></td></tr>'
+            )
+
+    def render(self):
+        context = loader.Context({
+            'data_cadastro': self.data_cadastro,
+            'conteudo': self.conteudo,
+            'criado_por': self.criado_por,
+            'icon_name': self.icon_name,
+        })
+
+        template = loader.get_template_from_string(self.get_template())
+        return template.render(context)
 # </editor-fold>
 
 
@@ -201,7 +242,8 @@ class TempoTicketManager(models.Manager):
 
         history = HistoricoTicket.objects.create_historico(
             ticket=ticket,
-            conteudo="%s iniciou o ticket." % (unicode(funcionario))
+            conteudo="%s iniciou o ticket." % (unicode(funcionario)),
+            tipo=3
         )
 
         return (tempo_ticket, history)
@@ -212,7 +254,8 @@ class TempoTicketManager(models.Manager):
 
         history = HistoricoTicket.objects.create_historico(
             ticket=tempo_ticket.ticket,
-            conteudo="%s pausou o ticket." % (unicode(tempo_ticket.funcionario))
+            conteudo="%s pausou o ticket." % (unicode(tempo_ticket.funcionario)),
+            tipo=3
         )
 
         return (tempo_ticket, history)
