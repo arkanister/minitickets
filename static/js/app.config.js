@@ -183,8 +183,8 @@ $(document).ready(function() {
         },
         telefone: function(){
             var input = this._getElement('telefone');
-                input.attr('placeholder', '(99)9999-9999')
-                    .mask('(99)9999-9999', this._getDataOptions(input));
+                input.attr('placeholder', '(99) 9999-9999')
+                    .mask('(99) 9999-9999', this._getDataOptions(input));
             return input;
         },
         cnpj: function() {

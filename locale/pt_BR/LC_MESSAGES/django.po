@@ -26,61 +26,61 @@ msgstr ""
 #: lib/utils/forms/widgets.py:27
 #, python-format
 msgid "'%s' format is not valid."
-msgstr ""
+msgstr "'%s' Formato inválido."
 
 #: lib/utils/forms/widgets.py:28
 #, python-format
 msgid "'%s' side is not valid."
-msgstr ""
+msgstr "'%s' Lado inválido."
 
 #: lib/utils/forms/widgets.py:259
 msgid "Values"
-msgstr ""
+msgstr "Valores"
 
 #: lib/utils/forms/widgets.py:262
 msgid "Create:"
-msgstr ""
+msgstr "Criar"
 
 #: lib/utils/forms/widgets.py:267
 #: src/minitickets/templates/minitickets/ticket_list.html:103
 msgid "Actions"
-msgstr ""
+msgstr "Ações"
 
 #: lib/utils/forms/widgets.py:274
 msgid "Add New"
-msgstr ""
+msgstr "Adicionar Novo(a)"
 
 #: lib/utils/forms/widgets.py:282
 msgid "Manage All"
-msgstr ""
+msgstr "Gerenciar Todos(as)"
 
 #: lib/utils/models/validators.py:60
 msgid "Invalid CPF format."
-msgstr ""
+msgstr "Formato do CPD inválido."
 
 #: lib/utils/models/validators.py:61 lib/utils/models/validators.py:81
 msgid "This field should only contain 11 digits."
-msgstr ""
+msgstr "Esse campo só suporta 11 digitos."
 
 #: lib/utils/models/validators.py:62
 msgid "Invalid CPF."
-msgstr ""
+msgstr "CPF Inválido."
 
 #: lib/utils/models/validators.py:80
 msgid "Invalid CNPJ format."
-msgstr ""
+msgstr "CNPJ com formato inválido."
 
 #: lib/utils/models/validators.py:82
 msgid "Invalid CNPJ."
-msgstr ""
+msgstr "CNPJ inválido."
 
 #: lib/utils/models/validators.py:100
 msgid "Invalid birth certificate format."
-msgstr ""
+msgstr "Certidão de nascimento inválida."
 
 #: lib/utils/models/validators.py:101
 msgid "This field should only contain 32 digits."
-msgstr ""
+msgstr "Esse campo deveria conter apenas 32 digitos."
 
 #: lib/utils/models/validators.py:102
 msgid "Invalid birth certificate."
@@ -96,76 +96,78 @@ msgstr "Início"
 
 #: lib/utils/views/edit.py:180
 msgid "[verbose_name] '[unicode]' created!"
-msgstr ""
+msgstr "[verbose_name] '[unicode]' Criado!"
 
 #: lib/utils/views/edit.py:181
 msgid "Failed to create [verbose_name]!"
-msgstr ""
+msgstr "Flaha na criação de [verbose_name]!"
 
 #: lib/utils/views/edit.py:187
 #, python-format
 msgid "Create %s"
-msgstr ""
+msgstr "Criar %s"
 
 #: lib/utils/views/edit.py:227
 msgid "[verbose_name] '[unicode]' successfully modified!"
-msgstr ""
+msgstr "[verbose_name] '[unicode]' Modificado com sucesso!"
 
 #: lib/utils/views/edit.py:228
 msgid "Failed to modify [verbose_name]!"
-msgstr ""
+msgstr "Falha ao modificar [verbose_name]!"
 
 #: lib/utils/views/edit.py:234
 #, python-format
 msgid "Update %s"
-msgstr ""
+msgstr "Atualizar %s"
 
 #: lib/utils/views/edit.py:287
 #, python-format
 msgid "Please check url to %s args."
-msgstr ""
+msgstr "Por favor cheque a url para %s args."
 
 #: lib/utils/views/edit.py:323
 msgid "[verbose_name] '[unicode]' successfully deleted!"
-msgstr ""
+msgstr "[verbose_name] '[unicode]' Deletado com sucesso!"
 
 #: lib/utils/views/edit.py:324
 msgid "Failed to delete [verbose_name] '[unicode]'!"
-msgstr ""
+msgstr "Falha ao deletar [verbose_name] '[unicode]'!"
 
 #: lib/utils/views/edit.py:338
 #, python-format
 msgid "Delete %s"
-msgstr ""
+msgstr "Deletar %s"
 
 #: lib/utils/views/list.py:36
 #, python-format
 msgid "Empty list and '%(class_name)s.allow_empty' is False."
-msgstr ""
+msgstr "Lista vasia e '%(class_name)s.allow_empty' é False."
 
 #: lib/utils/views/tables.py:59
 msgid "Detail"
-msgstr ""
+msgstr "Detalhes"
 
 #: lib/utils/views/tables.py:69
 msgid "Change"
-msgstr ""
+msgstr "Mudar"
 
 #: lib/utils/views/tables.py:79
 msgid "Delete"
-msgstr ""
+msgstr "Deletar"
 
 #: lib/utils/views/utils.py:194 lib/utils/views/utils.py:308
 #: lib/utils/views/utils.py:394
 #, python-format
 msgid "'%s' object doest not is a %s."
-msgstr ""
+msgstr "'%s' Objeto nao é um %s."
 
 #: lib/utils/views/email/base.py:17
 msgid ""
 "EmailTemplateRenderMixin requires either a definition of 'template_name' or "
 "an implementation of 'get_email_template_names()'"
 msgstr ""
+"EmailTemplateRenderMixin requer tanto uma definição de 'template_name' ou "
+"uma implementação de 'get_email_template_names()'"
 
 #: lib/utils/views/email/base.py:49
 msgid ""
@@ -189,11 +191,11 @@ msgstr ""
 
 #: src/minitickets/forms.py:30
 msgid "A user with that username already exists."
-msgstr ""
+msgstr "Um usuario com esse nome já exite."
 
 #: src/minitickets/forms.py:31
 msgid "The two password fields didn't match."
-msgstr ""
+msgstr "Os dois campos de senha não combinam."
 
 #: src/minitickets/forms.py:34
 msgid "Username"
@@ -201,19 +203,19 @@ msgstr "Usuário"
 
 #: src/minitickets/forms.py:36
 msgid "Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only."
-msgstr ""
+msgstr "São requeridos trinta caracteres ou menos. Apenas letras, digitos e @/./+/-/_."
 
 #: src/minitickets/forms.py:39
 msgid "This value may contain only letters, numbers and @/./+/-/_ characters."
-msgstr ""
+msgstr "Este campo pode conter apenas letras numeros e @/./+/-/_"
 
 #: src/minitickets/forms.py:44
 msgid "Password"
-msgstr ""
+msgstr "Senha"
 
 #: src/minitickets/forms.py:45
 msgid "Password confirmation"
-msgstr ""
+msgstr "Confrime a senha"
 
 #: src/minitickets/templates/minitickets/ticket_detail.html:46
 #: src/minitickets/templates/minitickets/ticket_detail.html:81
@@ -221,23 +223,23 @@ msgstr ""
 #: src/minitickets/templates/minitickets/ticket_detail.html:113
 #: src/minitickets/templates/minitickets/ticket_detail.html:129
 msgid "now"
-msgstr ""
+msgstr "agora"
 
 #: src/minitickets/templates/minitickets/ticket_detail.html:153
 msgid "Back to Tickets"
-msgstr ""
+msgstr "Retornar aos Tickets"
 
 #: src/minitickets/templates/minitickets/ticket_detail.html:164
 msgid "Close Ticket"
-msgstr ""
+msgstr "Fechar Ticket"
 
 #: src/minitickets/templates/minitickets/ticket_detail.html:170
 msgid "Reopen Ticket"
-msgstr ""
+msgstr "Reabrir Ticket"
 
 #: src/minitickets/templates/minitickets/ticket_detail.html:176
 msgid "Release Ticket"
-msgstr ""
+msgstr "Liberar Ticket"
 
 #: src/minitickets/templates/minitickets/ticket_detail.html:182
 #: src/minitickets/templates/minitickets/ticket_list.html:321
@@ -320,6 +322,11 @@ msgid ""
 "        </span>\n"
 "        "
 msgstr ""
+"\n"
+"        <span style=\"line-height: 30px; \">\n"
+"            <strong>%(count)s</strong> de <strong>%(total)s</strong>\n"
+"        </span>\n"
+"        "
 
 #: src/minitickets/templates/minitickets/ticket_list.html:346
 msgid "No records found!"
@@ -331,7 +338,7 @@ msgstr "Bem Vindo(a),"
 
 #: templates/base.html:37
 msgid "Logout"
-msgstr ""
+msgstr "Sair"
 
 #: templates/forms/form.html:48
 msgid "Submit"
@@ -351,26 +358,25 @@ msgstr "Adicionar"
 
 #: templates/registration/logged_out.html:50
 msgid "Logout succefully!"
-msgstr ""
+msgstr "Desconectado com sucesso!"
 
 #: templates/registration/logged_out.html:51
 msgid "Login again"
-msgstr ""
+msgstr "Entrar novamente"
 
 #: templates/registration/login.html:59
-msgid "Sign In"
-msgstr ""
+#: templates/registration/login.html:97
+msgid "Sign in"
+msgstr "Entrar"
 
 #: templates/registration/login.html:71
 msgid "Forgot password?"
-msgstr ""
+msgstr "Esqueceu a senha?"
 
 #: templates/registration/login.html:86
 msgid ""
 "Please enter a correct username and password. Note that both fields may be "
 "case-sensitive."
 msgstr ""
-
-#: templates/registration/login.html:97
-msgid "Sign in"
-msgstr ""
+"Por favor incira um nome e senha validos. Cheque se ha letras maiúsculas ou minúsculas em "
+"ambos os casos "
