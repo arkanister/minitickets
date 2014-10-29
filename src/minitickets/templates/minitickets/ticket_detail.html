@@ -17,6 +17,9 @@
 <script src="{% static 'js/plugin/x-editable/moment.min.js' %}"></script>
 <script src="{% static 'js/plugin/x-editable/jquery.mockjax.min.js' %}"></script>
 <script src="{% static 'js/plugin/x-editable/x-editable.min.js' %}"></script>
+
+<!-- EASY PIE CHARTS -->
+<script src="{% static 'js/plugin/easy-pie-chart/jquery.easy-pie-chart.min.js' %}"></script>
 {% endblock scripts %}
 
 {% block scripts.inline %}
@@ -130,6 +133,24 @@ $(function () {
         });
         return false;
     });
+
+
+    $("#id_analista_chart").easyPieChart({
+        barColor : '#A8829F',
+        lineCap : 'butt',
+        lineWidth : 12,
+        animate : 1500,
+        rotate : -90
+    });
+
+    $("#id_desenvolvedor_chart").easyPieChart({
+        barColor : '#57889C',
+        lineCap : 'butt',
+        lineWidth : 12,
+        animate : 1500,
+        rotate : -90
+    });
+
 });
 </script>
 {% endblock scripts.inline %}
@@ -234,7 +255,50 @@ $(function () {
 
     <div class="table-wrap ticket-detail animated fast fadeInRight no-padding-top" style="min-height: 410px; opacity: 1;">
 
-        <div class="email-infobox no-border-top" style="border-bottom: 0; top: 0;"> </div>
+        <div class="email-infobox no-border-top" style="border-bottom: 0; top: 0;">
+
+            <div class="well well-sm well-light">
+
+                <h5 class="uppercase">Analista</h5>
+
+                <center>
+
+                    <div id="id_analista_chart" class="txt-color-red" data-percent="{{ tempo.analista.percent }}" data-size="120">
+                        <span class="txt-color-blueDark bigger-140 semi-bold">{{ tempo.analista.total|floatformat:"1" }}h</span>
+                    </div>
+
+                </center>
+
+            </div>
+
+            {% if ticket.desenvolvedor %}
+            <div class="well well-sm well-light">
+
+                <h5 class="uppercase">Desenvolvedor</h5>
+
+                <center>
+
+                    <div id="id_desenvolvedor_chart" class="txt-color-red" data-percent="{{ tempo.desenvolvedor.percent }}" data-size="120">
+                        <span class="txt-color-blueDark bigger-140 semi-bold">{{ tempo.desenvolvedor.total|floatformat:"1" }}h</span>
+                    </div>
+
+                </center>
+
+            </div>
+            {% endif %}
+
+            <div class="well well-sm well-light">
+                <h5 class="uppercase">Total</h5>
+
+                <p class="align-center bigger-140">
+
+                    {% icon 'clock-o' %} {{ tempo.total|floatformat:"1" }}h
+
+                </p>
+
+            </div>
+
+        </div>
 
         <div class="inbox-info-bar">
 
