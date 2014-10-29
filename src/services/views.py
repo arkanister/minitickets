@@ -10,9 +10,9 @@ from src.services.serializers import TicketSerializer, TicketCreateSerializer
 
 
 # Test With:
-#    AccessToken ZG3D62R5R&1
-#    MD5: Xv7JJZaiHecX2HCOen/ung==
-#    MD5 Uri: Xv7JJZaiHecX2HCOen==bar==ung==
+#    AccessToken u'G7WEBRRCU&1'
+#    MD5: bis+eVFKK5xipGK4+fzxOw==
+#    MD5 Uri: bis+eVFKK5xipGK4+fzxOw==/tickets/
 #    TODO: make a test
 
 
