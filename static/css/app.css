@@ -178,3 +178,5 @@
     height: 50px;
     -moz-transition: all 0.1s ease-out;
 }
+
+.uppercase { text-transform: uppercase; }

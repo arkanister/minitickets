@@ -141,11 +141,26 @@ class TicketDetailView(DetailView):
         context = super(TicketDetailView, self).get_context_data(**kwargs)
         context['desenvolvedores'] = Funcionario.objects.filter(cargo=2, situacao=1)
         tempo = TempoTicket.objects.filter(ticket=self.object, funcionario=self.request.user, data_termino__isnull=True)
+
         if tempo.exists():
             context['has_started'] = True
 
-        for t in self.object.tempoticket_set.all():
-            print t.as_seconds()
+        # retorna as horas trabalhadas por cada analista e desenvolvedor
+        analista_tempo = sum([t.as_hours() for t in self.object.tempoticket_set.filter(funcionario__cargo=1)])
+        desenvolvedor_tempo = sum([t.as_hours() for t in self.object.tempoticket_set.filter(funcionario__cargo=2)])
+        total_tempo = analista_tempo + desenvolvedor_tempo
+
+        context['tempo'] = {
+            "analista": {
+                "percent": (analista_tempo * 100) / total_tempo if total_tempo > 0 else 0,
+                "total": analista_tempo
+            },
+            "desenvolvedor": {
+                "percent": (desenvolvedor_tempo * 100) / total_tempo if total_tempo > 0 else 0,
+                "total": desenvolvedor_tempo
+            },
+            "total": total_tempo
+        }
 
         return context
 

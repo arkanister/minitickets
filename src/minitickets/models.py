@@ -270,5 +270,15 @@ class TempoTicket(models.Model):
     objects = TempoTicketManager()
 
     def as_seconds(self):
-        return (self.data_termino - self.data_inicio).total_seconds()
+        if not self.data_termino:
+            return 0
+
+        seconds = (self.data_termino - self.data_inicio).total_seconds()
+        return round(seconds, 0) if seconds > 0 else 0
+
+    def as_minutes(self):
+        return round(self.as_seconds() / 60, 2)
+
+    def as_hours(self):
+        return round(self.as_minutes() / 60, 2)
 # </editor-fold>

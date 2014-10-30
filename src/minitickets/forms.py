@@ -99,14 +99,20 @@ class FuncionarioCreateForm(forms.ModelForm):
 
 
 class FuncionarioUpdateForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FuncionarioUpdateForm, self).__init__(*args, **kwargs)
+        opts = getattr(self._meta.model, '_meta')
+        self.fields['cargo'].choices = opts.get_field('cargo').choices
+
     class Meta:
         model = Funcionario
         widgets = {
             'nome': forms.TextInput(attrs={"size": 40}),
             'cpf': forms.TextInput(attrs={"data-input-mask": 'cpf'}),
-            'email': forms_utils.EmailIconInput()
+            'email': forms_utils.EmailIconInput(),
+            'cargo': forms_utils.InlineRadioSelect
         }
-        fields = ['nome', 'email', 'cpf', 'rg', 'situacao']
+        fields = ['nome', 'email', 'cpf', 'rg', 'cargo', 'situacao']
 # </editor-fold>
 
 
