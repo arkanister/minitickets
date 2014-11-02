@@ -2,16 +2,13 @@
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db.models import Q
-from django.shortcuts import render
-from django.template import loader
 from django.utils import timezone
-from django.views.generic.base import View as DjangoView, TemplateResponseMixin
-from django.views.generic.detail import SingleObjectMixin
-from django.views.generic.edit import FormMixin
+from django.views.generic.base import View as DjangoView
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from lib.utils.views.base import SmartView as View, TemplateSmartView as TemplateView
 from lib.utils.views.detail import DetailView
-from lib.utils.views.edit import CreateView, UpdateView, DeleteView, ProcessFormView
+from lib.utils.views.edit import CreateView, UpdateView, DeleteView
 from lib.utils.views.tables import SingleTableView as ListView
 from lib.utils.views.utils import JsonResponse
 from src.minitickets.forms import FuncionarioCreateForm, FuncionarioUpdateForm, ProdutoForm, \
@@ -23,7 +20,24 @@ from src.minitickets.tables import FuncionarioTable, ProdutoTable, ClienteTable
 class HomeView(TemplateView):
     template_name = 'home.html'
     breadcrumbs = False
-    title = 'Home Page!'
+    title = False
+
+    def get_tickets(self):
+        if self.request.user.cargo == 1:
+            return Ticket.objects.filter(
+                situacao__in=[1, 3],
+                analista=self.request.user.pk)
+
+    def get_context_data(self, **kwargs):
+        context = super(HomeView, self).get_context_data(**kwargs)
+
+        # get 5 tickets to home page
+        context['tickets'] = self.get_tickets()[:5]
+        context['activities'] = self.request.user.historicoticket_set.filter(tipo__in=[1, 3])[:10]
+
+        return context
+
+
 
 
 # <editor-fold desc="Funcionario">
@@ -140,8 +154,24 @@ class TicketDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(TicketDetailView, self).get_context_data(**kwargs)
         context['desenvolvedores'] = Funcionario.objects.filter(cargo=2, situacao=1)
-        tempo = TempoTicket.objects.filter(ticket=self.object, funcionario=self.request.user, data_termino__isnull=True)
 
+        # paginator
+        historicos_paginator = Paginator(self.object.historicoticket_set.all(), 10)
+        historicos_page_number = self.request.GET.get('page', None)
+        historicos_page_number = int(historicos_page_number or 1)
+        context['paginator'] = historicos_paginator
+
+        try:
+            context['historicos'] = historicos_paginator.page(historicos_page_number)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            context['historicos'] = historicos_paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            context['historicos'] = historicos_paginator.page(historicos_paginator.num_pages)
+
+        # tempo
+        tempo = TempoTicket.objects.filter(ticket=self.object, funcionario=self.request.user, data_termino__isnull=True)
         if tempo.exists():
             context['has_started'] = True
 
@@ -279,6 +309,8 @@ class TicketDesenvolvedorUpdateView(UpdateView):
     model = Ticket
     fields = ['desenvolvedor']
 
+    success_message = u"[icon:check] Ticket <b>[titulo]</b> repassado para <b>[desenvolvedor]</b> com sucesso!"
+
     def get_form_kwargs(self):
         kwargs = super(TicketDesenvolvedorUpdateView, self).get_form_kwargs()
         data = {'desenvolvedor': self.request.POST.get('value')}
@@ -291,13 +323,24 @@ class TicketDesenvolvedorUpdateView(UpdateView):
         form.fields['desenvolvedor'].queryset = Funcionario.objects.filter(cargo=2, situacao=1)
         return form
 
+    def get_success_url(self):
+        return reverse("minitickets:list-ticket")
+
     def form_valid(self, form):
         self.object = form.save()
-        history = HistoricoTicket.objects.create_historico(
+
+        user_tempo_ticket = self.request.user.tempoticket_set.filter(data_termino__isnull=True)
+        if user_tempo_ticket.exists():
+            user_tempo_ticket = user_tempo_ticket.get()
+            TempoTicket.objects.pause(user_tempo_ticket)
+
+        HistoricoTicket.objects.create_historico(
             ticket=self.object,
             conteudo="%s repassou o ticket para %s." % (unicode(self.request.user), unicode(self.object.desenvolvedor))
         )
-        return JsonResponse({'historico': history.render()})
+
+        self.messages.success(self.get_message("success"))
+        return JsonResponse({'redirect_to': self.get_success_url()})
 
     def form_invalid(self, form):
         error = form.errors['desenvolvedor'][0]
@@ -350,6 +393,11 @@ class TicketReOpenUpdateView(UpdateView):
         self.object.situacao = 1
         self.object.save()
 
+        user_tempo_ticket = self.request.user.tempoticket_set.filter(data_termino__isnull=True)
+        if user_tempo_ticket.exists():
+            user_tempo_ticket = user_tempo_ticket.get()
+            TempoTicket.objects.pause(user_tempo_ticket)
+
         HistoricoTicket.objects.create_historico(
             criado_por=self.request.user,
             ticket=self.object,
@@ -385,6 +433,11 @@ class TicketReleaseUpdateView(UpdateView):
         self.object.situacao = 3
         self.object.save()
 
+        user_tempo_ticket = self.request.user.tempoticket_set.filter(data_termino__isnull=True)
+        if user_tempo_ticket.exists():
+            user_tempo_ticket = user_tempo_ticket.get()
+            TempoTicket.objects.pause(user_tempo_ticket)
+
         HistoricoTicket.objects.create_historico(
             criado_por=self.request.user,
             ticket=self.object,
@@ -418,6 +471,11 @@ class TicketEncerrarUpdateView(UpdateView):
         self.object.data_fechamento = timezone.now()
         self.object.situacao = 2
         self.object.save()
+
+        user_tempo_ticket = self.request.user.tempoticket_set.filter(data_termino__isnull=True)
+        if user_tempo_ticket.exists():
+            user_tempo_ticket = user_tempo_ticket.get()
+            TempoTicket.objects.pause(user_tempo_ticket)
 
         HistoricoTicket.objects.create_historico(
             ticket=self.object,

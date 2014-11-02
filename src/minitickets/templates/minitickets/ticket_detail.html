@@ -45,7 +45,7 @@ $(function () {
             }
         },
         success: function (data) {
-            $('#id_historicos').prepend(data.historico);
+            window.location = data.redirect_to;
         }
     });
 
@@ -331,7 +331,7 @@ $(function () {
                                     {{ ticket.cliente.nome_fantasia }}
 
                                     <div>
-                                        <a class="smaller-90 popover-html popover-right cursor-pointer" data-container="body" data-target="#cliente-details" rel="popover">More Details</a>
+                                        <a class="smaller-90 popover-html popover-right cursor-pointer" data-container="body" data-target="#cliente-details" rel="popover">{% trans 'More Details' %}</a>
 
                                         <div id="cliente-details" class="hide">
                                             {% with ticket.cliente as cliente %}
@@ -342,12 +342,14 @@ $(function () {
                                             </h3>
 
                                             <ul class="list-unstyled">
+                                                {% if cliente.telefone %}
                                                 <li>
                                                     <p class="text-muted">
                                                         <i class="fa fa-phone"></i>
                                                         <span class="txt-color-darken">{{ cliente.telefone }}</span>
                                                     </p>
                                                 </li>
+                                                {% endif %}
 
                                                 <li>
                                                     <p class="text-muted">
@@ -520,27 +522,79 @@ $(function () {
             <div class="space-6"></div>
             {% endif %}
 
-            <div class="space-10"></div>
+            <ul class="pagination pull-right">
+
+                <li {% if not historicos.has_previous %}class="disabled"{% endif %}>
+                    {% if historicos.has_previous %}
+                        <a href="?page={{ historicos.previous_page_number }}">{% icon 'angle-left' %}</a>
+                    {% else %}
+                        <a>{% icon 'angle-left' %}</a>
+                    {% endif %}
+                </li>
+
+                <li>
+                    <a>
+                        {% blocktrans with historicos.number as number and historicos.paginator.num_pages as num_pages %}
+                            Page {{ number }} of {{ num_pages }}
+                        {% endblocktrans %}
+                    </a>
+                </li>
+
+
+                <li {% if not historicos.has_next %}class="disabled"{% endif %}>
+                    {% if historicos.has_next %}
+                        <a href="?page={{ historicos.next_page_number }}">{% icon 'angle-right' %}</a>
+                    {% else %}
+                        <a>{% icon 'angle-right' %}</a>
+                    {% endif %}
+                </li>
+
+            </ul>
 
             <table class="table table-striped table-forum">
                 <tbody id="id_historicos">
-                    {% for history in ticket.historicoticket_set.all %}
+                    {% for history in historicos %}
                         {{ history.render|safe }}
+                    {% empty %}
+                        <tr>
+                            <td class="align-center">
+                                <span class="text-muted bigger-120">{% trans 'No records found!' %}</span>
+                            </td>
+                        </tr>
+                        <tr><td></td></tr>
                     {% endfor %}
                 </tbody>
             </table>
 
-            <div id="chat-body" class="chat-body ticket-history">
-                    <li class="message">
+            <ul class="pagination pull-right no-margin">
+
+                <li {% if not historicos.has_previous %}class="disabled"{% endif %}>
+                    {% if historicos.has_previous %}
+                        <a href="?page={{ historicos.previous_page_number }}">{% icon 'angle-left' %}</a>
+                    {% else %}
+                        <a>{% icon 'angle-left' %}</a>
+                    {% endif %}
+                </li>
+
+                <li>
+                    <a>
+                        {% blocktrans with historicos.number as number and historicos.paginator.num_pages as num_pages %}
+                            Page {{ number }} of {{ num_pages }}
+                        {% endblocktrans %}
+                    </a>
+                </li>
 
 
-                        <div class="message-text">
+                <li {% if not historicos.has_next %}class="disabled"{% endif %}>
+                    {% if historicos.has_next %}
+                        <a href="?page={{ historicos.next_page_number }}">{% icon 'angle-right' %}</a>
+                    {% else %}
+                        <a>{% icon 'angle-right' %}</a>
+                    {% endif %}
+                </li>
 
+            </ul>
 
-                        </div>
-                    </li>
-
-                </ul>
             </div>
 
         </div>
