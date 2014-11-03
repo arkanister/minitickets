@@ -23,10 +23,20 @@ class HomeView(TemplateView):
     title = False
 
     def get_tickets(self):
+        queryset = Ticket.objects.all()
         if self.request.user.cargo == 1:
-            return Ticket.objects.filter(
+            queryset = queryset.filter(
                 situacao__in=[1, 3],
                 analista=self.request.user.pk)
+        elif self.request.user.cargo == 2:
+            queryset = queryset.filter(
+                situacao=1,
+                desenvolvedor=self.request.user.pk)
+        elif self.request.user.cargo == 3:
+            queryset = queryset.filter(
+                situacao=1,
+                analista__isnull=True)
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super(HomeView, self).get_context_data(**kwargs)
@@ -35,6 +45,13 @@ class HomeView(TemplateView):
         context['tickets'] = self.get_tickets()[:5]
         context['activities'] = self.request.user.historicoticket_set.filter(tipo__in=[1, 3])[:10]
 
+        if self.request.user.cargo == 3:
+            context['resumo'] = {
+                'funcionarios': Funcionario.objects.filter(situacao=1).count(),
+                'clientes': Cliente.objects.filter(situacao=1).count(),
+                'produtos': Produto.objects.filter(situacao=1).count(),
+                'tickets': Ticket.objects.filter(situacao__in=[1, 3]).count()   
+            }
         return context
 
 

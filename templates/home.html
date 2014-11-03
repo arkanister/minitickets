@@ -5,117 +5,224 @@
 {% load lpad from utils %}
 
 {% block content %}
-<div class="jarviswidget jarviswidget-color-blueDark jarviswidget-sortable" role="widget">
-    <header role="heading">
-        <span class="widget-icon">
-            <i class="fa fa-ticket"></i>
-        </span>
-        <h2>Tickets</h2>
-    </header>
-    <div role="content">
-        <div class="widget-body no-padding">
+{% if user.cargo == 3 %}
+<div class="row">
 
-            <div class="table-responsive">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th width="60px"></th>
-                            <th>Cliente</th>
-                            <th>Titulo</th>
-                            <th width="100px">Situação</th>
-                            <th width="60px"></th>
-                        </tr>
-                    </thead>
+    <div class="col-sm-3">
 
-                    <tbody>
-                        {% for ticket in tickets %}
-                        <tr>
-                            <td class="align-center">{{ ticket.id|lpad:'5' }}</td>
-                            <td>{{ ticket.cliente }}</td>
-                            <td>{{ ticket.titulo }}</td>
-                            <td class="align-center">
-                                {% if ticket.situacao == 1 %}
-                                <span class="badge bg-color-blue">{{ ticket.get_situacao_display }}</span>
-                                {% elif ticket.situacao == 2 %}
-                                <span class="badge bg-color-green">{{ ticket.get_situacao_display }}</span>
-                                {% endif %}
-                            </td>
-                            <td class="no-padding-bottom align-center">
-                                <a href="{% url 'minitickets:detail-ticket' pk=ticket.id %}" class="btn btn-default btn-xs" rel="tooltip" data-original-title="{% trans 'Show details' %}">
-                                    {% icon 'search-plus' %}
-                                </a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="2" class="no-padding">
-                                <div class="well bigger-160 align-center no-border">
-                                    <p class="text-muted no-margin">{% trans 'No records found!' %}</p>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+        <div class="jarviswidget jarviswidget-color-blueDark jarviswidget-sortable" role="widget">
 
-            <div class="widget-body-toolbar">
-                <div class="row">
-                    <div class="col-xs-9 col-sm-5 col-md-5 col-lg-5"></div>
-                    <div class="col-xs-3 col-sm-7 col-md-7 col-lg-7 text-right">
-                        <a href="{% url 'minitickets:list-ticket' %}" rel="tooltip" data-original-title="{% trans 'Show all' %}" class="btn btn-default">
-                            <i class="fa fa-search-plus"></i>
-                            <span class="hidden-mobile">{% trans 'Show all' %}</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
+            <header role="heading">
+                <span class="widget-icon">
+                    <i class="fa fa-ticket"></i>
+                </span>
+
+                <h2>Tickets</h2>
+
+                <span class="widget-toolbar">
+                    <a href="{% url 'minitickets:list-ticket' %}">
+                        {{ resumo.tickets|lpad:2 }}
+                    </a>
+                </span>
+            </header>
 
         </div>
-    </div>
-</div>
 
-<div class="jarviswidget jarviswidget-color-blueDark jarviswidget-sortable" role="widget">
-    <header role="heading">
+    </div>
+
+    <div class="col-sm-3">
+
+        <div class="jarviswidget jarviswidget-color-blueDark jarviswidget-sortable" role="widget">
+
+            <header role="heading">
+                <span class="widget-icon">
+                    <i class="fa fa-building-o"></i>
+                </span>
+
+                <h2>Clientes</h2>
+
+                <span class="widget-toolbar">
+                    <a href="{% url 'minitickets:list-cliente' %}">
+                        {{ resumo.clientes|lpad:2 }}
+                    </a>
+                </span>
+            </header>
+
+        </div>
+
+    </div>
+
+    <div class="col-sm-3">
+
+        <div class="jarviswidget jarviswidget-color-blueDark jarviswidget-sortable" role="widget">
+
+            <header role="heading">
+                <span class="widget-icon">
+                    <i class="fa fa-user"></i>
+                </span>
+
+                <h2>Funcionários</h2>
+
+                <span class="widget-toolbar">
+                    <a href="{% url 'minitickets:list-funcionario' %}">
+                        {{ resumo.funcionarios|lpad:2 }}
+                    </a>
+                </span>
+            </header>
+
+        </div>
+
+    </div>
+
+    <div class="col-sm-3">
+
+        <div class="jarviswidget jarviswidget-color-blueDark jarviswidget-sortable" role="widget">
+
+            <header role="heading">
+                <span class="widget-icon">
+                    <i class="fa fa-puzzle-piece"></i>
+                </span>
+
+                <h2>Produtos</h2>
+
+                <span class="widget-toolbar">
+
+                    <a href="{% url 'minitickets:list-produto' %}">
+                        {{ resumo.produtos|lpad:2 }}
+                    </a>
+
+                </span>
+            </header>
+
+        </div>
+
+    </div>
+
+</div>
+{% endif %}
+
+
+<div class="row">
+
+    <div class="col-sm-12">
+
+        <div class="jarviswidget jarviswidget-color-blueDark jarviswidget-sortable" role="widget">
+            <header role="heading">
+                <span class="widget-icon">
+                    <i class="fa fa-ticket"></i>
+                </span>
+                <h2>Tickets</h2>
+            </header>
+            <div role="content">
+                <div class="widget-body no-padding">
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                            <tr>
+                                <th width="60px"></th>
+                                <th>Cliente</th>
+                                <th>Titulo</th>
+                                <th width="100px">Situação</th>
+                                <th width="60px"></th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            {% for ticket in tickets %}
+                                <tr>
+                                    <td class="align-center">{{ ticket.id|lpad:'5' }}</td>
+                                    <td>{{ ticket.cliente }}</td>
+                                    <td>{{ ticket.titulo }}</td>
+                                    <td class="align-center">
+                                        {% if ticket.situacao == 1 %}
+                                            <span class="badge bg-color-blue">{{ ticket.get_situacao_display }}</span>
+                                        {% elif ticket.situacao == 2 %}
+                                            <span class="badge bg-color-green">{{ ticket.get_situacao_display }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="no-padding-bottom align-center">
+                                        <a href="{% url 'minitickets:detail-ticket' pk=ticket.id %}" class="btn btn-default btn-xs" rel="tooltip" data-original-title="{% trans 'Show details' %}">
+                                            {% icon 'search-plus' %}
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="5" class="no-padding">
+                                        <div class="well bigger-160 align-center no-border">
+                                            <p class="text-muted no-margin">{% trans 'No records found!' %}</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="widget-body-toolbar">
+                        <div class="row">
+                            <div class="col-xs-9 col-sm-5 col-md-5 col-lg-5"></div>
+                            <div class="col-xs-3 col-sm-7 col-md-7 col-lg-7 text-right">
+                                <a href="{% url 'minitickets:list-ticket' %}" rel="tooltip" data-original-title="{% trans 'Show all' %}" class="btn btn-default">
+                                    <i class="fa fa-search-plus"></i>
+                                    <span class="hidden-mobile">{% trans 'Show all' %}</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        {% if not user.cargo == 3 %}
+        <div class="jarviswidget jarviswidget-color-blueDark jarviswidget-sortable" role="widget">
+            <header role="heading">
         <span class="widget-icon">
             <i class="fa fa-rss"></i>
         </span>
-        <h2>Atividades recentes</h2>
-    </header>
-    <div role="content">
-        <div class="widget-body no-padding">
+                <h2>Atividades recentes</h2>
+            </header>
+            <div role="content">
+                <div class="widget-body no-padding">
 
-            <div class="table-responsive">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th width="60px">Ticket</th>
-                            <th width="120px">Data</th>
-                            <th></th>
-                        </tr>
-                    </thead>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                            <tr>
+                                <th width="60px">Ticket</th>
+                                <th width="120px">Data</th>
+                                <th></th>
+                            </tr>
+                            </thead>
 
-                    <tbody>
-                        {% for activity in activities %}
-                        <tr>
-                            <td class="align-center">{{ activity.ticket.id|lpad:'5' }}</td>
-                            <td class="align-center">{{ activity.data_cadastro|date:'d/m/Y H:i' }}</td>
-                            <td>{{ activity.conteudo }}</td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="3" class="no-padding">
-                                <div class="well bigger-160 align-center no-border">
-                                    <p class="text-muted no-margin">{% trans 'No records found!' %}</p>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                            <tbody>
+                            {% for activity in activities %}
+                                <tr>
+                                    <td class="align-center">{{ activity.ticket.id|lpad:'5' }}</td>
+                                    <td class="align-center">{{ activity.data_cadastro|date:'d/m/Y H:i' }}</td>
+                                    <td>{{ activity.conteudo }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="3" class="no-padding">
+                                        <div class="well bigger-160 align-center no-border">
+                                            <p class="text-muted no-margin">{% trans 'No records found!' %}</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
             </div>
-
         </div>
+        {% endif %}
+
     </div>
+
 </div>
 {% endblock content %}

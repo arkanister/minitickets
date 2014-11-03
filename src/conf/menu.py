@@ -25,10 +25,12 @@ MAIN_NAV = [{
     }, {
         "verbose_name": u"Produto",
         "action": "minitickets:list-produto",
+        "icon": "puzzle-piece",
         "permissions": ["minitickets.view_produto"],
         "pattern": r"^/produtos/",
     }, {
         "verbose_name": u"Funcionário",
+        "icon": "user",
         "action": "minitickets:list-funcionario",
         "permissions": ["minitickets.view_funcionario"],
         "pattern": r"^/funcionarios/",
