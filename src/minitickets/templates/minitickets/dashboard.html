@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load static from staticfiles %}
+
+{% block scripts %}
+    <script src="{% static 'js/plugin/morris/raphael.min.js' %}"></script>
+    <script src="{% static 'js/plugin/morris/morris.min.js' %}"></script>
+{% endblock scripts %}
+
+{% block scripts.inline %}
+<script type="text/javascript">
+
+    Morris.Bar({
+        element : 'chart-ticket-fechado',
+        data : {{ chart_tickets_fechados.json|safe }},
+        xkey : 'name',
+        ykeys : ['total'],
+        labels : ['Total']
+    });
+
+</script>
+{% endblock scripts.inline %}
+
+{% block content %}
+
+<div class="row">
+
+    <div class="col-sm-6">
+
+        <div class="jarviswidget" id="wid-id-3" data-widget-editbutton="false">
+
+            <header>
+                <span class="widget-icon"> <i class="fa fa-bar-chart-o"></i> </span>
+                <h2>Total de Tickets Fechados por analista <small>{{ TODAY|date:'F/Y' }}</small></h2>
+            </header>
+
+            <!-- widget div-->
+            <div>
+
+                <!-- widget content -->
+                <div class="widget-body no-padding">
+
+                    <div id="chart-ticket-fechado" class="chart no-padding"></div>
+
+                </div>
+                <!-- end widget content -->
+
+            </div>
+            <!-- end widget div -->
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock content %}

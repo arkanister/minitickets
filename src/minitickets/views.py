@@ -1,7 +1,10 @@
 # coding: utf-8
+import json
+import datetime
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db.models import Q
+from django.db.models.aggregates import Count
 from django.utils import timezone
 from django.views.generic.base import View as DjangoView
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -50,12 +53,46 @@ class HomeView(TemplateView):
                 'funcionarios': Funcionario.objects.filter(situacao=1).count(),
                 'clientes': Cliente.objects.filter(situacao=1).count(),
                 'produtos': Produto.objects.filter(situacao=1).count(),
-                'tickets': Ticket.objects.filter(situacao__in=[1, 3]).count()   
+                'tickets': Ticket.objects.filter(situacao__in=[1, 3]).count()
             }
         return context
 
 
+class DashboardView(TemplateView):
+    template_name = "minitickets/dashboard.html"
+    title = "DashBoard"
 
+    def get_context_data(self, **kwargs):
+        context = super(DashboardView, self).get_context_data(**kwargs)
+
+        today = timezone.now().date()
+        month_first_date = datetime.date(today.year, today.month, 1)
+
+        queryset = Funcionario.objects.values('nome').annotate(Count('analista__id'))
+
+        print queryset.filter(cargo=1, analista__data_fechamento__range=[month_first_date, today]).query
+
+
+        analistas = list(Ticket.objects.filter(
+            data_fechamento__range=[month_first_date, today],
+            situacao=2
+        ).values('analista', 'analista__nome').annotate(Count('id')))
+
+        # analistas += [{
+        #     "analista__nome": analista.nome,
+        #     "id__count": 0} for analista in Funcionario.objects.filter(cargo=1, situacao=1).exclude(
+        #     pk__in=[analista['analista'] for analista in analistas])]
+
+        chart_tickets_fechados = {
+            'funcionarios': [{
+                 'name': analista['analista__nome'],
+                 'total': analista['id__count']
+             } for analista in analistas]
+        }
+        chart_tickets_fechados['json'] = json.dumps(chart_tickets_fechados['funcionarios'])
+
+        context['chart_tickets_fechados'] = chart_tickets_fechados
+        return context
 
 # <editor-fold desc="Funcionario">
 class FuncionarioCreateView(CreateView):

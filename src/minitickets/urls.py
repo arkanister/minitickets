@@ -7,7 +7,7 @@ from src.minitickets.views import FuncionarioCreateView, FuncionarioUpdateView,\
     ClienteListView, ClienteUpdateView, ClienteDeleteView, ClienteCreateView, TicketCreateView, \
     TicketListView, ClienteAutoCompleteView, TicketDetailView, TicketDesenvolvedorUpdateView, TicketTipoUpdateView, \
     HistoricoTicketCreateView, TempoTicketCreateView, TempoTicketPauseView, TicketEncerrarUpdateView, \
-    TicketAnalistaUpdateView, TicketReleaseUpdateView, TicketReOpenUpdateView
+    TicketAnalistaUpdateView, TicketReleaseUpdateView, TicketReOpenUpdateView, DashboardView
 
 urlpatterns = patterns('src.minitickets.views',
     # <editor-fold desc="Funcionário">
@@ -51,5 +51,9 @@ urlpatterns = patterns('src.minitickets.views',
     # <editor-fold desc="TimeTicket">
     url(r'^time/ticket/add/(?P<ticket>\d+)/$', TempoTicketCreateView.as_view(), name='add-tempoticket'),
     url(r'^time/ticket/pause/(?P<ticket>\d+)/$', TempoTicketPauseView.as_view(), name='pause-tempoticket'),
+    # </editor-fold>
+
+    # <editor-fold desc="DashBoard">
+    url(r'^dashboard/$', DashboardView.as_view(), name='dashboard'),
     # </editor-fold>
 )
