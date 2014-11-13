@@ -62,36 +62,53 @@ class DashboardView(TemplateView):
     template_name = "minitickets/dashboard.html"
     title = "DashBoard"
 
-    def get_context_data(self, **kwargs):
-        context = super(DashboardView, self).get_context_data(**kwargs)
-
+    def get_graph_by_analista(self):
         today = timezone.now().date()
         month_first_date = datetime.date(today.year, today.month, 1)
 
-        queryset = Funcionario.objects.values('nome').annotate(Count('analista__id'))
+        queryset = Funcionario.objects.values('nome').annotate(Count('analista__id')).extra(
+            where=["(minitickets_ticket.data_fechamento BETWEEN %s AND %s) OR (cargo = %s)"],
+            params=[month_first_date.strftime("%Y-%m-%d"), today.strftime("%Y-%m-%d"), "1"]
+        )
 
-        print queryset.filter(cargo=1, analista__data_fechamento__range=[month_first_date, today]).query
+        return [{
+            'name': analista['nome'],
+            'total': analista['analista__id__count']
+        } for analista in queryset]
 
+    def get_graph_by_hours(self):
+        today = timezone.now().date()
+        month_first_date = datetime.date(today.year, today.month, 1)
+        result = []
 
-        analistas = list(Ticket.objects.filter(
-            data_fechamento__range=[month_first_date, today],
-            situacao=2
-        ).values('analista', 'analista__nome').annotate(Count('id')))
+        for funcionario in Funcionario.objects.filter(cargo__in=[1, 2], situacao=1):
+            total = sum([t.as_hours() for t in TempoTicket.objects.filter(
+                funcionario=funcionario.pk,
+                data_termino__range=[month_first_date, today])])
+            result.append({
+                'total': "%.1f" % (round(total, 1),),
+                'name': funcionario.nome
+            })
+        return result
 
-        # analistas += [{
-        #     "analista__nome": analista.nome,
-        #     "id__count": 0} for analista in Funcionario.objects.filter(cargo=1, situacao=1).exclude(
-        #     pk__in=[analista['analista'] for analista in analistas])]
+    def get_context_data(self, **kwargs):
+        context = super(DashboardView, self).get_context_data(**kwargs)
 
+        # tickets fechados
+        funcionarios = self.get_graph_by_analista()
         chart_tickets_fechados = {
-            'funcionarios': [{
-                 'name': analista['analista__nome'],
-                 'total': analista['id__count']
-             } for analista in analistas]
+            "funcionarios": funcionarios,
+            "json": json.dumps(funcionarios)
         }
-        chart_tickets_fechados['json'] = json.dumps(chart_tickets_fechados['funcionarios'])
-
         context['chart_tickets_fechados'] = chart_tickets_fechados
+
+        # tempo por funcionario
+        funcionarios = self.get_graph_by_hours()
+        chart_tickets_by_hours = {
+            "funcionarios": funcionarios,
+            "json": json.dumps(funcionarios)
+        }
+        context['chart_tickets_by_hours'] = chart_tickets_by_hours
         return context
 
 # <editor-fold desc="Funcionario">

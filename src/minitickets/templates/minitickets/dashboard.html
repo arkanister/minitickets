@@ -17,6 +17,14 @@
         labels : ['Total']
     });
 
+    Morris.Bar({
+        element : 'chart-ticket-by-hours',
+        data : {{ chart_tickets_by_hours.json|safe }},
+        xkey : 'name',
+        ykeys : ['total'],
+        labels : ['Total']
+    });
+
 </script>
 {% endblock scripts.inline %}
 
@@ -26,11 +34,11 @@
 
     <div class="col-sm-6">
 
-        <div class="jarviswidget" id="wid-id-3" data-widget-editbutton="false">
+        <div class="jarviswidget">
 
             <header>
                 <span class="widget-icon"> <i class="fa fa-bar-chart-o"></i> </span>
-                <h2>Total de Tickets Fechados por analista <small>{{ TODAY|date:'F/Y' }}</small></h2>
+                <h2>Total de Tickets Fechados por Analista <small>{{ TODAY|date:'F/Y' }}</small></h2>
             </header>
 
             <!-- widget div-->
@@ -40,6 +48,33 @@
                 <div class="widget-body no-padding">
 
                     <div id="chart-ticket-fechado" class="chart no-padding"></div>
+
+                </div>
+                <!-- end widget content -->
+
+            </div>
+            <!-- end widget div -->
+
+        </div>
+
+    </div>
+
+    <div class="col-sm-6">
+
+        <div class="jarviswidget">
+
+            <header>
+                <span class="widget-icon"> <i class="fa fa-bar-chart-o"></i> </span>
+                <h2>Total de Horas Trabalhadas por Funcionário <small>{{ TODAY|date:'F/Y' }}</small></h2>
+            </header>
+
+            <!-- widget div-->
+            <div>
+
+                <!-- widget content -->
+                <div class="widget-body no-padding">
+
+                    <div id="chart-ticket-by-hours" class="chart no-padding"></div>
 
                 </div>
                 <!-- end widget content -->
