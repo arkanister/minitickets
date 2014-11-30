@@ -3,16 +3,22 @@
 from django.utils.translation import ugettext as _
 
 MAIN_NAV = [{
-   "verbose_name": _('Home'),
-   "action": "home",
-   "icon": "home",
-   "pattern": r"^/$",
-}, {
+       "verbose_name": _('Home'),
+       "action": "home",
+       "icon": "home",
+       "pattern": r"^/$",
+    }, {
+       "verbose_name": _('Dashboard'),
+       "action": "minitickets:dashboard",
+       "icon": "dashboard",
+       "permissions": ["minitickets.view_funcionario"],
+       "pattern": r"^/dashboard/",
+    }, {
         "verbose_name": u"Tickets",
         "action": "minitickets:list-ticket",
         "icon": "ticket",
         "permissions": ["minitickets.view_ticket"],
-        "pattern": r"^/tickets  /",
+        "pattern": r"^/tickets/",
     }, {
     "verbose_name": u"Cadastro",
     "icon": "edit",

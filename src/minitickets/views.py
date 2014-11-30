@@ -1,6 +1,7 @@
 # coding: utf-8
 import json
 import datetime
+from dateutil.relativedelta import relativedelta
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db.models import Q
@@ -62,13 +63,40 @@ class DashboardView(TemplateView):
     template_name = "minitickets/dashboard.html"
     title = "DashBoard"
 
-    def get_graph_by_analista(self):
+    MONTHS = (
+        (1, u"Janeiro"),
+        (2, u"Fevereiro"),
+        (3, u"Março"),
+        (4, u"Abril"),
+        (5, u"Maio"),
+        (6, u"Junho"),
+        (7, u"Julho"),
+        (8, u"Agosto"),
+        (9, u"Setembro"),
+        (10, u"Outubro"),
+        (11, u"Novembro"),
+        (12, u"Dezembro"),
+    )
+
+    def post(self, request, *args, **kwargs):
+        return super(DashboardView, self).get(request, *args, **kwargs)
+
+    def get_date_to_queryset(self):
         today = timezone.now().date()
-        month_first_date = datetime.date(today.year, today.month, 1)
+        selected_year = int(self.request.POST.get("year", today.year))
+        selected_month = int(self.request.POST.get("month", today.month))
+        return datetime.date(selected_year, selected_month, 1)
+
+    def get_graph_by_analista(self):
+        date = self.get_date_to_queryset()
+        end_selected_date = date + relativedelta(day=1, months=+1, days=-1)
 
         queryset = Funcionario.objects.values('nome').annotate(Count('analista__id')).extra(
-            where=["(minitickets_ticket.data_fechamento BETWEEN %s AND %s) OR (cargo = %s)"],
-            params=[month_first_date.strftime("%Y-%m-%d"), today.strftime("%Y-%m-%d"), "1"]
+            where=["(cargo = 1) AND (minitickets_ticket.data_fechamento BETWEEN %s AND %s)"],
+            params=[
+                date.strftime("%Y-%m-%d"),
+                end_selected_date.strftime("%Y-%m-%d"),
+            ]
         )
 
         return [{
@@ -77,14 +105,14 @@ class DashboardView(TemplateView):
         } for analista in queryset]
 
     def get_graph_by_hours(self):
-        today = timezone.now().date()
-        month_first_date = datetime.date(today.year, today.month, 1)
+        date = self.get_date_to_queryset()
+        end_selected_date = date + relativedelta(day=1, months=+1, days=-1)
         result = []
 
         for funcionario in Funcionario.objects.filter(cargo__in=[1, 2], situacao=1):
             total = sum([t.as_hours() for t in TempoTicket.objects.filter(
                 funcionario=funcionario.pk,
-                data_termino__range=[month_first_date, today])])
+                data_termino__range=[date, end_selected_date])])
             result.append({
                 'total': "%.1f" % (round(total, 1),),
                 'name': funcionario.nome
@@ -93,6 +121,14 @@ class DashboardView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(DashboardView, self).get_context_data(**kwargs)
+
+        today = timezone.now().date()
+
+        context["years"] = range(2000, today.year + 1)[::-1]
+        context["months"] = self.MONTHS
+
+        context["selected_year"] = int(self.request.POST.get("year", today.year))
+        context["selected_month"] = int(self.request.POST.get("month", today.month))
 
         # tickets fechados
         funcionarios = self.get_graph_by_analista()
