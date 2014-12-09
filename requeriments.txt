@@ -4,3 +4,4 @@ django-tables2
 python-dateutil
 django-markdown-deux
 south
+djangorestframework
